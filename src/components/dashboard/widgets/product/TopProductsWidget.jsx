@@ -45,7 +45,7 @@ const TopProductsWidget = ({ data, onNavigate, onProductClick }) => {
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-linear-to-br from-teal-500 to-teal-600 flex items-center justify-center">
               <TrendingUp size={16} className="text-white" />
             </div>
             <div>
@@ -131,7 +131,7 @@ const TopProductsWidget = ({ data, onNavigate, onProductClick }) => {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-linear-to-br from-teal-500 to-teal-600 flex items-center justify-center">
             <TrendingUp size={16} className="text-white" />
           </div>
           <div>
@@ -143,7 +143,7 @@ const TopProductsWidget = ({ data, onNavigate, onProductClick }) => {
         </div>
 
         {/* Toggle Buttons */}
-        <div className={`flex rounded-lg p-0.5 ${isDarkMode ? "bg-[#121418]" : "bg-gray-100"}`}>
+        <div className={`flex rounded-lg p-0.5 ${isDarkMode ? "bg-gray-900" : "bg-gray-100"}`}>
           {["revenue", "margin", "volume"].map((mode) => (
             <button
               type="button"
@@ -151,7 +151,7 @@ const TopProductsWidget = ({ data, onNavigate, onProductClick }) => {
               onClick={() => setViewMode(mode)}
               className={`px-2 py-1 text-xs font-medium rounded-md transition-all ${
                 viewMode === mode
-                  ? "bg-teal-500 text-white shadow-sm"
+                  ? "bg-teal-500 text-white shadow-xs"
                   : isDarkMode
                     ? "text-gray-400 hover:text-white"
                     : "text-gray-600 hover:text-gray-900"
@@ -199,14 +199,14 @@ const TopProductsWidget = ({ data, onNavigate, onProductClick }) => {
 
             {/* Progress Bar */}
             <div className="flex items-center gap-2">
-              <div className={`flex-1 h-2 rounded-full overflow-hidden ${isDarkMode ? "bg-[#121418]" : "bg-gray-100"}`}>
+              <div className={`flex-1 h-2 rounded-full overflow-hidden ${isDarkMode ? "bg-gray-900" : "bg-gray-100"}`}>
                 <div
                   className={`h-full rounded-full transition-all duration-500 ${
                     viewMode === "margin"
-                      ? "bg-gradient-to-r from-emerald-500 to-emerald-400"
+                      ? "bg-linear-to-r from-emerald-500 to-emerald-400"
                       : viewMode === "volume"
-                        ? "bg-gradient-to-r from-blue-500 to-blue-400"
-                        : "bg-gradient-to-r from-teal-500 to-teal-400"
+                        ? "bg-linear-to-r from-blue-500 to-blue-400"
+                        : "bg-linear-to-r from-teal-500 to-teal-400"
                   }`}
                   style={{ width: `${(getValue(product) / maxValue) * 100}%` }}
                 />

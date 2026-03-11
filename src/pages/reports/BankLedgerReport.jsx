@@ -78,7 +78,7 @@ export default function BankLedgerReport() {
       <h1 className={`text-2xl font-bold mb-6 ${textPrimary}`}>Bank Ledger</h1>
 
       {/* Filters */}
-      <div className={`${cardBg} p-4 rounded-lg shadow mb-6`}>
+      <div className={`${cardBg} p-4 rounded-lg shadow-sm mb-6`}>
         <div className="grid grid-cols-4 gap-4">
           <div>
             <label htmlFor="bank-account" className={`block text-sm font-medium ${textLabel} mb-1`}>
@@ -146,25 +146,25 @@ export default function BankLedgerReport() {
       {/* Summary Cards */}
       {data && (
         <div className="grid grid-cols-4 gap-4 mb-6">
-          <div className={`${cardBg} p-4 rounded-lg shadow`}>
+          <div className={`${cardBg} p-4 rounded-lg shadow-sm`}>
             <div className={`${textSecondary} text-sm`}>Opening Balance</div>
             <div className="text-2xl font-bold text-blue-600">
               {bankReconciliationService.formatCurrency(data.opening_balance)}
             </div>
           </div>
-          <div className={`${cardBg} p-4 rounded-lg shadow`}>
+          <div className={`${cardBg} p-4 rounded-lg shadow-sm`}>
             <div className={`${textSecondary} text-sm`}>Total Debits</div>
             <div className="text-2xl font-bold text-green-600">
               {bankReconciliationService.formatCurrency(data.total_debits)}
             </div>
           </div>
-          <div className={`${cardBg} p-4 rounded-lg shadow`}>
+          <div className={`${cardBg} p-4 rounded-lg shadow-sm`}>
             <div className={`${textSecondary} text-sm`}>Total Credits</div>
             <div className="text-2xl font-bold text-red-600">
               {bankReconciliationService.formatCurrency(data.total_credits)}
             </div>
           </div>
-          <div className={`${cardBg} p-4 rounded-lg shadow`}>
+          <div className={`${cardBg} p-4 rounded-lg shadow-sm`}>
             <div className={`${textSecondary} text-sm`}>Closing Balance</div>
             <div className="text-2xl font-bold text-blue-600">
               {bankReconciliationService.formatCurrency(data.closing_balance)}
@@ -175,11 +175,11 @@ export default function BankLedgerReport() {
 
       {/* Ledger Table */}
       {loading ? (
-        <div className={`${cardBg} p-8 rounded-lg shadow text-center`}>
+        <div className={`${cardBg} p-8 rounded-lg shadow-sm text-center`}>
           <div className={`${textSecondary} animate-pulse`}>Loading bank ledger...</div>
         </div>
       ) : data ? (
-        <div className={`${cardBg} rounded-lg shadow overflow-x-auto`}>
+        <div className={`${cardBg} rounded-lg shadow-sm overflow-x-auto`}>
           <table className="min-w-full">
             <thead>
               <tr className={`${theadBg} ${rowBorder}`}>

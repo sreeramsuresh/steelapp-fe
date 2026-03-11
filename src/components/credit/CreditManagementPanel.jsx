@@ -165,7 +165,7 @@ const CreditManagementPanel = ({
   };
 
   return (
-    <div className={`space-y-6 ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}>
+    <div className={`space-y-6 ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}>
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>

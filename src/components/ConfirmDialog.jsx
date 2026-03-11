@@ -72,7 +72,7 @@ const ConfirmDialog = ({
   const Icon = config.icon;
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center">
+    <div className="fixed inset-0 z-9999 flex items-center justify-center">
       {/* Backdrop */}
       <button
         type="button"
@@ -106,7 +106,7 @@ const ConfirmDialog = ({
           {/* Icon & Title */}
           <div className="flex items-start gap-4 mb-4">
             {showIcon && (
-              <div className={`flex-shrink-0 w-12 h-12 rounded-full ${config.iconBg} flex items-center justify-center`}>
+              <div className={`shrink-0 w-12 h-12 rounded-full ${config.iconBg} flex items-center justify-center`}>
                 <Icon className={`w-6 h-6 ${config.iconColor}`} />
               </div>
             )}
@@ -135,7 +135,7 @@ const ConfirmDialog = ({
                 onConfirm();
                 onCancel();
               }}
-              className={`flex-1 px-4 py-2.5 rounded-lg font-medium transition-colors ${config.confirmBg} ${config.confirmText} focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+              className={`flex-1 px-4 py-2.5 rounded-lg font-medium transition-colors ${config.confirmBg} ${config.confirmText} focus:outline-hidden focus:ring-2 focus:ring-offset-2 ${
                 isDarkMode ? "focus:ring-offset-gray-800" : "focus:ring-offset-white"
               }`}
             >

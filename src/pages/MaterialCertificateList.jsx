@@ -636,7 +636,7 @@ const MaterialCertificateList = () => {
       )}
 
       {/* Filters */}
-      <div className={`${isDarkMode ? "bg-gray-800" : "bg-white"} rounded-lg p-4 mb-6 shadow-sm`}>
+      <div className={`${isDarkMode ? "bg-gray-800" : "bg-white"} rounded-lg p-4 mb-6 shadow-xs`}>
         <div className="flex flex-col md:flex-row gap-4">
           {/* Search */}
           <div className="flex-1">
@@ -812,7 +812,7 @@ const MaterialCertificateList = () => {
       </div>
 
       {/* Certificates Table */}
-      <div className={`${isDarkMode ? "bg-gray-800" : "bg-white"} rounded-lg shadow-sm overflow-hidden`}>
+      <div className={`${isDarkMode ? "bg-gray-800" : "bg-white"} rounded-lg shadow-xs overflow-hidden`}>
         {loading ? (
           <div className="p-8 text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600 mx-auto"></div>

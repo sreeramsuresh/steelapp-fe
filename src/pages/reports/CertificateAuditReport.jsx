@@ -123,7 +123,7 @@ export default function CertificateAuditReport() {
       missing: withMissingFields,
     }[activeTab] || certificates;
 
-  const card = `rounded-lg shadow-sm ${isDarkMode ? "bg-gray-800" : "bg-white"}`;
+  const card = `rounded-lg shadow-xs ${isDarkMode ? "bg-gray-800" : "bg-white"}`;
 
   return (
     <div className={`p-6 min-h-screen ${isDarkMode ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"}`}>

@@ -98,7 +98,7 @@ export default function CostCenterBudgetList() {
           <button
             type="button"
             onClick={() => setShowHelper((v) => !v)}
-            className="text-gray-400 hover:text-blue-500 focus:outline-none"
+            className="text-gray-400 hover:text-blue-500 focus:outline-hidden"
             title="What is a Budget?"
           >
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-label="Help">

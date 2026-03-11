@@ -186,7 +186,7 @@ const CustomerCLVWidget = ({ data: propData, onRefresh, onViewCustomer, onViewDe
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center shadow-lg">
+          <div className="w-10 h-10 rounded-xl bg-linear-to-br from-yellow-400 to-yellow-600 flex items-center justify-center shadow-lg">
             <Crown size={20} className="text-white" />
           </div>
           <div>
@@ -292,8 +292,8 @@ const CustomerCLVWidget = ({ data: propData, onRefresh, onViewCustomer, onViewDe
                 className={`group p-3 rounded-lg transition-all duration-200 w-full text-left ${
                   index === 0
                     ? isDarkMode
-                      ? "bg-gradient-to-r from-yellow-900/20 to-transparent border border-yellow-700/30"
-                      : "bg-gradient-to-r from-yellow-50 to-transparent border border-yellow-200"
+                      ? "bg-linear-to-r from-yellow-900/20 to-transparent border border-yellow-700/30"
+                      : "bg-linear-to-r from-yellow-50 to-transparent border border-yellow-200"
                     : isDarkMode
                       ? "bg-[#2E3B4E] hover:bg-[#374151]"
                       : "bg-gray-50 hover:bg-gray-100"
@@ -302,7 +302,7 @@ const CustomerCLVWidget = ({ data: propData, onRefresh, onViewCustomer, onViewDe
                 <div className="flex items-center gap-3">
                   {/* Rank */}
                   <div
-                    className={`w-8 h-8 rounded-full bg-gradient-to-br ${tierInfo.color} flex items-center justify-center`}
+                    className={`w-8 h-8 rounded-full bg-linear-to-br ${tierInfo.color} flex items-center justify-center`}
                   >
                     <span className="text-xs font-bold text-white">{index + 1}</span>
                   </div>

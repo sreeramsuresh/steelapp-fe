@@ -238,7 +238,7 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
   if (loading) {
     return (
       <div
-        className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
+        className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}
       >
         <div className="flex justify-center items-center min-h-[400px]">
           <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-teal-600"></div>
@@ -251,9 +251,7 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
   }
 
   return (
-    <div
-      className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
-    >
+    <div className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}>
       <div
         className={`p-0 sm:p-6 mx-0 rounded-none sm:rounded-2xl border overflow-hidden ${
           isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-[#E0E0E0]"
@@ -264,7 +262,7 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
           <div
             className={`mb-4 flex items-center gap-3 p-4 rounded-lg border ${isDarkMode ? "bg-green-900/20 border-green-700 text-green-300" : "bg-green-50 border-green-200 text-green-800"}`}
           >
-            <CheckCircle className="h-5 w-5 flex-shrink-0" />
+            <CheckCircle className="h-5 w-5 shrink-0" />
             <span className="text-sm">{success}</span>
             <button type="button" onClick={() => setSuccess("")} className="ml-auto">
               <X className="h-4 w-4" />
@@ -275,7 +273,7 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
           <div
             className={`mb-4 flex items-center gap-3 p-4 rounded-lg border ${isDarkMode ? "bg-red-900/20 border-red-700 text-red-300" : "bg-red-50 border-red-200 text-red-800"}`}
           >
-            <AlertCircle className="h-5 w-5 flex-shrink-0" />
+            <AlertCircle className="h-5 w-5 shrink-0" />
             <span className="text-sm">{error}</span>
             <button type="button" onClick={() => setError("")} className="ml-auto">
               <X className="h-4 w-4" />
@@ -296,7 +294,7 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
           <button
             type="button"
             onClick={handleGenerateClick}
-            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
+            className="flex items-center gap-2 px-4 py-2 bg-linear-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-xs hover:shadow-md"
           >
             <Plus size={18} />
             Generate Statement
@@ -306,7 +304,7 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-6">
           <div
-            className={`text-center border rounded-2xl shadow-sm ${
+            className={`text-center border rounded-2xl shadow-xs ${
               isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-[#E0E0E0]"
             }`}
           >
@@ -316,7 +314,7 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
             </div>
           </div>
           <div
-            className={`text-center border rounded-2xl shadow-sm ${
+            className={`text-center border rounded-2xl shadow-xs ${
               isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-[#E0E0E0]"
             }`}
           >
@@ -328,7 +326,7 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
             </div>
           </div>
           <div
-            className={`text-center border rounded-2xl shadow-sm ${
+            className={`text-center border rounded-2xl shadow-xs ${
               isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-[#E0E0E0]"
             }`}
           >
@@ -340,7 +338,7 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
             </div>
           </div>
           <div
-            className={`text-center border rounded-2xl shadow-sm ${
+            className={`text-center border rounded-2xl shadow-xs ${
               isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-[#E0E0E0]"
             }`}
           >
@@ -355,7 +353,7 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
 
         {/* Filters Section */}
         <div className="flex gap-4 mb-6 flex-wrap items-center">
-          <div className="flex-grow min-w-[300px] relative">
+          <div className="grow min-w-[300px] relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <Search size={20} className={isDarkMode ? "text-gray-400" : "text-gray-500"} />
             </div>
@@ -364,7 +362,7 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
               placeholder="Search statements..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+              className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                 isDarkMode
                   ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
                   : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
@@ -623,7 +621,7 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
 
       {/* Customer Selection Modal */}
       {showCustomerModal && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50">
+        <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black bg-opacity-50">
           <div
             className={`relative w-full max-w-2xl mx-4 rounded-xl shadow-2xl max-h-[80vh] flex flex-col ${
               isDarkMode ? "bg-[#1E2328]" : "bg-white"
@@ -670,7 +668,7 @@ const AccountStatementList = ({ preSelectedCustomerId, preSelectedCustomerName }
                   placeholder="Search customers..."
                   value={customerSearchTerm}
                   onChange={(e) => setCustomerSearchTerm(e.target.value)}
-                  className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                  className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                     isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                   }`}
                 />

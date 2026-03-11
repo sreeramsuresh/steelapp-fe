@@ -307,7 +307,7 @@ const VATReturnReport = () => {
   // Style classes
   const cardClass = `rounded-lg border ${
     isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
-  } p-4 shadow-sm`;
+  } p-4 shadow-xs`;
 
   const labelClass = `text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-600"}`;
   const valueClass = `text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`;
@@ -1048,7 +1048,7 @@ const VATReturnReport = () => {
 
           {/* NET VAT CALCULATION */}
           <div
-            className={`${cardClass} bg-gradient-to-r ${isDarkMode ? "from-blue-900/40 to-indigo-900/40" : "from-blue-50 to-indigo-50"} border-2 ${isDarkMode ? "border-blue-700" : "border-blue-300"}`}
+            className={`${cardClass} bg-linear-to-r ${isDarkMode ? "from-blue-900/40 to-indigo-900/40" : "from-blue-50 to-indigo-50"} border-2 ${isDarkMode ? "border-blue-700" : "border-blue-300"}`}
           >
             <h3 className={`text-lg font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
               Net VAT Calculation

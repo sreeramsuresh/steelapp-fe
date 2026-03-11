@@ -53,13 +53,13 @@ const Button = ({
   const { isDarkMode } = useTheme();
 
   const baseClasses =
-    "inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2";
+    "inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-300 focus:outline-hidden focus:ring-2 focus:ring-offset-2";
 
   const getVariantClasses = () => {
     if (variant === "primary") {
       return isDarkMode
-        ? `bg-gradient-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 hover:-translate-y-0.5 focus:ring-teal-500 disabled:bg-gray-600 disabled:hover:translate-y-0 shadow-sm hover:shadow-md focus:ring-offset-gray-800`
-        : `bg-gradient-to-br from-blue-500 to-blue-600 text-white hover:from-blue-400 hover:to-blue-500 hover:-translate-y-0.5 focus:ring-blue-500 disabled:bg-gray-400 disabled:hover:translate-y-0 shadow-sm hover:shadow-md focus:ring-offset-white`;
+        ? `bg-linear-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 hover:-translate-y-0.5 focus:ring-teal-500 disabled:bg-gray-600 disabled:hover:translate-y-0 shadow-xs hover:shadow-md focus:ring-offset-gray-800`
+        : `bg-linear-to-br from-blue-500 to-blue-600 text-white hover:from-blue-400 hover:to-blue-500 hover:-translate-y-0.5 focus:ring-blue-500 disabled:bg-gray-400 disabled:hover:translate-y-0 shadow-xs hover:shadow-md focus:ring-offset-white`;
     } else if (variant === "secondary") {
       return `${
         isDarkMode
@@ -113,11 +113,11 @@ const Input = ({ label, error, className = "", type = "text", id, required = fal
       <input
         id={inputId}
         type={type}
-        className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+        className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
           isDarkMode
             ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
             : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
-        } ${error ? "!border-red-500 ring-1 ring-red-500" : ""} ${className}`}
+        } ${error ? "border-red-500! ring-1 ring-red-500" : ""} ${className}`}
         {...props}
       />
       {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
@@ -155,9 +155,9 @@ const Select = ({
           id={selectId}
           value={value}
           onChange={onChange}
-          className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
+          className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
             isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
-          } ${error ? "!border-red-500 ring-1 ring-red-500" : ""} ${className}`}
+          } ${error ? "border-red-500! ring-1 ring-red-500" : ""} ${className}`}
         >
           {placeholder && <option value="">{placeholder}</option>}
           {options.map((option) => (
@@ -191,7 +191,7 @@ const Textarea = ({ label, error, className = "", id, ...props }) => {
       )}
       <textarea
         id={textareaId}
-        className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none ${
+        className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none ${
           isDarkMode
             ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
             : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
@@ -2112,7 +2112,7 @@ const SteelProducts = () => {
         >
           <span
             className={`
-              inline-block h-3 w-3 transform rounded-full bg-white shadow-sm transition-transform duration-200
+              inline-block h-3 w-3 transform rounded-full bg-white shadow-xs transition-transform duration-200
               ${showSpeedButtons ? "translate-x-3.5" : "translate-x-0.5"}
             `}
           />
@@ -2236,7 +2236,7 @@ const SteelProducts = () => {
             placeholder="Search products by name, code, or specification..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className={`w-full h-9 pl-9 pr-3 text-sm border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+            className={`w-full h-9 pl-9 pr-3 text-sm border rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
               isDarkMode
                 ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
                 : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
@@ -2249,7 +2249,7 @@ const SteelProducts = () => {
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className={`h-9 pl-3 pr-8 text-sm border rounded-lg appearance-none cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+            className={`h-9 pl-3 pr-8 text-sm border rounded-lg appearance-none cursor-pointer transition-colors focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
               isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
             }`}
           >
@@ -2270,7 +2270,7 @@ const SteelProducts = () => {
           <select
             value={stockFilter}
             onChange={(e) => setStockFilter(e.target.value)}
-            className={`h-9 pl-3 pr-8 text-sm border rounded-lg appearance-none cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+            className={`h-9 pl-3 pr-8 text-sm border rounded-lg appearance-none cursor-pointer transition-colors focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
               isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
             }`}
           >
@@ -2289,7 +2289,7 @@ const SteelProducts = () => {
           <select
             value={productCategoryFilter}
             onChange={(e) => setProductCategoryFilter(e.target.value)}
-            className={`h-9 pl-3 pr-8 text-sm border rounded-lg appearance-none cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+            className={`h-9 pl-3 pr-8 text-sm border rounded-lg appearance-none cursor-pointer transition-colors focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
               isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
             }`}
           >
@@ -2504,7 +2504,7 @@ const SteelProducts = () => {
                       {col.key === "stock" ? (
                         <div className="flex items-center gap-2">
                           <span
-                            className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                            className={`w-2 h-2 rounded-full shrink-0 ${
                               stockData.status === "out_of_stock"
                                 ? "bg-red-500"
                                 : stockData.status === "low"
@@ -2761,7 +2761,7 @@ const SteelProducts = () => {
                     setPageSize(Number(e.target.value));
                     setPage(1);
                   }}
-                  className={`px-2 py-1 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                  className={`px-2 py-1 border rounded-md text-sm focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                     isDarkMode ? "bg-gray-800 border-gray-700 text-gray-300" : "bg-white border-gray-300 text-gray-700"
                   }`}
                 >
@@ -2819,7 +2819,7 @@ const SteelProducts = () => {
   );
 
   return (
-    <div className={`p-4 min-h-screen ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}>
+    <div className={`p-4 min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}>
       <div
         className={`rounded-xl border p-6 ${
           isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-[#E0E0E0]"
@@ -2948,7 +2948,7 @@ const SteelProducts = () => {
                           key={template.id}
                           type="button"
                           onClick={() => handleTemplateSelect(template)}
-                          className={`flex-shrink-0 px-3 py-2 rounded-lg border transition-all ${
+                          className={`shrink-0 px-3 py-2 rounded-lg border transition-all ${
                             selectedTemplate === template.id
                               ? isDarkMode
                                 ? "border-teal-500 bg-teal-900/50 shadow-lg"
@@ -3081,11 +3081,11 @@ const SteelProducts = () => {
                           }}
                           onFocus={() => setFocusedField("category")}
                           onBlur={() => setFocusedField(null)}
-                          className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
+                          className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
                             isDarkMode
                               ? "bg-gray-800 border-gray-600 text-white"
                               : "bg-white border-gray-300 text-gray-900"
-                          } ${validationErrors.category ? "!border-red-500 ring-1 ring-red-500" : ""}`}
+                          } ${validationErrors.category ? "border-red-500! ring-1 ring-red-500" : ""}`}
                         >
                           {categories.map((option) => (
                             <option key={option.value} value={option.value}>
@@ -3137,11 +3137,11 @@ const SteelProducts = () => {
                           }}
                           onFocus={() => setFocusedField("grade")}
                           onBlur={() => setFocusedField(null)}
-                          className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
+                          className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
                             isDarkMode
                               ? "bg-gray-800 border-gray-600 text-white"
                               : "bg-white border-gray-300 text-gray-900"
-                          } ${validationErrors.grade && typeof validationErrors.grade === "string" ? "!border-red-500 ring-1 ring-red-500" : ""}`}
+                          } ${validationErrors.grade && typeof validationErrors.grade === "string" ? "border-red-500! ring-1 ring-red-500" : ""}`}
                         >
                           <option value="">Select grade...</option>
                           {grades.map((grade) => (
@@ -3202,11 +3202,11 @@ const SteelProducts = () => {
                           }}
                           onFocus={() => setFocusedField("finish")}
                           onBlur={() => setFocusedField(null)}
-                          className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
+                          className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
                             isDarkMode
                               ? "bg-gray-800 border-gray-600 text-white"
                               : "bg-white border-gray-300 text-gray-900"
-                          } ${validationErrors.finish ? "!border-red-500 ring-1 ring-red-500" : ""}`}
+                          } ${validationErrors.finish ? "border-red-500! ring-1 ring-red-500" : ""}`}
                         >
                           <option value="">Select finish...</option>
                           {allFinishes.map((finish) => (
@@ -3247,7 +3247,7 @@ const SteelProducts = () => {
                                 diameter: "",
                               }))
                             }
-                            className={`w-full px-3 py-2 border rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-teal-500 ${isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+                            className={`w-full px-3 py-2 border rounded-lg appearance-none focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
                           >
                             <option value="">Any</option>
                             <option value="round">Round</option>
@@ -3283,7 +3283,7 @@ const SteelProducts = () => {
                                 thickness: "",
                               }))
                             }
-                            className={`w-full px-3 py-2 border rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-teal-500 ${isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+                            className={`w-full px-3 py-2 border rounded-lg appearance-none focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
                           >
                             <option value="">Any</option>
                             <option value="square">Square</option>
@@ -3318,7 +3318,7 @@ const SteelProducts = () => {
                                 if (preset) applyPreset(preset);
                               }
                             }}
-                            className={`w-full px-3 py-2 border rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-teal-500 ${isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+                            className={`w-full px-3 py-2 border rounded-lg appearance-none focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
                           >
                             <option value="">Select preset dimensions...</option>
                             {presets.map((preset) => (
@@ -3365,7 +3365,7 @@ const SteelProducts = () => {
                             onFocus={() => setFocusedField("dimensions")}
                             onBlur={() => setFocusedField(null)}
                             placeholder='e.g., 2"'
-                            className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                            className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                               isDarkMode
                                 ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
                                 : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
@@ -3397,7 +3397,7 @@ const SteelProducts = () => {
                             onFocus={() => setFocusedField("dimensions")}
                             onBlur={() => setFocusedField(null)}
                             placeholder='e.g., 2.375"'
-                            className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                            className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                               isDarkMode
                                 ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
                                 : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
@@ -3429,7 +3429,7 @@ const SteelProducts = () => {
                             onFocus={() => setFocusedField("dimensions")}
                             onBlur={() => setFocusedField(null)}
                             placeholder='e.g., 6000mm or 236"'
-                            className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                            className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                               isDarkMode
                                 ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
                                 : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
@@ -3457,7 +3457,7 @@ const SteelProducts = () => {
                                 setValidationErrors((p) => ({ ...p, dimensions: undefined }));
                             }}
                             placeholder="e.g., 25"
-                            className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${isDarkMode ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400" : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"}`}
+                            className={`w-full px-3 py-2 border rounded-lg focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${isDarkMode ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400" : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"}`}
                           />
                         </div>
                         <div>
@@ -3477,7 +3477,7 @@ const SteelProducts = () => {
                                 setValidationErrors((p) => ({ ...p, dimensions: undefined }));
                             }}
                             placeholder="e.g., 50"
-                            className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${isDarkMode ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400" : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"}`}
+                            className={`w-full px-3 py-2 border rounded-lg focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${isDarkMode ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400" : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"}`}
                           />
                         </div>
                         <div>
@@ -3493,7 +3493,7 @@ const SteelProducts = () => {
                             value={newProduct.height}
                             onChange={(e) => setNewProduct({ ...newProduct, height: e.target.value })}
                             placeholder="e.g., 6"
-                            className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${isDarkMode ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400" : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"}`}
+                            className={`w-full px-3 py-2 border rounded-lg focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${isDarkMode ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400" : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"}`}
                           />
                         </div>
                         {validationErrors.dimensions && (
@@ -3528,11 +3528,11 @@ const SteelProducts = () => {
                             onFocus={() => setFocusedField("dimensions")}
                             onBlur={() => setFocusedField(null)}
                             placeholder="e.g., 1220"
-                            className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                            className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                               isDarkMode
                                 ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
                                 : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
-                            } ${validationErrors.dimensions ? "!border-red-500 ring-1 ring-red-500" : ""}`}
+                            } ${validationErrors.dimensions ? "border-red-500! ring-1 ring-red-500" : ""}`}
                           />
                           {validationErrors.dimensions && (
                             <p className="text-red-500 text-xs mt-1">{validationErrors.dimensions}</p>
@@ -3569,7 +3569,7 @@ const SteelProducts = () => {
                             onFocus={() => setFocusedField("dimensions")}
                             onBlur={() => setFocusedField(null)}
                             placeholder="e.g., 2440"
-                            className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                            className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                               isDarkMode
                                 ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
                                 : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
@@ -3607,11 +3607,11 @@ const SteelProducts = () => {
                             onFocus={() => setFocusedField("thickness")}
                             onBlur={() => setFocusedField(null)}
                             placeholder="e.g., 1.8mm"
-                            className={`flex-1 px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                            className={`flex-1 px-3 py-2 border rounded-lg text-sm focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                               isDarkMode
                                 ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
                                 : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
-                            } ${validationErrors.thickness ? "!border-red-500 ring-1 ring-red-500" : ""}`}
+                            } ${validationErrors.thickness ? "border-red-500! ring-1 ring-red-500" : ""}`}
                           />
                           <button
                             type="button"
@@ -3642,11 +3642,11 @@ const SteelProducts = () => {
                           }}
                           onFocus={() => setFocusedField("thickness")}
                           onBlur={() => setFocusedField(null)}
-                          className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
+                          className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
                             isDarkMode
                               ? "bg-gray-800 border-gray-600 text-white"
                               : "bg-white border-gray-300 text-gray-900"
-                          } ${validationErrors.thickness ? "!border-red-500 ring-1 ring-red-500" : ""}`}
+                          } ${validationErrors.thickness ? "border-red-500! ring-1 ring-red-500" : ""}`}
                         >
                           <option value="">Select thickness...</option>
                           <optgroup label="Thin Gauge (&lt; 1mm)">
@@ -3780,7 +3780,7 @@ const SteelProducts = () => {
                         Current Stock (Auto)
                       </span>
                       <div
-                        className={`px-3 py-2 rounded-lg border ${isDarkMode ? "bg-[#263238] border-[#37474F] text-gray-400" : "bg-gray-100 border-gray-200 text-gray-500"}`}
+                        className={`px-3 py-2 rounded-lg border ${isDarkMode ? "bg-gray-700 border-[#37474F] text-gray-400" : "bg-gray-100 border-gray-200 text-gray-500"}`}
                         title="Stock is managed through GRN approvals and delivery notes"
                       >
                         {editingProductId ? (newProduct.currentStock ?? 0) : 0}
@@ -4381,7 +4381,7 @@ const SteelProducts = () => {
         {/* Old Edit Product Modal removed - unified with Add Product Modal above */}
         {/* Save Warnings Confirmation Dialog */}
         {saveWarnings && (
-          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50">
+          <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/50">
             <div
               className={`rounded-xl shadow-2xl max-w-md w-full mx-4 ${isDarkMode ? "bg-gray-800 border border-gray-700" : "bg-white"}`}
             >
@@ -4475,7 +4475,7 @@ const SteelProducts = () => {
 
             return (
               <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-                <div className={`rounded-lg w-full max-w-xl shadow-xl ${isDarkMode ? "bg-[#1e2328]" : "bg-white"}`}>
+                <div className={`rounded-lg w-full max-w-xl shadow-xl ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
                   {/* Compact Header */}
                   <div
                     className={`flex items-center justify-between px-4 py-3 border-b ${
@@ -4524,7 +4524,7 @@ const SteelProducts = () => {
                   </div>
 
                   {/* Content */}
-                  <div className={`px-4 py-3 ${isDarkMode ? "bg-[#1e2328]" : "bg-white"}`}>
+                  <div className={`px-4 py-3 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
                     {/* Product Identity (SSOT) */}
                     <div
                       className={`text-xs font-mono mb-3 px-2 py-1 rounded ${isDarkMode ? "bg-gray-800 text-teal-400" : "bg-gray-100 text-teal-600"}`}
@@ -4982,7 +4982,7 @@ const SteelProducts = () => {
                     placeholder="Search products by name, grade, or category..."
                     value={copySearchTerm}
                     onChange={(e) => setCopySearchTerm(e.target.value)}
-                    className={`w-full pl-10 pr-4 py-2 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                    className={`w-full pl-10 pr-4 py-2 border rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                       isDarkMode
                         ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
                         : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"

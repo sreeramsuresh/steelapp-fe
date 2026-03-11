@@ -80,7 +80,7 @@ const ToggleSwitchQuotation = ({ enabled, onChange, label, description, isDarkMo
     <button
       type="button"
       onClick={onChange}
-      className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 ${
+      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 ${
         enabled ? "bg-teal-600" : isDarkMode ? "bg-gray-600" : "bg-gray-200"
       }`}
     >
@@ -200,7 +200,7 @@ const Drawer = ({ isOpen, onClose, title, subtitle, children, isDarkMode, width 
         onKeyDown={handleOverlayKeyDown}
       />
       <div
-        className={`fixed top-0 right-0 h-full ${width} z-[31]
+        className={`fixed top-0 right-0 h-full ${width} z-31
           ${isDarkMode ? "bg-gray-800 border-l border-gray-700" : "bg-white border-l border-gray-200"}
           overflow-auto transition-transform duration-300 ${isOpen ? "translate-x-0" : "translate-x-full"}`}
       >
@@ -208,7 +208,7 @@ const Drawer = ({ isOpen, onClose, title, subtitle, children, isDarkMode, width 
           <div
             className={`sticky top-0 flex justify-between items-start gap-2.5 mb-3 p-4 -m-4 mb-3
             ${isDarkMode ? "bg-gray-800 border-b border-gray-700" : "bg-white border-b border-gray-200"}
-            z-[1]`}
+            z-1`}
           >
             <div>
               <div className="text-sm font-extrabold">{title}</div>
@@ -1569,7 +1569,7 @@ const QuotationForm = () => {
         )}
         <input
           id={inputId}
-          className={`w-full px-2 py-1.5 text-sm border rounded-md shadow-sm focus:ring-1 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200 ${
+          className={`w-full px-2 py-1.5 text-sm border rounded-md shadow-xs focus:ring-1 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200 ${
             isDarkMode ? "text-white placeholder-gray-500" : "text-gray-900 placeholder-gray-400"
           } ${getValidationClasses()} ${className}`}
           {...props}
@@ -1934,7 +1934,7 @@ const QuotationForm = () => {
           {/* Alert Messages */}
           {error && (
             <div className="mb-4 md:mb-6 p-3 md:p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg flex items-center gap-2 text-sm">
-              <AlertCircle size={18} className="flex-shrink-0" />
+              <AlertCircle size={18} className="shrink-0" />
               <div className="flex-1 whitespace-pre-line">{error}</div>
               <div className="flex gap-2">
                 {isEdit && (error.includes("not found") || error.includes("permission")) && (
@@ -2551,7 +2551,7 @@ const QuotationForm = () => {
                                 <select
                                   value={item.pricingBasis || "PER_MT"}
                                   onChange={(e) => updateItem(index, "pricingBasis", e.target.value)}
-                                  className={`text-[10px] font-bold px-1.5 border-l cursor-pointer outline-none ${
+                                  className={`text-[10px] font-bold px-1.5 border-l cursor-pointer outline-hidden ${
                                     item.pricingBasis === "PER_KG"
                                       ? "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700"
                                       : item.pricingBasis === "PER_PCS"
@@ -2805,7 +2805,7 @@ const QuotationForm = () => {
                     <button
                       type="submit"
                       disabled={isSaving}
-                      className={`w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-gradient-to-br from-teal-600 to-teal-700 text-white font-medium hover:from-teal-500 hover:to-teal-600 rounded-lg text-sm transition-all duration-300 shadow-sm hover:shadow-md ${
+                      className={`w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-linear-to-br from-teal-600 to-teal-700 text-white font-medium hover:from-teal-500 hover:to-teal-600 rounded-lg text-sm transition-all duration-300 shadow-xs hover:shadow-md ${
                         isSaving ? "opacity-60 cursor-not-allowed" : ""
                       }`}
                       data-testid="save-quotation"
@@ -2864,7 +2864,7 @@ const QuotationForm = () => {
                         packingCharges: e.target.value,
                       }))
                     }
-                    className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
+                    className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-hidden ${
                       isDarkMode
                         ? "bg-gray-800 border-gray-600 text-white focus:border-teal-500"
                         : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
@@ -2888,7 +2888,7 @@ const QuotationForm = () => {
                         freightCharges: e.target.value,
                       }))
                     }
-                    className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
+                    className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-hidden ${
                       isDarkMode
                         ? "bg-gray-800 border-gray-600 text-white focus:border-teal-500"
                         : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
@@ -2912,7 +2912,7 @@ const QuotationForm = () => {
                         insuranceCharges: e.target.value,
                       }))
                     }
-                    className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
+                    className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-hidden ${
                       isDarkMode
                         ? "bg-gray-800 border-gray-600 text-white focus:border-teal-500"
                         : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
@@ -2936,7 +2936,7 @@ const QuotationForm = () => {
                         loadingCharges: e.target.value,
                       }))
                     }
-                    className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
+                    className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-hidden ${
                       isDarkMode
                         ? "bg-gray-800 border-gray-600 text-white focus:border-teal-500"
                         : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
@@ -2960,7 +2960,7 @@ const QuotationForm = () => {
                         otherCharges: e.target.value,
                       }))
                     }
-                    className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
+                    className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-hidden ${
                       isDarkMode
                         ? "bg-gray-800 border-gray-600 text-white focus:border-teal-500"
                         : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
@@ -3031,7 +3031,7 @@ const QuotationForm = () => {
                             discountPercentage: e.target.value,
                           }))
                         }
-                        className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
+                        className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-hidden ${
                           isDarkMode
                             ? "bg-gray-800 border-gray-600 text-white focus:border-teal-500"
                             : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
@@ -3058,7 +3058,7 @@ const QuotationForm = () => {
                             discountAmount: e.target.value,
                           }))
                         }
-                        className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
+                        className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-hidden ${
                           isDarkMode
                             ? "bg-gray-800 border-gray-600 text-white focus:border-teal-500"
                             : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
@@ -3091,7 +3091,7 @@ const QuotationForm = () => {
               <button
                 type="button"
                 onClick={() => setChargesDrawerOpen(false)}
-                className="w-full bg-gradient-to-br from-teal-600 to-teal-700 text-white font-medium hover:from-teal-500 hover:to-teal-600 rounded-lg py-2.5 px-3 text-sm transition-all duration-300 shadow-sm hover:shadow-md"
+                className="w-full bg-linear-to-br from-teal-600 to-teal-700 text-white font-medium hover:from-teal-500 hover:to-teal-600 rounded-lg py-2.5 px-3 text-sm transition-all duration-300 shadow-xs hover:shadow-md"
               >
                 Done
               </button>
@@ -3117,7 +3117,7 @@ const QuotationForm = () => {
                   onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))}
                   placeholder="Add any notes about this quotation..."
                   rows={4}
-                  className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none resize-none ${
+                  className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-hidden resize-none ${
                     isDarkMode
                       ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:border-teal-500"
                       : "bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-teal-500"
@@ -3139,7 +3139,7 @@ const QuotationForm = () => {
                   }
                   placeholder="Enter terms and conditions..."
                   rows={5}
-                  className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none resize-none ${
+                  className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-hidden resize-none ${
                     isDarkMode
                       ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:border-teal-500"
                       : "bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-teal-500"
@@ -3152,7 +3152,7 @@ const QuotationForm = () => {
               <button
                 type="button"
                 onClick={() => setNotesDrawerOpen(false)}
-                className="w-full bg-gradient-to-br from-teal-600 to-teal-700 text-white font-medium hover:from-teal-500 hover:to-teal-600 rounded-lg py-2.5 px-3 text-sm transition-all duration-300 shadow-sm hover:shadow-md"
+                className="w-full bg-linear-to-br from-teal-600 to-teal-700 text-white font-medium hover:from-teal-500 hover:to-teal-600 rounded-lg py-2.5 px-3 text-sm transition-all duration-300 shadow-xs hover:shadow-md"
               >
                 Done
               </button>
@@ -3187,7 +3187,7 @@ const QuotationForm = () => {
                       }))
                     }
                     placeholder="customer@example.com"
-                    className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
+                    className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-hidden ${
                       isDarkMode
                         ? "bg-gray-800 border-gray-600 text-white focus:border-teal-500"
                         : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
@@ -3230,7 +3230,7 @@ const QuotationForm = () => {
                     }))
                   }
                   placeholder="e.g., 100000000000003"
-                  className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
+                  className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-hidden ${
                     isDarkMode
                       ? "bg-gray-800 border-gray-600 text-white focus:border-teal-500"
                       : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
@@ -3256,7 +3256,7 @@ const QuotationForm = () => {
                       }))
                     }
                     placeholder="PO-XXXX"
-                    className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
+                    className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-hidden ${
                       isDarkMode
                         ? "bg-gray-800 border-gray-600 text-white focus:border-teal-500"
                         : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
@@ -3277,7 +3277,7 @@ const QuotationForm = () => {
                         customerPurchaseOrderDate: e.target.value,
                       }))
                     }
-                    className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
+                    className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-hidden ${
                       isDarkMode
                         ? "bg-gray-800 border-gray-600 text-white focus:border-teal-500"
                         : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
@@ -3308,7 +3308,7 @@ const QuotationForm = () => {
                     }
                   }}
                   placeholder="1.0000"
-                  className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-none ${
+                  className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-hidden ${
                     isDarkMode
                       ? "bg-gray-800 border-gray-600 text-white focus:border-teal-500"
                       : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
@@ -3326,7 +3326,7 @@ const QuotationForm = () => {
               <button
                 type="button"
                 onClick={() => setCustomerDetailsDrawerOpen(false)}
-                className="w-full bg-gradient-to-br from-teal-600 to-teal-700 text-white font-medium hover:from-teal-500 hover:to-teal-600 rounded-lg py-2.5 px-3 text-sm transition-all duration-300 shadow-sm hover:shadow-md"
+                className="w-full bg-linear-to-br from-teal-600 to-teal-700 text-white font-medium hover:from-teal-500 hover:to-teal-600 rounded-lg py-2.5 px-3 text-sm transition-all duration-300 shadow-xs hover:shadow-md"
               >
                 Done
               </button>

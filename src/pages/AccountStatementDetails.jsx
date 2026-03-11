@@ -41,7 +41,7 @@ const AccountStatementDetails = () => {
   if (loading) {
     return (
       <div
-        className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
+        className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}
       >
         <div className="flex justify-center items-center min-h-[400px]">
           <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-teal-600"></div>
@@ -54,7 +54,7 @@ const AccountStatementDetails = () => {
   if (error || !statement) {
     return (
       <div
-        className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
+        className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}
       >
         <div
           className={`text-center p-12 rounded-2xl border ${
@@ -107,9 +107,7 @@ const AccountStatementDetails = () => {
   transactions.sort((a, b) => new Date(a.date) - new Date(b.date));
 
   return (
-    <div
-      className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
-    >
+    <div className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}>
       <div
         className={`p-0 sm:p-6 mx-0 rounded-none sm:rounded-2xl border overflow-hidden ${
           isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-[#E0E0E0]"
@@ -137,7 +135,7 @@ const AccountStatementDetails = () => {
           <button
             type="button"
             onClick={handleDownloadPDF}
-            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
+            className="flex items-center gap-2 px-4 py-2 bg-linear-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-xs hover:shadow-md"
           >
             <Download size={18} />
             Download PDF

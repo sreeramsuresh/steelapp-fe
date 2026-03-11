@@ -68,15 +68,15 @@ const SettingsSidebar = ({ isOpen, onToggle }) => {
 
   return (
     <div
-      className={`fixed left-0 top-0 h-screen z-[1000] transition-transform duration-300 ease-in-out ${
+      className={`fixed left-0 top-0 h-screen z-1000 transition-transform duration-300 ease-in-out ${
         isOpen ? "translate-x-0" : "-translate-x-full"
-      } w-[260px] xl:w-[280px] flex-shrink-0 ${isDarkMode ? "bg-[#1E2328]" : "bg-white"} border-r ${
+      } w-[260px] xl:w-[280px] shrink-0 ${isDarkMode ? "bg-[#1E2328]" : "bg-white"} border-r ${
         isDarkMode ? "border-[#37474F]" : "border-gray-200"
       } flex flex-col overflow-hidden`}
     >
       {/* Sidebar Header */}
       <div
-        className={`h-16 sm:h-14 md:h-15 px-4 flex items-center border-b flex-shrink-0 ${
+        className={`h-16 sm:h-14 md:h-15 px-4 flex items-center border-b shrink-0 ${
           isDarkMode ? "border-[#37474F] bg-[#1E2328]" : "border-gray-200 bg-white"
         }`}
       >
@@ -86,7 +86,7 @@ const SettingsSidebar = ({ isOpen, onToggle }) => {
             isDarkMode ? "text-white hover:text-white" : "text-gray-900 hover:text-gray-900"
           }`}
         >
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-slate-600 to-slate-700 flex items-center justify-center text-white">
+          <div className="w-10 h-10 rounded-lg bg-linear-to-br from-slate-600 to-slate-700 flex items-center justify-center text-white">
             <Settings size={20} />
           </div>
           <div>
@@ -167,13 +167,13 @@ const SettingsSidebar = ({ isOpen, onToggle }) => {
                           aria-current={isActive ? "page" : undefined}
                           className={`flex items-center gap-3 px-3 py-2.5 rounded-lg min-h-12 transition-all duration-200 no-underline group ${
                             isActive
-                              ? "bg-gradient-to-br from-slate-600 to-slate-700 text-white hover:text-white shadow-md"
+                              ? "bg-linear-to-br from-slate-600 to-slate-700 text-white hover:text-white shadow-md"
                               : isDarkMode
                                 ? "text-gray-300 hover:bg-slate-800/50 hover:text-slate-300 hover:border-slate-600 border border-transparent"
                                 : "text-gray-700 hover:bg-slate-100 hover:text-slate-700 hover:border-slate-300 border border-transparent"
                           }`}
                         >
-                          <div className="flex-shrink-0">
+                          <div className="shrink-0">
                             <Icon
                               size={20}
                               className={`transition-transform duration-200 ${isActive ? "" : "group-hover:scale-110"}`}

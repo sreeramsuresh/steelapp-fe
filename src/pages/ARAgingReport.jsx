@@ -136,7 +136,7 @@ export default function ARAgingReport() {
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className={`p-3 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600`}>
+            <div className={`p-3 rounded-lg bg-linear-to-br from-blue-500 to-blue-600`}>
               <Clock size={24} className="text-white" />
             </div>
             <div>
@@ -310,7 +310,7 @@ export default function ARAgingReport() {
               isDarkMode
                 ? "bg-gray-800 border-gray-700 text-white placeholder-gray-400"
                 : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
-            } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+            } focus:outline-hidden focus:ring-2 focus:ring-blue-500`}
           />
         </div>
       </div>

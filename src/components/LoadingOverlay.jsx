@@ -25,7 +25,7 @@ const LoadingOverlay = ({ show = false, message = "Processing...", detail = null
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center animate-in fade-in duration-200">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-xs z-9999 flex items-center justify-center animate-in fade-in duration-200">
       <div
         className={`${
           isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"

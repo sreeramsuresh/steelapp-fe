@@ -115,7 +115,7 @@ export default function DeliveryScheduleModal({ isOpen, onClose, schedule, lineQ
               <div
                 className={`flex items-center gap-2 p-3 mb-4 rounded-lg border ${isDarkMode ? "bg-red-900/20 border-red-700" : "bg-red-50 border-red-200"}`}
               >
-                <AlertCircle className={`h-5 w-5 flex-shrink-0 ${isDarkMode ? "text-red-400" : "text-red-600"}`} />
+                <AlertCircle className={`h-5 w-5 shrink-0 ${isDarkMode ? "text-red-400" : "text-red-600"}`} />
                 <p className={`text-sm ${isDarkMode ? "text-red-300" : "text-red-800"}`}>{validationError}</p>
               </div>
             )}

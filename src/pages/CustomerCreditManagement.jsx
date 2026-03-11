@@ -133,19 +133,19 @@ export default function CustomerCreditManagement() {
 
         {/* Risk Summary */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div className={`p-4 rounded-lg shadow ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+          <div className={`p-4 rounded-lg shadow-sm ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
             <div className={`text-sm font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
               High Risk Customers
             </div>
             <div className="text-3xl font-bold text-red-600">{highRiskCustomers.length}</div>
             <p className={`text-xs mt-1 ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}>(D/E grades)</p>
           </div>
-          <div className={`p-4 rounded-lg shadow ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+          <div className={`p-4 rounded-lg shadow-sm ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
             <div className={`text-sm font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Over Limit</div>
             <div className="text-3xl font-bold text-orange-600">{overLimitCustomers.length}</div>
             <p className={`text-xs mt-1 ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}>Credit exceeded</p>
           </div>
-          <div className={`p-4 rounded-lg shadow ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+          <div className={`p-4 rounded-lg shadow-sm ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
             <div className={`text-sm font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Avg DSO</div>
             <div className="text-3xl font-bold text-blue-600">
               {(() => {
@@ -158,7 +158,7 @@ export default function CustomerCreditManagement() {
             </div>
             <p className={`text-xs mt-1 ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}>Days Sales Outstanding</p>
           </div>
-          <div className={`p-4 rounded-lg shadow ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+          <div className={`p-4 rounded-lg shadow-sm ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
             <div className={`text-sm font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
               Credit Quality
             </div>
@@ -185,7 +185,7 @@ export default function CustomerCreditManagement() {
           {/* High Risk & Over Limit List */}
           <div className="lg:col-span-2">
             {/* High Risk Customers */}
-            <div className={`rounded-lg shadow mb-6 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+            <div className={`rounded-lg shadow-sm mb-6 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
               <div className={`p-4 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
                 <h2
                   className={`text-lg font-semibold flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
@@ -247,7 +247,7 @@ export default function CustomerCreditManagement() {
             </div>
 
             {/* Over Limit Customers */}
-            <div className={`rounded-lg shadow ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+            <div className={`rounded-lg shadow-sm ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
               <div className={`p-4 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
                 <h2
                   className={`text-lg font-semibold flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
@@ -309,7 +309,7 @@ export default function CustomerCreditManagement() {
           {/* Customer Detail Panel */}
           <div className="lg:col-span-1">
             {selectedCustomer && creditDetails ? (
-              <div className={`rounded-lg shadow p-6 sticky top-6 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+              <div className={`rounded-lg shadow-sm p-6 sticky top-6 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
                 <h2 className={`text-xl font-bold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                   {selectedCustomer.customerName}
                 </h2>
@@ -438,7 +438,7 @@ export default function CustomerCreditManagement() {
               </div>
             ) : (
               <div
-                className={`rounded-lg shadow p-8 text-center ${isDarkMode ? "bg-gray-800 text-gray-400" : "bg-white text-gray-500"}`}
+                className={`rounded-lg shadow-sm p-8 text-center ${isDarkMode ? "bg-gray-800 text-gray-400" : "bg-white text-gray-500"}`}
               >
                 <Users className={`w-10 h-10 mx-auto mb-3 ${isDarkMode ? "text-gray-600" : "text-gray-300"}`} />
                 <p className="font-medium mb-1">No customer selected</p>

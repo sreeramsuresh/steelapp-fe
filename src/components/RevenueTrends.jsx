@@ -229,7 +229,7 @@ const RevenueTrends = () => {
             <select
               value={timeRange}
               onChange={(e) => setTimeRange(e.target.value)}
-              className={`min-w-[150px] px-3 py-2 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+              className={`min-w-[150px] px-3 py-2 border rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                 isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
               }`}
             >
@@ -242,7 +242,7 @@ const RevenueTrends = () => {
             <select
               value={viewType}
               onChange={(e) => setViewType(e.target.value)}
-              className={`min-w-[140px] px-3 py-2 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+              className={`min-w-[140px] px-3 py-2 border rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                 isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
               }`}
             >
@@ -303,7 +303,7 @@ const RevenueTrends = () => {
               a.click();
               URL.revokeObjectURL(url);
             }}
-            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300"
+            className="flex items-center gap-2 px-4 py-2 bg-linear-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300"
           >
             <Download size={16} />
             Export
@@ -414,12 +414,12 @@ const RevenueTrends = () => {
             </h3>
             <div className="flex gap-4">
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded bg-gradient-to-r from-blue-500 to-purple-500"></div>
+                <div className="w-4 h-4 rounded bg-linear-to-r from-blue-500 to-purple-500"></div>
                 <span className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Historical Data</span>
               </div>
               {showPredictions && (
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded bg-gradient-to-r from-amber-500 to-red-500 opacity-70"></div>
+                  <div className="w-4 h-4 rounded bg-linear-to-r from-amber-500 to-red-500 opacity-70"></div>
                   <span className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Forecast</span>
                 </div>
               )}
@@ -667,7 +667,7 @@ const RevenueTrends = () => {
 
   if (loadingTrends) {
     return (
-      <div className={`p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}>
+      <div className={`p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}>
         <div className="flex flex-col items-center justify-center min-h-96">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mb-4"></div>
           <h3 className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
@@ -683,7 +683,7 @@ const RevenueTrends = () => {
 
   if (!hasTrendsData) {
     return (
-      <div className={`p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}>
+      <div className={`p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}>
         <div
           className={`flex flex-col items-center justify-center min-h-96 p-8 text-center rounded-xl border ${
             isDarkMode ? "border-[#37474F] bg-[#1E2328]" : "border-gray-200 bg-white"
@@ -699,7 +699,7 @@ const RevenueTrends = () => {
           <button
             type="button"
             onClick={refetchTrends}
-            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300"
+            className="flex items-center gap-2 px-4 py-2 bg-linear-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300"
           >
             <RefreshCw size={20} />
             Refresh Data
@@ -710,7 +710,7 @@ const RevenueTrends = () => {
   }
 
   return (
-    <div className={`p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}>
+    <div className={`p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}>
       <div
         className={`border rounded-xl overflow-hidden shadow-lg ${
           isDarkMode ? "border-[#37474F] bg-[#1E2328]" : "border-gray-200 bg-white"

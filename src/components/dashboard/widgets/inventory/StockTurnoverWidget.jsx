@@ -108,7 +108,7 @@ const StockTurnoverWidget = ({ data, onNavigate, onProductClick, onRefresh, load
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-linear-to-br from-purple-500 to-purple-600 flex items-center justify-center">
             <TrendingUp size={16} className="text-white" />
           </div>
           <div>
@@ -152,7 +152,7 @@ const StockTurnoverWidget = ({ data, onNavigate, onProductClick, onRefresh, load
         <div className="min-w-[280px]">
           {/* Month Headers */}
           <div className="flex mb-1">
-            <div className="w-24 flex-shrink-0" />
+            <div className="w-24 shrink-0" />
             {turnoverData.months.map((month) => (
               <div
                 key={month}
@@ -170,7 +170,7 @@ const StockTurnoverWidget = ({ data, onNavigate, onProductClick, onRefresh, load
             <div key={product.id} className="flex items-center mb-1 group">
               <button
                 type="button"
-                className={`w-24 flex-shrink-0 text-xs truncate pr-2 cursor-pointer text-left ${
+                className={`w-24 shrink-0 text-xs truncate pr-2 cursor-pointer text-left ${
                   isDarkMode ? "text-gray-300" : "text-gray-700"
                 } group-hover:text-teal-500`}
                 onClick={() => onProductClick?.(product)}
@@ -185,7 +185,7 @@ const StockTurnoverWidget = ({ data, onNavigate, onProductClick, onRefresh, load
                     key={`${product.id}-${turnoverData.months[monthIndex]}`}
                     role="button"
                     tabIndex={0}
-                    className={`flex-1 h-6 rounded cursor-pointer transition-all ${getTurnoverColor(value)} hover:ring-2 hover:ring-white/50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
+                    className={`flex-1 h-6 rounded cursor-pointer transition-all ${getTurnoverColor(value)} hover:ring-2 hover:ring-white/50 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
                     style={{ opacity: getTurnoverOpacity(value) }}
                     onMouseEnter={() =>
                       setHoveredCell({
@@ -216,7 +216,7 @@ const StockTurnoverWidget = ({ data, onNavigate, onProductClick, onRefresh, load
 
       {/* Tooltip */}
       {hoveredCell && (
-        <div className={`mt-2 p-2 rounded-lg text-xs ${isDarkMode ? "bg-[#121418]" : "bg-gray-100"}`}>
+        <div className={`mt-2 p-2 rounded-lg text-xs ${isDarkMode ? "bg-gray-900" : "bg-gray-100"}`}>
           <span className={isDarkMode ? "text-gray-300" : "text-gray-700"}>
             <strong>{hoveredCell.product}</strong> - {hoveredCell.month}:
             <span

@@ -13,8 +13,8 @@ const SelectTrigger = React.forwardRef(({ className, children, ...props }, ref) 
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      "flex h-10 w-full items-center justify-between rounded-md border px-2 py-2 text-sm shadow-sm",
-      "focus:outline-none focus:ring-1 focus:ring-teal-500 focus:border-teal-500",
+      "flex h-10 w-full items-center justify-between rounded-md border px-2 py-2 text-sm shadow-xs",
+      "focus:outline-hidden focus:ring-1 focus:ring-teal-500 focus:border-teal-500",
       "transition-all duration-200",
       "disabled:cursor-not-allowed disabled:opacity-50",
       "[&>span]:line-clamp-1",
@@ -58,7 +58,7 @@ const SelectContent = React.forwardRef(({ className, children, position = "poppe
     <SelectPrimitive.Content
       ref={ref}
       className={cn(
-        "relative z-[1300] max-h-96 min-w-[8rem] overflow-hidden rounded-md border shadow-md",
+        "relative z-1300 max-h-96 min-w-32 overflow-hidden rounded-md border shadow-md",
         "bg-white dark:bg-gray-800",
         "border-gray-300 dark:border-gray-600",
         "text-gray-900 dark:text-white",
@@ -78,8 +78,7 @@ const SelectContent = React.forwardRef(({ className, children, position = "poppe
       <SelectPrimitive.Viewport
         className={cn(
           "p-1",
-          position === "popper" &&
-            "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]"
+          position === "popper" && "h-(--radix-select-trigger-height) w-full min-w-(--radix-select-trigger-width)"
         )}
       >
         {children}
@@ -99,10 +98,10 @@ const SelectItem = React.forwardRef(({ className, children, ...props }, ref) => 
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none",
+      "relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-hidden",
       "focus:bg-gray-100 dark:focus:bg-gray-700",
       "hover:bg-gray-100 dark:hover:bg-gray-700",
-      "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "data-disabled:pointer-events-none data-disabled:opacity-50",
       className
     )}
     {...props}

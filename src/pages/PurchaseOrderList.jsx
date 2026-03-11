@@ -238,7 +238,7 @@ const PurchaseOrderList = () => {
   if (loading) {
     return (
       <div
-        className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
+        className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}
       >
         <div className="flex justify-center items-center min-h-[400px]">
           <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-teal-600"></div>
@@ -251,7 +251,7 @@ const PurchaseOrderList = () => {
   if (purchaseOrders.length === 0 && !loading) {
     return (
       <div
-        className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
+        className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}
       >
         <div
           className={`text-center p-12 rounded-2xl border ${
@@ -267,7 +267,7 @@ const PurchaseOrderList = () => {
           </p>
           <Link
             to="/app/purchases/po/new"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-linear-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-xs hover:shadow-md"
           >
             <Plus size={20} />
             Create Purchase Order
@@ -278,9 +278,7 @@ const PurchaseOrderList = () => {
   }
 
   return (
-    <div
-      className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
-    >
+    <div className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}>
       <div
         className={`p-0 sm:p-6 mx-0 rounded-none sm:rounded-2xl border overflow-hidden ${
           isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-[#E0E0E0]"
@@ -299,7 +297,7 @@ const PurchaseOrderList = () => {
           {authService.hasPermission("purchase_orders", "create") && (
             <Link
               to="/app/purchases/po/new"
-              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
+              className="flex items-center gap-2 px-4 py-2 bg-linear-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-xs hover:shadow-md"
               data-testid="create-po-button"
             >
               <Plus size={18} />
@@ -310,7 +308,7 @@ const PurchaseOrderList = () => {
 
         {/* Filters Section */}
         <div className="flex gap-4 mb-6 flex-wrap items-center">
-          <div className="flex-grow min-w-[300px] relative">
+          <div className="grow min-w-[300px] relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <Search size={20} className={isDarkMode ? "text-gray-400" : "text-gray-500"} />
             </div>
@@ -320,7 +318,7 @@ const PurchaseOrderList = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               aria-label="Search purchase orders"
-              className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+              className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                 isDarkMode
                   ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
                   : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
@@ -332,7 +330,7 @@ const PurchaseOrderList = () => {
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
               aria-label="Filter by status"
-              className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
+              className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
                 isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
               }`}
             >

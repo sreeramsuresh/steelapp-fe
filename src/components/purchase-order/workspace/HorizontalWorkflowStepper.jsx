@@ -188,9 +188,9 @@ export default function HorizontalWorkflowStepper() {
                               : "ring-offset-gray-50 text-gray-600 hover:bg-gray-100"
                           }`
                         : active
-                          ? `${config.activeStep} text-white shadow-sm`
+                          ? `${config.activeStep} text-white shadow-xs`
                           : completed
-                            ? `${config.completedStep} text-white shadow-sm`
+                            ? `${config.completedStep} text-white shadow-xs`
                             : enabled
                               ? isDarkMode
                                 ? "bg-gray-700 text-gray-300 hover:bg-gray-600"

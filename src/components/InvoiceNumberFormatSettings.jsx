@@ -25,7 +25,7 @@ export const InvoiceNumberFormatSettings = () => {
       className={`rounded-lg border p-6 ${isDarkMode ? "bg-[#1a1f26] border-gray-700" : "bg-white border-gray-200"}`}
     >
       <div className="flex items-start gap-3 mb-6">
-        <Info size={24} className="text-teal-500 flex-shrink-0 mt-0.5" />
+        <Info size={24} className="text-teal-500 shrink-0 mt-0.5" />
         <div>
           <h3 className={`text-lg font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
             Invoice Number Format
@@ -102,7 +102,7 @@ export const InvoiceNumberFormatSettings = () => {
         className={`rounded-lg p-4 border-l-4 ${isDarkMode ? "bg-blue-900/20 border-blue-700" : "bg-blue-50 border-blue-500"}`}
       >
         <div className="flex items-start gap-3">
-          <AlertCircle size={18} className={`flex-shrink-0 mt-0.5 ${isDarkMode ? "text-blue-400" : "text-blue-600"}`} />
+          <AlertCircle size={18} className={`shrink-0 mt-0.5 ${isDarkMode ? "text-blue-400" : "text-blue-600"}`} />
           <div>
             <p className={`text-sm font-semibold ${isDarkMode ? "text-blue-300" : "text-blue-900"}`}>
               Want a Custom Format?

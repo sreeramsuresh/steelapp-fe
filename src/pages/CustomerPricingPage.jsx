@@ -254,7 +254,7 @@ export default function CustomerPricingPage() {
           isDarkMode ? "bg-blue-900/20 border border-blue-700" : "bg-blue-50 border border-blue-300"
         }`}
       >
-        <AlertTriangle className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+        <AlertTriangle className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
         <div className="text-sm">
           <p className={`font-medium ${isDarkMode ? "text-blue-100" : "text-blue-900"}`}>Pricing Inheritance</p>
           <p className={`mt-1 ${isDarkMode ? "text-blue-200/70" : "text-blue-700"}`}>
@@ -274,7 +274,7 @@ export default function CustomerPricingPage() {
             isDarkMode
               ? "bg-gray-800 border-gray-700 text-white placeholder-gray-500 focus:border-blue-500"
               : "bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-blue-500"
-          } focus:outline-none focus:ring-1 focus:ring-blue-500`}
+          } focus:outline-hidden focus:ring-1 focus:ring-blue-500`}
         />
       </div>
 

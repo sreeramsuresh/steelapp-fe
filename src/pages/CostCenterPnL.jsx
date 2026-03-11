@@ -86,7 +86,7 @@ export default function CostCenterPnL() {
       ) : (
         <div className="space-y-6">
           {Object.entries(grouped).map(([category, rows]) => (
-            <div key={category} className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+            <div key={category} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
               <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-white">{category}</h3>
               <table className="min-w-full">
                 <thead>

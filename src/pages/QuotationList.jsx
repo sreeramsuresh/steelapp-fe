@@ -244,7 +244,7 @@ const QuotationList = () => {
 
   if (loading) {
     return (
-      <div className={`min-h-screen ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"} p-4`}>
+      <div className={`min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"} p-4`}>
         {/* Header Skeleton */}
         <div className="mb-6">
           <div className="w-48 h-8 bg-gray-300 dark:bg-gray-700 rounded animate-pulse mb-2" />
@@ -258,7 +258,7 @@ const QuotationList = () => {
   }
 
   return (
-    <div className={`min-h-screen ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"} p-4`} data-testid="quotation-list">
+    <div className={`min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"} p-4`} data-testid="quotation-list">
       {/* Header */}
       <div className="mb-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -271,7 +271,7 @@ const QuotationList = () => {
           {authService.hasPermission("quotations", "create") && (
             <Link
               to="/app/quotations/new"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-lg hover:shadow-teal-500/25"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-linear-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-lg hover:shadow-teal-500/25"
               data-testid="create-quotation-button"
             >
               <Plus size={20} />
@@ -325,7 +325,7 @@ const QuotationList = () => {
                 placeholder="Search quotations..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className={`w-full pl-10 pr-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                className={`w-full pl-10 pr-4 py-2 rounded-lg border focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                   isDarkMode
                     ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
                     : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
@@ -342,7 +342,7 @@ const QuotationList = () => {
               name="status"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+              className={`w-full px-3 py-2 rounded-lg border focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                 isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
               }`}
               aria-label="Filter by status"
@@ -367,7 +367,7 @@ const QuotationList = () => {
                 setPageSize(parseInt(e.target.value, 10));
                 setPage(1); // Reset to first page when changing page size
               }}
-              className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+              className={`w-full px-3 py-2 rounded-lg border focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                 isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
               }`}
               aria-label="Items per page"

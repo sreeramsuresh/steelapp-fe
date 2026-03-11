@@ -60,7 +60,7 @@ const ScrapItemsList = ({ creditNoteId = null, showFilters = true }) => {
 
   if (loading) {
     return (
-      <div className={`p-6 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
+      <div className={`p-6 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-xs`}>
         <div className="flex items-center justify-center py-8">
           <RefreshCw className="w-6 h-6 animate-spin text-teal-500" />
           <span className={`ml-2 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>Loading scrap items...</span>
@@ -71,7 +71,7 @@ const ScrapItemsList = ({ creditNoteId = null, showFilters = true }) => {
 
   if (error) {
     return (
-      <div className={`p-6 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
+      <div className={`p-6 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-xs`}>
         <div className="flex items-center justify-center py-8 text-red-500">
           <AlertTriangle className="w-6 h-6 mr-2" />
           <span>{error}</span>
@@ -88,7 +88,7 @@ const ScrapItemsList = ({ creditNoteId = null, showFilters = true }) => {
   }
 
   return (
-    <div className={`p-6 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
+    <div className={`p-6 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-xs`}>
       <div className="flex items-center justify-between mb-4">
         <h2 className={`text-lg font-semibold flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
           <Trash2 className="w-5 h-5 text-red-500" />
@@ -130,7 +130,7 @@ const ScrapItemsList = ({ creditNoteId = null, showFilters = true }) => {
                 isDarkMode
                   ? "border-gray-600 bg-gray-700 text-white placeholder-gray-500"
                   : "border-gray-300 bg-white text-gray-900 placeholder-gray-400"
-              } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+              } focus:outline-hidden focus:ring-2 focus:ring-teal-500`}
             />
           </div>
         </div>

@@ -125,7 +125,7 @@ export default function PriceHistoryReport() {
         </ul>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-6">
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
           <div className="flex-1 min-w-max">
             <label htmlFor="product-select" className="block text-sm font-medium mb-2">
@@ -135,7 +135,7 @@ export default function PriceHistoryReport() {
               id="product-select"
               value={selectedProduct}
               onChange={(e) => setSelectedProduct(e.target.value)}
-              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 dark:bg-gray-700 dark:text-white w-full sm:w-80"
+              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 dark:bg-gray-700 dark:text-white w-full sm:w-80"
             >
               <option value="">-- Select Product --</option>
               {products.map((product) => (
@@ -153,7 +153,7 @@ export default function PriceHistoryReport() {
       </div>
 
       {selectedProductData && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <div>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Product Name</p>
@@ -182,7 +182,7 @@ export default function PriceHistoryReport() {
           No price history found for the selected product.
         </div>
       ) : priceHistory.length > 0 ? (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>

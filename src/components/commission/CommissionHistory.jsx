@@ -288,7 +288,7 @@ const CommissionHistory = ({ salesPersonId, salesPersonName }) => {
                 isDarkMode
                   ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
                   : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
-              } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              } focus:outline-hidden focus:ring-2 focus:ring-blue-500`}
             />
           </div>
 
@@ -304,7 +304,7 @@ const CommissionHistory = ({ salesPersonId, salesPersonName }) => {
               onChange={(e) => setStatusFilter(e.target.value)}
               className={`w-full pl-10 pr-4 py-2 rounded-lg border appearance-none ${
                 isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
-              } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              } focus:outline-hidden focus:ring-2 focus:ring-blue-500`}
             >
               <option value="ALL">All Statuses</option>
               <option value="PENDING">Pending</option>
@@ -327,7 +327,7 @@ const CommissionHistory = ({ salesPersonId, salesPersonName }) => {
               onChange={(e) => setDateFrom(e.target.value)}
               className={`w-full pl-10 pr-4 py-2 rounded-lg border ${
                 isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
-              } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              } focus:outline-hidden focus:ring-2 focus:ring-blue-500`}
             />
           </div>
 
@@ -344,7 +344,7 @@ const CommissionHistory = ({ salesPersonId, salesPersonName }) => {
               onChange={(e) => setDateTo(e.target.value)}
               className={`w-full pl-10 pr-4 py-2 rounded-lg border ${
                 isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
-              } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              } focus:outline-hidden focus:ring-2 focus:ring-blue-500`}
             />
           </div>
 

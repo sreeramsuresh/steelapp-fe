@@ -44,7 +44,7 @@ export default function BankReconciliationStatement() {
       <h1 className={`text-2xl font-bold mb-6 ${textPrimary}`}>Bank Reconciliation Statement</h1>
 
       {/* Statement Selector */}
-      <div className={`${cardBg} p-4 rounded-lg shadow mb-6`}>
+      <div className={`${cardBg} p-4 rounded-lg shadow-sm mb-6`}>
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label htmlFor="statement-id" className={`block text-sm font-medium ${textLabel} mb-1`}>
@@ -84,7 +84,7 @@ export default function BankReconciliationStatement() {
       {data && (
         <div className="space-y-6">
           {/* Reconciliation Status */}
-          <div className={`${cardBg} p-6 rounded-lg shadow`}>
+          <div className={`${cardBg} p-6 rounded-lg shadow-sm`}>
             <div className="grid grid-cols-2 gap-8 mb-6">
               <div>
                 <h3 className={`text-lg font-semibold ${textPrimary} mb-4`}>Bank Reconciliation Statement</h3>
@@ -131,7 +131,7 @@ export default function BankReconciliationStatement() {
 
           {/* Details */}
           <div className="grid grid-cols-2 gap-6">
-            <div className={`${cardBg} p-6 rounded-lg shadow`}>
+            <div className={`${cardBg} p-6 rounded-lg shadow-sm`}>
               <h3 className={`text-lg font-semibold ${textPrimary} mb-4`}>Bank Side</h3>
               <div className="space-y-4">
                 <div>
@@ -149,7 +149,7 @@ export default function BankReconciliationStatement() {
               </div>
             </div>
 
-            <div className={`${cardBg} p-6 rounded-lg shadow`}>
+            <div className={`${cardBg} p-6 rounded-lg shadow-sm`}>
               <h3 className={`text-lg font-semibold ${textPrimary} mb-4`}>Book Side</h3>
               <div className="space-y-4">
                 <div>
@@ -170,7 +170,7 @@ export default function BankReconciliationStatement() {
 
           {/* Adjustments */}
           <div className="grid grid-cols-2 gap-6">
-            <div className={`${cardBg} p-6 rounded-lg shadow`}>
+            <div className={`${cardBg} p-6 rounded-lg shadow-sm`}>
               <h3 className={`text-lg font-semibold ${textPrimary} mb-4`}>Adjustments</h3>
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
@@ -188,7 +188,7 @@ export default function BankReconciliationStatement() {
               </div>
             </div>
 
-            <div className={`${cardBg} p-6 rounded-lg shadow`}>
+            <div className={`${cardBg} p-6 rounded-lg shadow-sm`}>
               <h3 className={`text-lg font-semibold ${textPrimary} mb-4`}>Deposits & Withdrawals</h3>
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">

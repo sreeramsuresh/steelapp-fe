@@ -278,7 +278,7 @@ const DeliveryNoteList = () => {
   };
 
   return (
-    <div className={`p-6 min-h-screen ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}>
+    <div className={`p-6 min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}>
       <div className="flex justify-between items-start mb-6">
         <div>
           <h1 className={`text-2xl font-semibold mb-1 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
@@ -291,7 +291,7 @@ const DeliveryNoteList = () => {
         {authService.hasPermission("delivery_notes", "create") && (
           <a
             href="/app/delivery-notes/new"
-            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md no-underline"
+            className="flex items-center gap-2 px-4 py-2 bg-linear-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-xs hover:shadow-md no-underline"
             onClick={(e) => {
               e.preventDefault();
               navigate("/app/delivery-notes/new");
@@ -346,7 +346,7 @@ const DeliveryNoteList = () => {
               placeholder="Search delivery notes..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+              className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                 isDarkMode
                   ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
                   : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
@@ -361,7 +361,7 @@ const DeliveryNoteList = () => {
               name="status"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
+              className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
                 isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
               }`}
               aria-label="Filter by status"
@@ -386,7 +386,7 @@ const DeliveryNoteList = () => {
               type="date"
               value={dateFilter}
               onChange={(e) => setDateFilter(e.target.value)}
-              className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+              className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                 isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
               }`}
               aria-label="Filter by date"

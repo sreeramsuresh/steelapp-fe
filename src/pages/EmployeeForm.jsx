@@ -148,7 +148,7 @@ const EmployeeForm = () => {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+      <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
         {activeTab === "Personal" && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>

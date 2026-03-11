@@ -244,13 +244,13 @@ export default function CommissionApprovalWorkflow() {
 
         {/* Stats Summary */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div className={`p-4 rounded-lg shadow ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+          <div className={`p-4 rounded-lg shadow-sm ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
             <div className={`text-sm font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
               Pending Approval
             </div>
             <div className="text-3xl font-bold text-yellow-600">{pendingApprovals.length}</div>
           </div>
-          <div className={`p-4 rounded-lg shadow ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+          <div className={`p-4 rounded-lg shadow-sm ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
             <div className={`text-sm font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
               Total Pending Amount
             </div>
@@ -261,13 +261,13 @@ export default function CommissionApprovalWorkflow() {
                 .toFixed(2)}
             </div>
           </div>
-          <div className={`p-4 rounded-lg shadow ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+          <div className={`p-4 rounded-lg shadow-sm ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
             <div className={`text-sm font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
               Approval Deadline
             </div>
             <div className="text-lg font-bold text-red-600">15 days</div>
           </div>
-          <div className={`p-4 rounded-lg shadow ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+          <div className={`p-4 rounded-lg shadow-sm ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
             <div className={`text-sm font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
               Sales Persons
             </div>
@@ -324,7 +324,7 @@ export default function CommissionApprovalWorkflow() {
         )}
 
         {/* Pending Approvals List */}
-        <div className={`rounded-lg shadow ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+        <div className={`rounded-lg shadow-sm ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
           <div
             className={`p-6 border-b flex items-center justify-between ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
           >
@@ -658,7 +658,7 @@ export default function CommissionApprovalWorkflow() {
                 isDarkMode
                   ? "bg-gray-700 border-gray-600 text-white placeholder-gray-500"
                   : "bg-white border-gray-300 text-gray-900 placeholder-gray-400"
-              } focus:outline-none focus:ring-2 focus:ring-red-500`}
+              } focus:outline-hidden focus:ring-2 focus:ring-red-500`}
             />
             <div className="flex justify-end gap-3">
               <button

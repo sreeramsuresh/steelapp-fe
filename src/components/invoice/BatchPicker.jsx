@@ -401,7 +401,7 @@ const BatchPicker = ({
                               ? "bg-gray-700 border-gray-600 text-gray-200"
                               : "bg-white border-gray-300 text-gray-700"
                         }
-                        focus:outline-none focus:ring-1 focus:ring-teal-500
+                        focus:outline-hidden focus:ring-1 focus:ring-teal-500
                       `}
                     />
                   </TableCell>

@@ -55,7 +55,7 @@ const QuickAccessSection = ({ quickAccessItems, handleNavigate, isDarkMode }) =>
           }`}
         >
           <div className="flex items-center justify-between mb-4">
-            <div className={`p-3 rounded-lg bg-gradient-to-br ${item.color}`}>
+            <div className={`p-3 rounded-lg bg-linear-to-br ${item.color}`}>
               <IconComponent className="w-6 h-6 text-white" />
             </div>
             <ArrowRight

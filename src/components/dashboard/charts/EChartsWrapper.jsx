@@ -369,7 +369,7 @@ export const WaterfallChartWrapper = ({
     tooltip: {
       trigger: "axis",
       axisPointer: {
-        type: "shadow",
+        type: "shadow-sm",
       },
       backgroundColor: colors.background,
       borderColor: colors.grid,

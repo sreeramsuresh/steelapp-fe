@@ -300,7 +300,7 @@ const ImportOrderDetails = () => {
   // Render loading state
   if (loading) {
     return (
-      <div className={`p-6 min-h-screen ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}>
+      <div className={`p-6 min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}>
         <div className="flex justify-center items-center min-h-[400px]">
           <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-teal-600"></div>
           <span className={`ml-4 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>Loading import order...</span>
@@ -312,7 +312,7 @@ const ImportOrderDetails = () => {
   // Render error state
   if (error && !order) {
     return (
-      <div className={`p-6 min-h-screen ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}>
+      <div className={`p-6 min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}>
         <div
           className={`text-center p-12 rounded-2xl border ${
             isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-[#E0E0E0]"
@@ -338,7 +338,7 @@ const ImportOrderDetails = () => {
 
   if (!order) {
     return (
-      <div className={`p-6 min-h-screen ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}>
+      <div className={`p-6 min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}>
         <div
           className={`text-center p-12 rounded-2xl border ${
             isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-[#E0E0E0]"
@@ -399,7 +399,7 @@ const ImportOrderDetails = () => {
   const availableTransitions = STATUS_TRANSITIONS[status] || [];
 
   return (
-    <div className={`p-6 min-h-screen ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}>
+    <div className={`p-6 min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}>
       {/* Header with Actions */}
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
         <div className="flex items-center gap-4">
@@ -1362,7 +1362,7 @@ const ImportOrderDetails = () => {
                   return (
                     <div key={entry.id || entry.name || `entry-${index}`} className="flex gap-3">
                       <div
-                        className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
+                        className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
                           isDarkMode ? entryConfig.bgDark : entryConfig.bgLight
                         }`}
                       >
@@ -1393,7 +1393,7 @@ const ImportOrderDetails = () => {
               {createdAt && (
                 <div className="flex gap-3">
                   <div
-                    className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
+                    className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
                       isDarkMode ? "bg-gray-800" : "bg-gray-100"
                     }`}
                   >
@@ -1455,7 +1455,7 @@ const ImportOrderDetails = () => {
                 onChange={(e) => setStatusUpdateNotes(e.target.value)}
                 placeholder="Add any notes about this status change..."
                 rows={3}
-                className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                   isDarkMode
                     ? "bg-gray-800 border-gray-600 text-white placeholder-gray-500"
                     : "bg-white border-gray-300 text-gray-900 placeholder-gray-400"

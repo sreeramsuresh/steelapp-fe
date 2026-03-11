@@ -150,7 +150,7 @@ const RolesHelpPanel = () => {
             </p>
             <div className={`p-4 rounded-lg ${isDarkMode ? "bg-blue-900/20" : "bg-blue-50"}`}>
               <div className="flex gap-2">
-                <Info className="text-blue-500 flex-shrink-0 mt-0.5" size={18} />
+                <Info className="text-blue-500 shrink-0 mt-0.5" size={18} />
                 <div>
                   <p className={`font-semibold ${isDarkMode ? "text-blue-300" : "text-blue-900"}`}>How it works</p>
                   <p className={`text-sm mt-1 ${isDarkMode ? "text-blue-200" : "text-blue-800"}`}>
@@ -236,7 +236,7 @@ const RolesHelpPanel = () => {
             </p>
             <div className={`p-4 rounded-lg ${isDarkMode ? "bg-purple-900/20" : "bg-purple-50"}`}>
               <div className="flex gap-2">
-                <Crown className="text-purple-500 flex-shrink-0 mt-0.5" size={18} />
+                <Crown className="text-purple-500 shrink-0 mt-0.5" size={18} />
                 <div>
                   <p className={`font-semibold ${isDarkMode ? "text-purple-300" : "text-purple-900"}`}>
                     Default Director Roles
@@ -270,7 +270,7 @@ const RolesHelpPanel = () => {
             </p>
             <div className={`p-4 rounded-lg ${isDarkMode ? "bg-green-900/20" : "bg-green-50"}`}>
               <div className="flex gap-2">
-                <CheckCircle className="text-green-500 flex-shrink-0 mt-0.5" size={18} />
+                <CheckCircle className="text-green-500 shrink-0 mt-0.5" size={18} />
                 <div>
                   <p className={`font-semibold ${isDarkMode ? "text-green-300" : "text-green-900"}`}>
                     Steps to Create Custom Role
@@ -308,7 +308,7 @@ const RolesHelpPanel = () => {
             </p>
             <div className={`p-4 rounded-lg ${isDarkMode ? "bg-amber-900/20" : "bg-amber-50"}`}>
               <div className="flex gap-2">
-                <Lightbulb className="text-amber-500 flex-shrink-0 mt-0.5" size={18} />
+                <Lightbulb className="text-amber-500 shrink-0 mt-0.5" size={18} />
                 <div>
                   <p className={`font-semibold ${isDarkMode ? "text-amber-300" : "text-amber-900"}`}>
                     How to Assign Roles
@@ -409,7 +409,7 @@ const RolesHelpPanel = () => {
             </div>
             <div className={`p-4 rounded-lg ${isDarkMode ? "bg-red-900/20" : "bg-red-50"}`}>
               <div className="flex gap-2">
-                <AlertTriangle className="text-red-500 flex-shrink-0 mt-0.5" size={18} />
+                <AlertTriangle className="text-red-500 shrink-0 mt-0.5" size={18} />
                 <div>
                   <p className={`font-semibold ${isDarkMode ? "text-red-300" : "text-red-900"}`}>
                     Common Mistakes to Avoid

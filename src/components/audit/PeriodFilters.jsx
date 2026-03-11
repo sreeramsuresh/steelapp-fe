@@ -26,7 +26,7 @@ export default function PeriodFilters({ filters, onFilterChange }) {
   };
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-lg shadow border border-slate-200 dark:border-slate-700 p-4">
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-4">
       <div className="flex items-center gap-2 mb-4">
         <Filter className="w-5 h-5 text-slate-600 dark:text-slate-400" />
         <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Filters</h3>

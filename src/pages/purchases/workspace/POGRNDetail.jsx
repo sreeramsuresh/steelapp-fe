@@ -290,7 +290,7 @@ export default function POGRNDetail() {
                               [item.id]: e.target.value || undefined,
                             }))
                           }
-                          className={`w-full rounded-lg border px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                          className={`w-full rounded-lg border px-3 py-1.5 text-sm focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                             isDarkMode
                               ? "bg-gray-700 border-gray-600 text-white"
                               : "bg-white border-gray-300 text-gray-900"

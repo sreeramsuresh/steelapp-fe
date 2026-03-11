@@ -37,7 +37,7 @@ const ReorderAlertsWidget = ({ data, onNavigate, onProductClick, onCreatePO }) =
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-linear-to-br from-red-500 to-red-600 flex items-center justify-center">
               <AlertTriangle size={16} className="text-white" />
             </div>
             <div>
@@ -104,7 +104,7 @@ const ReorderAlertsWidget = ({ data, onNavigate, onProductClick, onCreatePO }) =
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-linear-to-br from-red-500 to-red-600 flex items-center justify-center">
             <AlertTriangle size={16} className="text-white" />
           </div>
           <div>
@@ -126,7 +126,7 @@ const ReorderAlertsWidget = ({ data, onNavigate, onProductClick, onCreatePO }) =
               filter === "all"
                 ? "bg-teal-500 text-white"
                 : isDarkMode
-                  ? "bg-[#121418] text-gray-400 hover:text-white"
+                  ? "bg-gray-900 text-gray-400 hover:text-white"
                   : "bg-gray-100 text-gray-600 hover:text-gray-900"
             }`}
           >
@@ -231,7 +231,7 @@ const ReorderAlertsWidget = ({ data, onNavigate, onProductClick, onCreatePO }) =
                   <span className={`text-xs font-medium ${priority.color}`}>{product.daysOfCover}d cover</span>
                 </div>
                 <div className="relative">
-                  <div className={`h-2 rounded-full overflow-hidden ${isDarkMode ? "bg-[#121418]" : "bg-gray-200"}`}>
+                  <div className={`h-2 rounded-full overflow-hidden ${isDarkMode ? "bg-gray-900" : "bg-gray-200"}`}>
                     <div
                       className={`h-full rounded-full ${getStockLevelColor(product.currentStock, product.reorderPoint, product.maxStock)}`}
                       style={{ width: `${stockPercent}%` }}

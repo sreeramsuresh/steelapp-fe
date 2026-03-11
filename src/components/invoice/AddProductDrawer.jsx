@@ -38,7 +38,7 @@ const AddProductDrawer = ({
       <div className={DRAWER_PANEL_CLASSES(isDarkMode, isOpen)} style={DRAWER_STYLE}>
         <div className="p-4">
           {/* Sticky Header */}
-          <div className="sticky top-0 flex justify-between items-start gap-2.5 mb-3 p-4 -m-4 mb-3 z-[1] bg-teal-600 border-b border-teal-700">
+          <div className="sticky top-0 flex justify-between items-start gap-2.5 mb-3 p-4 -m-4 mb-3 z-1 bg-teal-600 border-b border-teal-700">
             <div>
               <div className="text-sm font-extrabold text-white">Add Product Line</div>
               <div className="text-xs text-teal-100">Search products, allocate batches, and add to invoice</div>

@@ -202,7 +202,7 @@ const ProductUpload = ({ isOpen, onClose, onUploadComplete }) => {
               <button
                 type="button"
                 onClick={downloadTemplate}
-                className="px-4 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                className="px-4 py-2 bg-linear-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
               >
                 <FaDownload className="w-4 h-4" />
                 Download Template
@@ -293,7 +293,7 @@ const ProductUpload = ({ isOpen, onClose, onUploadComplete }) => {
                   <p className={`text-2xl font-bold mt-1 ${textPrimary}`}>{uploadResults.failed.length}</p>
                 </div>
 
-                <div className={`p-4 rounded-lg ${isDarkMode ? "bg-[#263238]" : "bg-[#F5F5F5]"}`}>
+                <div className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-[#F5F5F5]"}`}>
                   <div className="flex items-center gap-2">
                     <FaFile className="w-5 h-5 text-blue-500" />
                     <span className={`font-medium ${textPrimary}`}>Total</span>
@@ -350,7 +350,7 @@ const ProductUpload = ({ isOpen, onClose, onUploadComplete }) => {
               type="button"
               onClick={uploadFile}
               disabled={uploading}
-              className="px-6 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 disabled:opacity-50 disabled:transform-none"
+              className="px-6 py-2 bg-linear-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 disabled:opacity-50 disabled:transform-none"
             >
               <FaUpload className="w-4 h-4" />
               {uploading ? "Uploading..." : "Upload Products"}

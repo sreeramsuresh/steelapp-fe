@@ -319,7 +319,7 @@ describe("Dropdown Component", () => {
       expect(getByTestId("dropdown-menu").className).toContain("border");
     });
 
-    it("should have shadow", () => {
+    it("should have shadow-sm", () => {
       const { getByTestId } = renderWithProviders(<Dropdown {...defaultProps} />);
       expect(getByTestId("dropdown-menu").className).toContain("shadow-lg");
     });

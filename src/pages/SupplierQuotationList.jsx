@@ -338,7 +338,7 @@ export function SupplierQuotationList() {
                         setPageSize(Number(e.target.value));
                         setPage(1); // Reset to first page
                       }}
-                      className={`px-2 py-1 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${isDarkMode ? "bg-gray-700 border-gray-600 text-gray-100" : "border-gray-300"}`}
+                      className={`px-2 py-1 border rounded-md text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500 ${isDarkMode ? "bg-gray-700 border-gray-600 text-gray-100" : "border-gray-300"}`}
                     >
                       <option value={10}>10</option>
                       <option value={20}>20</option>

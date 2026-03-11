@@ -44,7 +44,7 @@ const LoadingButton = ({
   };
 
   const baseStyles =
-    "inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2";
+    "inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:ring-offset-2";
   const disabledStyles = isDisabled ? "opacity-60 cursor-not-allowed pointer-events-none" : "";
 
   return (
@@ -77,7 +77,7 @@ LoadingButton.propTypes = {
   icon: PropTypes.elementType,
   loadingText: PropTypes.string,
   children: PropTypes.node.isRequired,
-  variant: PropTypes.oneOf(["primary", "secondary", "danger", "success", "warning", "outline"]),
+  variant: PropTypes.oneOf(["primary", "secondary", "danger", "success", "warning", "outline-solid"]),
   size: PropTypes.oneOf(["sm", "md", "lg"]),
   className: PropTypes.string,
   type: PropTypes.oneOf(["button", "submit", "reset"]),

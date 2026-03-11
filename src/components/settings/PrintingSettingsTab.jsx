@@ -183,10 +183,7 @@ const PrintingSettingsTab = () => {
           className={`mt-6 p-4 rounded-lg ${isDarkMode ? "bg-teal-900/20 border-teal-700" : "bg-teal-50 border-teal-200"} border`}
         >
           <div className="flex items-start gap-3">
-            <AlertCircle
-              size={20}
-              className={`${isDarkMode ? "text-teal-400" : "text-teal-600"} flex-shrink-0 mt-0.5`}
-            />
+            <AlertCircle size={20} className={`${isDarkMode ? "text-teal-400" : "text-teal-600"} shrink-0 mt-0.5`} />
             <div className={`text-sm ${isDarkMode ? "text-gray-200" : "text-gray-700"}`}>
               <strong className={isDarkMode ? "text-teal-300" : "text-teal-700"}>Example:</strong> If Receipt Size = A5
               and Print On = A4, the receipt will be A5 size centered on A4 paper. This is the most economical setting
@@ -247,10 +244,7 @@ const PrintingSettingsTab = () => {
           className={`mt-6 p-4 rounded-lg ${isDarkMode ? "bg-teal-900/20 border-teal-700" : "bg-teal-50 border-teal-200"} border`}
         >
           <div className="flex items-start gap-3">
-            <AlertCircle
-              size={20}
-              className={`${isDarkMode ? "text-teal-400" : "text-teal-600"} flex-shrink-0 mt-0.5`}
-            />
+            <AlertCircle size={20} className={`${isDarkMode ? "text-teal-400" : "text-teal-600"} shrink-0 mt-0.5`} />
             <div className={`text-sm ${isDarkMode ? "text-gray-200" : "text-gray-700"}`}>
               <strong className={isDarkMode ? "text-teal-300" : "text-teal-700"}>Note:</strong> Printer selection works
               when using the browser&apos;s print dialog. For automatic printing, configure your browser&apos;s default

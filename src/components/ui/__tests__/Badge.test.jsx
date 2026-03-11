@@ -23,7 +23,7 @@ describe("Badge", () => {
     expect(container.firstChild.className).toContain("destructive");
   });
 
-  it("renders with outline variant", () => {
+  it("renders with outline-solid variant", () => {
     const { container } = render(<Badge variant="outline">Outline</Badge>);
     expect(container.firstChild.className).toContain("text-foreground");
   });

@@ -80,7 +80,7 @@ const CountriesList = () => {
       </div>
 
       {/* Filters */}
-      <div className={`${cardClass} rounded-lg p-4 mb-6 shadow-sm`}>
+      <div className={`${cardClass} rounded-lg p-4 mb-6 shadow-xs`}>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="md:col-span-2 relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
@@ -107,7 +107,7 @@ const CountriesList = () => {
       {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{error}</div>}
 
       {/* Table */}
-      <div className={`${cardClass} rounded-lg shadow-sm overflow-hidden`}>
+      <div className={`${cardClass} rounded-lg shadow-xs overflow-hidden`}>
         {loading ? (
           <div className="p-8 text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600 mx-auto" />
@@ -182,7 +182,7 @@ const CountriesList = () => {
                                 {ports.map((port) => (
                                   <div
                                     key={port.id || port.code}
-                                    className={`flex items-start gap-2 p-3 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-white"} shadow-sm`}
+                                    className={`flex items-start gap-2 p-3 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-white"} shadow-xs`}
                                   >
                                     <MapPin size={16} className="text-teal-600 mt-0.5 shrink-0" />
                                     <div>

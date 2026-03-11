@@ -124,9 +124,9 @@ const Products = () => {
 
   return (
     <MarketingLayout>
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100">
         {/* Header */}
-        <div className="bg-gradient-to-r from-slate-900 via-gray-900 to-slate-800 text-white">
+        <div className="bg-linear-to-r from-slate-900 via-gray-900 to-slate-800 text-white">
           <div className="max-w-7xl mx-auto px-6 py-16">
             <h1 className="text-5xl font-bold mb-4">Products</h1>
             <p className="text-xl text-gray-300 max-w-2xl mb-6">
@@ -146,7 +146,7 @@ const Products = () => {
           <section className="mb-20">
             <div className="text-center mb-12">
               <h2 className="text-4xl font-bold text-gray-900 mb-4">Metal Supplies</h2>
-              <div className="w-24 h-1 bg-gradient-to-r from-blue-600 to-indigo-600 mx-auto mb-6"></div>
+              <div className="w-24 h-1 bg-linear-to-r from-blue-600 to-indigo-600 mx-auto mb-6"></div>
               <p className="text-lg text-gray-600 max-w-2xl mx-auto">
                 Premium quality steel products for industrial, commercial and construction applications
               </p>
@@ -164,7 +164,7 @@ const Products = () => {
                       alt={product.title}
                       className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="absolute inset-0 bg-linear-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   </div>
                   <div className="p-6">
                     <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
@@ -173,7 +173,7 @@ const Products = () => {
                     <p className="text-gray-600 leading-relaxed">{product.description}</p>
                     <a
                       href="/marketing/contact"
-                      className="mt-4 inline-block px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105"
+                      className="mt-4 inline-block px-6 py-2 bg-linear-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105"
                     >
                       Learn More
                     </a>
@@ -187,10 +187,10 @@ const Products = () => {
           <section className="mb-20">
             <div className="text-center mb-12">
               <h2 className="text-4xl font-bold text-gray-900 mb-4">Decorative PVD Sheets</h2>
-              <p className="text-2xl text-gradient bg-gradient-to-r from-amber-600 to-yellow-500 bg-clip-text text-transparent font-semibold">
+              <p className="text-2xl text-gradient bg-linear-to-r from-amber-600 to-yellow-500 bg-clip-text text-transparent font-semibold">
                 Metal Elegance
               </p>
-              <div className="w-24 h-1 bg-gradient-to-r from-amber-500 to-yellow-500 mx-auto mt-4"></div>
+              <div className="w-24 h-1 bg-linear-to-r from-amber-500 to-yellow-500 mx-auto mt-4"></div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -204,7 +204,7 @@ const Products = () => {
                     alt={product.title}
                     className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent">
+                  <div className="absolute inset-0 bg-linear-to-t from-black/70 via-transparent to-transparent">
                     <div className="absolute bottom-4 left-4 text-white">
                       <h3 className="text-lg font-bold">{product.title}</h3>
                     </div>
@@ -218,7 +218,7 @@ const Products = () => {
           <section className="mb-20">
             <div className="text-center mb-12">
               <h2 className="text-4xl font-bold text-gray-900 mb-4">Kitchen Solutions</h2>
-              <div className="w-24 h-1 bg-gradient-to-r from-emerald-500 to-teal-500 mx-auto"></div>
+              <div className="w-24 h-1 bg-linear-to-r from-emerald-500 to-teal-500 mx-auto"></div>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -241,10 +241,10 @@ const Products = () => {
           <section className="mb-20">
             <div className="text-center mb-12">
               <h2 className="text-4xl font-bold text-gray-900 mb-4">Strength & Precision</h2>
-              <p className="text-2xl text-gradient bg-gradient-to-r from-slate-600 to-gray-600 bg-clip-text text-transparent font-semibold">
+              <p className="text-2xl text-gradient bg-linear-to-r from-slate-600 to-gray-600 bg-clip-text text-transparent font-semibold">
                 Elevation Solutions
               </p>
-              <div className="w-24 h-1 bg-gradient-to-r from-slate-500 to-gray-500 mx-auto mt-4"></div>
+              <div className="w-24 h-1 bg-linear-to-r from-slate-500 to-gray-500 mx-auto mt-4"></div>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -267,7 +267,7 @@ const Products = () => {
           <section className="mb-20">
             <div className="text-center mb-12">
               <h2 className="text-4xl font-bold text-gray-900 mb-6">Industries We Serve</h2>
-              <div className="w-24 h-1 bg-gradient-to-r from-purple-500 to-pink-500 mx-auto"></div>
+              <div className="w-24 h-1 bg-linear-to-r from-purple-500 to-pink-500 mx-auto"></div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -281,7 +281,7 @@ const Products = () => {
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                       />
                     </div>
-                    <div className="absolute -top-2 -right-2 w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-2xl shadow-lg">
+                    <div className="absolute -top-2 -right-2 w-12 h-12 bg-linear-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-2xl shadow-lg">
                       {industry.icon}
                     </div>
                   </div>
@@ -294,9 +294,9 @@ const Products = () => {
           </section>
 
           {/* Call to Action */}
-          <section className="bg-gradient-to-r from-slate-900 via-gray-900 to-slate-800 rounded-2xl p-12 text-center text-white">
+          <section className="bg-linear-to-r from-slate-900 via-gray-900 to-slate-800 rounded-2xl p-12 text-center text-white">
             <h2 className="text-4xl font-bold mb-4">Partner With Us For</h2>
-            <p className="text-3xl text-gradient bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent font-bold mb-6">
+            <p className="text-3xl text-gradient bg-linear-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent font-bold mb-6">
               Excellence in Steel Solutions
             </p>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-8">
@@ -306,7 +306,7 @@ const Products = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a
                 href="/marketing/contact"
-                className="px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg inline-block"
+                className="px-8 py-4 bg-linear-to-r from-blue-600 to-indigo-600 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg inline-block"
               >
                 Get Quote
               </a>

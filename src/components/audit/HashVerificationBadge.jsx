@@ -23,9 +23,9 @@ export default function HashVerificationBadge({ hash, verified = true }) {
     >
       <div className="flex items-start gap-3">
         {verified ? (
-          <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+          <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 shrink-0 mt-0.5" />
         ) : (
-          <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+          <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
         )}
 
         <div className="flex-1 min-w-0">

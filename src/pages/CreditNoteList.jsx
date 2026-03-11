@@ -313,7 +313,7 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
         </div>
 
         {/* Filters */}
-        <div className={`p-4 rounded-lg mb-6 ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
+        <div className={`p-4 rounded-lg mb-6 ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-xs`}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="md:col-span-2">
               <div className="relative">
@@ -329,7 +329,7 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
                     isDarkMode
                       ? "border-gray-600 bg-gray-700 text-white placeholder-gray-400"
                       : "border-gray-300 bg-white text-gray-900 placeholder-gray-500"
-                  } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                  } focus:outline-hidden focus:ring-2 focus:ring-teal-500`}
                 />
               </div>
             </div>
@@ -340,7 +340,7 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
                 aria-label="Filter by status"
                 className={`w-full px-4 py-2 rounded-lg border ${
                   isDarkMode ? "border-gray-600 bg-gray-700 text-white" : "border-gray-300 bg-white text-gray-900"
-                } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                } focus:outline-hidden focus:ring-2 focus:ring-teal-500`}
               >
                 <option value="">All Statuses</option>
                 {Object.entries(STATUS_COLORS).map(([value, config]) => (
@@ -377,7 +377,7 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
                   key={draft.invoiceId}
                   className={`flex items-center justify-between p-3 rounded-lg ${
                     isDarkMode ? "bg-gray-800" : "bg-white"
-                  } shadow-sm`}
+                  } shadow-xs`}
                 >
                   <div className="flex items-center gap-3">
                     <FileText className={`h-5 w-5 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`} />
@@ -425,7 +425,7 @@ const CreditNoteList = ({ preSelectedInvoiceId }) => {
         )}
 
         {/* Credit Notes Table */}
-        <div className={`rounded-lg overflow-hidden ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm relative`}>
+        <div className={`rounded-lg overflow-hidden ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-xs relative`}>
           {loading && !initialLoading && (
             <div className="absolute inset-0 bg-black/5 z-10 flex items-center justify-center pointer-events-none">
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-teal-600" />

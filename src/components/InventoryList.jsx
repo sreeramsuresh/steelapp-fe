@@ -361,7 +361,7 @@ const InventoryList = () => {
   if (loading) {
     return (
       <div
-        className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
+        className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}
       >
         <div className="flex justify-center items-center min-h-[400px]">
           <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-teal-600"></div>
@@ -372,9 +372,7 @@ const InventoryList = () => {
   }
 
   return (
-    <div
-      className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
-    >
+    <div className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}>
       <div
         className={`p-0 sm:p-6 mx-0 rounded-none sm:rounded-2xl border overflow-hidden ${
           isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-[#E0E0E0]"
@@ -408,7 +406,7 @@ const InventoryList = () => {
           }`}
         >
           <div className="flex gap-4 items-center">
-            <div className="flex-grow relative">
+            <div className="grow relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <Search size={20} className={isDarkMode ? "text-gray-400" : "text-gray-500"} />
               </div>
@@ -417,7 +415,7 @@ const InventoryList = () => {
                 placeholder="Search inventory by product name, code, or SKU..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                   isDarkMode
                     ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
                     : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
@@ -447,7 +445,7 @@ const InventoryList = () => {
             <button
               type="button"
               onClick={() => handleOpenDialog()}
-              className="flex items-center gap-2 px-4 py-3 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
+              className="flex items-center gap-2 px-4 py-3 bg-linear-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-xs hover:shadow-md"
             >
               <Add size={16} />
               Add Item
@@ -455,7 +453,7 @@ const InventoryList = () => {
             <button
               type="button"
               onClick={() => setShowUploadModal(true)}
-              className="flex items-center gap-2 px-4 py-3 bg-gradient-to-br from-green-600 to-green-700 text-white rounded-lg hover:from-green-500 hover:to-green-600 transition-all duration-300 shadow-sm hover:shadow-md"
+              className="flex items-center gap-2 px-4 py-3 bg-linear-to-br from-green-600 to-green-700 text-white rounded-lg hover:from-green-500 hover:to-green-600 transition-all duration-300 shadow-xs hover:shadow-md"
             >
               <Upload size={16} />
               Upload Items
@@ -838,7 +836,7 @@ const InventoryList = () => {
                         <button
                           type="button"
                           onClick={() => handleOpenDialog()}
-                          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
+                          className="flex items-center gap-2 px-4 py-2 bg-linear-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-xs hover:shadow-md"
                         >
                           <Add size={16} />
                           Add Item
@@ -876,7 +874,7 @@ const InventoryList = () => {
                       setPageSize(Number(e.target.value));
                       setPage(1); // Reset to first page
                     }}
-                    className={`px-2 py-1 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    className={`px-2 py-1 rounded-lg border text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500 ${
                       isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                     }`}
                   >
@@ -978,7 +976,7 @@ const InventoryList = () => {
                           value={productQuery}
                           onChange={(e) => setProductQuery(e.target.value)}
                           placeholder="Search and select a product to link (optional)"
-                          className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                          className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                             isDarkMode
                               ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
                               : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
@@ -993,7 +991,7 @@ const InventoryList = () => {
                         )}
                         {productOptions.length > 0 && (
                           <div
-                            className={`absolute z-10 mt-1 w-full max-h-56 overflow-auto rounded-lg border shadow ${isDarkMode ? "bg-[#1E2328] border-gray-700" : "bg-white border-gray-200"}`}
+                            className={`absolute z-10 mt-1 w-full max-h-56 overflow-auto rounded-lg border shadow-sm ${isDarkMode ? "bg-[#1E2328] border-gray-700" : "bg-white border-gray-200"}`}
                           >
                             {productOptions.map((p) => (
                               <button
@@ -1033,7 +1031,7 @@ const InventoryList = () => {
                       value={formData.description}
                       onChange={(e) => handleInputChange("description", e.target.value)}
                       placeholder="Auto-generated if empty"
-                      className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                      className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                         isDarkMode
                           ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
                           : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
@@ -1052,7 +1050,7 @@ const InventoryList = () => {
                         id="productType"
                         value={formData.productType}
                         onChange={(e) => handleInputChange("productType", e.target.value)}
-                        className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
+                        className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
                           isDarkMode
                             ? "bg-gray-800 border-gray-600 text-white"
                             : "bg-white border-gray-300 text-gray-900"
@@ -1084,7 +1082,7 @@ const InventoryList = () => {
                       onChange={(e) => handleInputChange("grade", e.target.value)}
                       placeholder="e.g., 304, 316L"
                       list="steel-grades"
-                      className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                      className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                         isDarkMode
                           ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
                           : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
@@ -1113,7 +1111,7 @@ const InventoryList = () => {
                       onChange={(e) => handleInputChange("finish", e.target.value.toUpperCase())}
                       placeholder="e.g., Mirror, HL, 2B"
                       list="finishes"
-                      className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                      className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                         isDarkMode
                           ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
                           : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
@@ -1141,7 +1139,7 @@ const InventoryList = () => {
                       value={formData.size}
                       onChange={(e) => handleInputChange("size", e.target.value)}
                       placeholder="e.g., 4x8"
-                      className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                      className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                         isDarkMode
                           ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
                           : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
@@ -1161,7 +1159,7 @@ const InventoryList = () => {
                       value={formData.thickness}
                       onChange={(e) => handleInputChange("thickness", e.target.value)}
                       placeholder="e.g., 0.8, 1.2"
-                      className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                      className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                         isDarkMode
                           ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
                           : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
@@ -1182,7 +1180,7 @@ const InventoryList = () => {
                       onChange={(e) =>
                         handleInputChange("quantity", e.target.value === "" ? "" : parseInt(e.target.value, 10) || "")
                       }
-                      className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                      className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                         isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                       }`}
                     />
@@ -1201,7 +1199,7 @@ const InventoryList = () => {
                       onChange={(e) =>
                         handleInputChange("minStock", e.target.value === "" ? "" : parseInt(e.target.value, 10) || "")
                       }
-                      className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                      className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                         isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                       }`}
                     />
@@ -1231,7 +1229,7 @@ const InventoryList = () => {
                             e.target.value === "" ? "" : parseFloat(e.target.value) || ""
                           )
                         }
-                        className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                        className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                           isDarkMode
                             ? "bg-gray-800 border-gray-600 text-white"
                             : "bg-white border-gray-300 text-gray-900"
@@ -1264,7 +1262,7 @@ const InventoryList = () => {
                             e.target.value === "" ? "" : parseFloat(e.target.value) || ""
                           )
                         }
-                        className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                        className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                           isDarkMode
                             ? "bg-gray-800 border-gray-600 text-white"
                             : "bg-white border-gray-300 text-gray-900"
@@ -1294,7 +1292,7 @@ const InventoryList = () => {
                         onChange={(e) =>
                           handleInputChange("landedCost", e.target.value === "" ? "" : parseFloat(e.target.value) || "")
                         }
-                        className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                        className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                           isDarkMode
                             ? "bg-gray-800 border-gray-600 text-white"
                             : "bg-white border-gray-300 text-gray-900"
@@ -1314,7 +1312,7 @@ const InventoryList = () => {
                         id="warehouseId"
                         value={formData.warehouseId}
                         onChange={(e) => handleWarehouseChange(e.target.value)}
-                        className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
+                        className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
                           isDarkMode
                             ? "bg-gray-800 border-gray-600 text-white"
                             : "bg-white border-gray-300 text-gray-900"
@@ -1345,7 +1343,7 @@ const InventoryList = () => {
                       value={formData.location}
                       onChange={(e) => handleInputChange("location", e.target.value)}
                       placeholder="e.g., Section A, Row 3, Shelf 2"
-                      className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                      className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                         isDarkMode
                           ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
                           : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
@@ -1544,7 +1542,7 @@ const InventoryList = () => {
                 <button
                   type="button"
                   onClick={handleSubmit}
-                  className="px-6 py-3 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
+                  className="px-6 py-3 bg-linear-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-xs hover:shadow-md"
                 >
                   {editingItem ? "Update Item" : "Add Item"}
                 </button>

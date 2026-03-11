@@ -43,7 +43,7 @@ const SourceTypeSelector = ({ value = "WAREHOUSE", onChange, disabled = false, i
         className={cn(
           "flex h-8 w-full min-w-[140px] max-w-[160px] items-center justify-between rounded-md border px-3 py-1.5 text-xs font-medium",
           "transition-all duration-200 cursor-pointer",
-          "focus:outline-none focus:ring-1 focus:ring-teal-500",
+          "focus:outline-hidden focus:ring-1 focus:ring-teal-500",
           isDarkMode
             ? "bg-gray-700 border-gray-600 text-gray-200 hover:bg-gray-600 focus:border-teal-500"
             : "bg-white border-gray-300 text-gray-700 hover:bg-gray-50 focus:border-teal-500",
@@ -62,7 +62,7 @@ const SourceTypeSelector = ({ value = "WAREHOUSE", onChange, disabled = false, i
       <SelectPrimitive.Portal>
         <SelectPrimitive.Content
           className={cn(
-            "relative z-50 min-w-[8rem] overflow-hidden rounded-md border shadow-md",
+            "relative z-50 min-w-32 overflow-hidden rounded-md border shadow-md",
             "data-[state=open]:animate-in data-[state=closed]:animate-out",
             "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
             "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
@@ -79,9 +79,9 @@ const SourceTypeSelector = ({ value = "WAREHOUSE", onChange, disabled = false, i
                   key={option.value}
                   value={option.value}
                   className={cn(
-                    "relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 px-2 text-xs outline-none",
+                    "relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 px-2 text-xs outline-hidden",
                     "focus:bg-accent focus:text-accent-foreground",
-                    "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+                    "data-disabled:pointer-events-none data-disabled:opacity-50",
                     isDarkMode ? "hover:bg-gray-600 focus:bg-gray-600" : "hover:bg-gray-100 focus:bg-gray-100"
                   )}
                 >

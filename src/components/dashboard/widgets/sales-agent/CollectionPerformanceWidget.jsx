@@ -188,7 +188,7 @@ const CollectionPerformanceWidget = ({ data: propData, onRefresh, onViewDetails,
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center shadow-lg">
+          <div className="w-10 h-10 rounded-xl bg-linear-to-br from-teal-500 to-teal-600 flex items-center justify-center shadow-lg">
             <Receipt size={20} className="text-white" />
           </div>
           <div>
@@ -217,7 +217,7 @@ const CollectionPerformanceWidget = ({ data: propData, onRefresh, onViewDetails,
           <select
             value={selectedAgentId}
             onChange={(e) => setSelectedAgentId(parseInt(e.target.value, 10))}
-            className={`text-xs px-2 py-1 rounded-lg border focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+            className={`text-xs px-2 py-1 rounded-lg border focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
               isDarkMode ? "bg-[#2E3B4E] border-[#37474F] text-white" : "bg-gray-50 border-gray-200 text-gray-700"
             }`}
           >

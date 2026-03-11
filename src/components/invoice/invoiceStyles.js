@@ -8,7 +8,7 @@ export const DRAWER_OVERLAY_CLASSES = (isOpen) =>
   `fixed inset-0 bg-black/55 z-30 transition-opacity ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`;
 
 export const DRAWER_PANEL_CLASSES = (isDarkMode, isOpen) =>
-  `fixed top-[53px] right-0 bottom-0 w-[min(620px,92vw)] z-[31] ${isDarkMode ? "bg-gray-800 border-l border-gray-700" : "bg-white border-l border-gray-200"} overflow-auto transition-transform ${isOpen ? "translate-x-0" : "translate-x-full"}`;
+  `fixed top-[53px] right-0 bottom-0 w-[min(620px,92vw)] z-31 ${isDarkMode ? "bg-gray-800 border-l border-gray-700" : "bg-white border-l border-gray-200"} overflow-auto transition-transform ${isOpen ? "translate-x-0" : "translate-x-full"}`;
 
 export const DRAWER_STYLE = {
   borderTopLeftRadius: "8px",

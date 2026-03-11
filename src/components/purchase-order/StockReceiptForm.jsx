@@ -545,7 +545,7 @@ const StockReceiptForm = ({
             {/* Error Alert */}
             {error && (
               <div className="flex items-start gap-3 p-3 bg-red-500/10 border border-red-500/30 rounded-xl">
-                <AlertTriangle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+                <AlertTriangle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
                 <div className="flex-1">
                   <p className="text-sm text-red-400">{error}</p>
                 </div>
@@ -558,7 +558,7 @@ const StockReceiptForm = ({
             {/* Success Alert */}
             {success && (
               <div className="flex items-start gap-3 p-3 bg-green-500/10 border border-green-500/30 rounded-xl">
-                <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
+                <CheckCircle className="w-5 h-5 text-green-400 shrink-0 mt-0.5" />
                 <p className="text-sm text-green-400">{success}</p>
               </div>
             )}
@@ -611,7 +611,7 @@ const StockReceiptForm = ({
                     value={grnDate}
                     onChange={(e) => setGrnDate(e.target.value)}
                     disabled={grnStatus === "approved"}
-                    className={`w-full ${inputBg} border ${inputBorder} rounded-lg py-2 px-3 text-sm ${textPrimary} ${inputFocus} outline-none disabled:opacity-70`}
+                    className={`w-full ${inputBg} border ${inputBorder} rounded-lg py-2 px-3 text-sm ${textPrimary} ${inputFocus} outline-hidden disabled:opacity-70`}
                   />
                 </div>
               </div>
@@ -646,7 +646,7 @@ const StockReceiptForm = ({
                 <div
                   className={`mt-3 p-2.5 ${isDarkMode ? "bg-yellow-900/20" : "bg-yellow-50"} border ${isDarkMode ? "border-yellow-700/30" : "border-yellow-200"} rounded-lg flex items-start gap-2`}
                 >
-                  <AlertCircle className="w-4 h-4 text-yellow-500 flex-shrink-0 mt-0.5" />
+                  <AlertCircle className="w-4 h-4 text-yellow-500 shrink-0 mt-0.5" />
                   <p className="text-xs text-yellow-600 dark:text-yellow-400">
                     GRN must be approved before stock can be received.
                   </p>
@@ -669,7 +669,7 @@ const StockReceiptForm = ({
                   value={selectedWarehouseId}
                   onChange={(e) => setSelectedWarehouseId(e.target.value)}
                   disabled={loadingWarehouses}
-                  className={`w-full ${inputBg} border ${inputBorder} rounded-xl py-2.5 px-3 pr-10 text-sm ${textPrimary} ${inputFocus} outline-none appearance-none disabled:opacity-50`}
+                  className={`w-full ${inputBg} border ${inputBorder} rounded-xl py-2.5 px-3 pr-10 text-sm ${textPrimary} ${inputFocus} outline-hidden appearance-none disabled:opacity-50`}
                 >
                   <option value="">Select warehouse...</option>
                   {warehouses.map((wh) => (
@@ -687,7 +687,7 @@ const StockReceiptForm = ({
             {/* No receivable items warning */}
             {receivableItems.length === 0 ? (
               <div className="flex items-start gap-3 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-xl">
-                <AlertTriangle className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
+                <AlertTriangle className="w-5 h-5 text-yellow-400 shrink-0 mt-0.5" />
                 <div>
                   <p className={`text-sm font-medium ${textPrimary}`}>No Receivable Items</p>
                   <p className={`text-xs ${textMuted} mt-1`}>
@@ -858,7 +858,7 @@ const StockReceiptForm = ({
                                       min={0}
                                       max={pending}
                                       step={0.01}
-                                      className={`w-24 ${inputBg} border ${inputBorder} rounded-xl py-1.5 px-2 text-sm text-right font-mono ${textPrimary} ${inputFocus} outline-none disabled:opacity-50`}
+                                      className={`w-24 ${inputBg} border ${inputBorder} rounded-xl py-1.5 px-2 text-sm text-right font-mono ${textPrimary} ${inputFocus} outline-hidden disabled:opacity-50`}
                                     />
                                     <button
                                       type="button"
@@ -884,7 +884,7 @@ const StockReceiptForm = ({
                                     onChange={(e) => handlePcsReceivedChange(item.id, e.target.value)}
                                     min={1}
                                     step={1}
-                                    className={`w-20 ${inputBg} border ${inputBorder} rounded-xl py-1.5 px-2 text-sm text-right font-mono ${textPrimary} ${inputFocus} outline-none`}
+                                    className={`w-20 ${inputBg} border ${inputBorder} rounded-xl py-1.5 px-2 text-sm text-right font-mono ${textPrimary} ${inputFocus} outline-hidden`}
                                     title="Pieces received (integer only)"
                                   />
                                 ) : (
@@ -900,7 +900,7 @@ const StockReceiptForm = ({
                                     onChange={(e) => handleActualWeightChange(item.id, e.target.value)}
                                     min={0}
                                     step={0.001}
-                                    className={`w-28 ${inputBg} border ${inputBorder} rounded-xl py-1.5 px-2 text-sm text-right font-mono ${textPrimary} ${inputFocus} outline-none`}
+                                    className={`w-28 ${inputBg} border ${inputBorder} rounded-xl py-1.5 px-2 text-sm text-right font-mono ${textPrimary} ${inputFocus} outline-hidden`}
                                     title="Total weight received (KG)"
                                   />
                                 ) : (
@@ -924,7 +924,7 @@ const StockReceiptForm = ({
                                   <select
                                     value={weightSources[item.id] || "ACTUAL"}
                                     onChange={(e) => handleWeightSourceChange(item.id, e.target.value)}
-                                    className={`w-full ${inputBg} border ${inputBorder} rounded-xl py-1.5 px-2 text-xs ${textPrimary} ${inputFocus} outline-none`}
+                                    className={`w-full ${inputBg} border ${inputBorder} rounded-xl py-1.5 px-2 text-xs ${textPrimary} ${inputFocus} outline-hidden`}
                                     title="Weight source: ACTUAL (weighed) or CALCULATED (nominal)"
                                   >
                                     <option value="ACTUAL">Actual</option>
@@ -959,7 +959,7 @@ const StockReceiptForm = ({
                                   <select
                                     value={varianceReasons[item.id] || "accepted_tolerance"}
                                     onChange={(e) => handleVarianceReasonChange(item.id, e.target.value)}
-                                    className={`w-full ${inputBg} border ${inputBorder} rounded-xl py-1.5 px-2 text-xs ${textPrimary} ${inputFocus} outline-none`}
+                                    className={`w-full ${inputBg} border ${inputBorder} rounded-xl py-1.5 px-2 text-xs ${textPrimary} ${inputFocus} outline-hidden`}
                                   >
                                     <option value="accepted_tolerance">Accepted Tolerance</option>
                                     <option value="shortage">Shortage</option>
@@ -993,7 +993,7 @@ const StockReceiptForm = ({
                       onChange={(e) => setNotes(e.target.value)}
                       placeholder="Add any notes about this stock receipt..."
                       rows={3}
-                      className={`w-full ${inputBg} border ${inputBorder} rounded-xl py-2.5 px-3 text-sm ${textPrimary} ${inputFocus} outline-none resize-none`}
+                      className={`w-full ${inputBg} border ${inputBorder} rounded-xl py-2.5 px-3 text-sm ${textPrimary} ${inputFocus} outline-hidden resize-none`}
                     />
                   </div>
                 </details>

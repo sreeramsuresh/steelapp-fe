@@ -335,7 +335,7 @@ const CommissionTransactions = () => {
                 isDarkMode
                   ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
                   : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
-              } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              } focus:outline-hidden focus:ring-2 focus:ring-blue-500`}
             />
           </div>
           <select
@@ -343,7 +343,7 @@ const CommissionTransactions = () => {
             onChange={(e) => setSelectedStatus(e.target.value)}
             className={`px-4 py-2 rounded-lg border ${
               isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
-            } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+            } focus:outline-hidden focus:ring-2 focus:ring-blue-500`}
           >
             <option value="all">All Statuses</option>
             <option value="pending">Pending</option>
@@ -357,7 +357,7 @@ const CommissionTransactions = () => {
             onChange={(e) => setSelectedAgent(e.target.value)}
             className={`px-4 py-2 rounded-lg border ${
               isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
-            } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+            } focus:outline-hidden focus:ring-2 focus:ring-blue-500`}
           >
             <option value="all">All Agents</option>
             {agents.map((agent) => (
@@ -373,7 +373,7 @@ const CommissionTransactions = () => {
               onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
               className={`flex-1 px-3 py-2 rounded-lg border ${
                 isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
-              } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              } focus:outline-hidden focus:ring-2 focus:ring-blue-500`}
             />
             <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>-</span>
             <input
@@ -382,7 +382,7 @@ const CommissionTransactions = () => {
               onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
               className={`flex-1 px-3 py-2 rounded-lg border ${
                 isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
-              } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              } focus:outline-hidden focus:ring-2 focus:ring-blue-500`}
             />
           </div>
         </div>
@@ -703,7 +703,7 @@ const CommissionTransactions = () => {
                   onChange={(e) => setReversalReason(e.target.value)}
                   className={`w-full px-3 py-2 rounded-lg border ${
                     isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
-                  } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                  } focus:outline-hidden focus:ring-2 focus:ring-blue-500`}
                 >
                   <option value="">Select reason...</option>
                   <option value="INVOICE_CANCELLED">Invoice Cancelled</option>
@@ -730,7 +730,7 @@ const CommissionTransactions = () => {
                     isDarkMode
                       ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
                       : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
-                  } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                  } focus:outline-hidden focus:ring-2 focus:ring-blue-500`}
                 />
               </div>
             </div>

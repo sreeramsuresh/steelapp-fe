@@ -339,7 +339,7 @@ test('EmptyState - Action interactions', async (t) => {
   await t.test('shows focus state on button', () => {
     const focused = true;
     const outline = focused ? 'ring-2' : 'ring-0';
-    assert.ok(outline.includes('ring'));
+    assert.ok(outline.includes('ring-3'));
   });
 
   await t.test('shows active state on click', () => {

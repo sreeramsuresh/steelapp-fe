@@ -355,7 +355,7 @@ export function getButtonVariant(button) {
   if (dataVariant) return dataVariant;
 
   // Check for shadcn variants in className
-  const shadcnVariants = ["default", "destructive", "outline", "secondary", "ghost", "link"];
+  const shadcnVariants = ["default", "destructive", "outline-solid", "secondary", "ghost", "link"];
   const matchedVariant = shadcnVariants.find((v) => button.className.includes(v));
   if (matchedVariant) return matchedVariant;
 

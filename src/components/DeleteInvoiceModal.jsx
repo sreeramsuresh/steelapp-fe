@@ -206,7 +206,7 @@ const DeleteInvoiceModal = ({ isOpen, onClose, onConfirm, invoice }) => {
                   isDarkMode
                     ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-teal-500"
                     : "bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-teal-500"
-                } focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50 outline-none`}
+                } focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50 outline-hidden`}
               />
             </div>
           )}

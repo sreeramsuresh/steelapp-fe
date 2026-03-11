@@ -63,13 +63,13 @@ export default function AcceptInvite() {
   if (!token) {
     return (
       <div
-        className={`min-h-screen w-screen fixed top-0 left-0 right-0 bottom-0 flex items-center justify-center p-0 m-0 ${isDarkMode ? "bg-[#121418]" : "bg-gray-100"}`}
+        className={`min-h-screen w-screen fixed top-0 left-0 right-0 bottom-0 flex items-center justify-center p-0 m-0 ${isDarkMode ? "bg-gray-900" : "bg-gray-100"}`}
       >
         <div
           className={`w-full max-w-md min-w-80 mx-4 rounded-2xl border shadow-xl p-6 ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"}`}
         >
           <div className="text-center mb-6">
-            <h1 className="text-3xl font-bold mb-2 bg-gradient-to-br from-teal-600 to-teal-700 bg-clip-text text-transparent">
+            <h1 className="text-3xl font-bold mb-2 bg-linear-to-br from-teal-600 to-teal-700 bg-clip-text text-transparent">
               ULTIMATE STEELS
             </h1>
           </div>
@@ -99,13 +99,13 @@ export default function AcceptInvite() {
   if (status === "success") {
     return (
       <div
-        className={`min-h-screen w-screen fixed top-0 left-0 right-0 bottom-0 flex items-center justify-center p-0 m-0 ${isDarkMode ? "bg-[#121418]" : "bg-gray-100"}`}
+        className={`min-h-screen w-screen fixed top-0 left-0 right-0 bottom-0 flex items-center justify-center p-0 m-0 ${isDarkMode ? "bg-gray-900" : "bg-gray-100"}`}
       >
         <div
           className={`w-full max-w-md min-w-80 mx-4 rounded-2xl border shadow-xl p-6 ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"}`}
         >
           <div className="text-center mb-6">
-            <h1 className="text-3xl font-bold mb-2 bg-gradient-to-br from-teal-600 to-teal-700 bg-clip-text text-transparent">
+            <h1 className="text-3xl font-bold mb-2 bg-linear-to-br from-teal-600 to-teal-700 bg-clip-text text-transparent">
               ULTIMATE STEELS
             </h1>
           </div>
@@ -129,14 +129,14 @@ export default function AcceptInvite() {
   // Form
   return (
     <div
-      className={`min-h-screen w-screen fixed top-0 left-0 right-0 bottom-0 flex items-center justify-center p-0 m-0 ${isDarkMode ? "bg-[#121418]" : "bg-gray-100"}`}
+      className={`min-h-screen w-screen fixed top-0 left-0 right-0 bottom-0 flex items-center justify-center p-0 m-0 ${isDarkMode ? "bg-gray-900" : "bg-gray-100"}`}
     >
       <div
         className={`w-full max-w-md min-w-80 mx-4 rounded-2xl border shadow-xl ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"}`}
       >
         {/* Header */}
         <div className="p-6 pb-0 text-center">
-          <h1 className="text-3xl font-bold mb-2 bg-gradient-to-br from-teal-600 to-teal-700 bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold mb-2 bg-linear-to-br from-teal-600 to-teal-700 bg-clip-text text-transparent">
             ULTIMATE STEELS
           </h1>
           <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Set up your account</p>
@@ -177,9 +177,9 @@ export default function AcceptInvite() {
                 placeholder="Choose a username"
                 className={`w-full pl-10 pr-4 py-2.5 rounded-lg border text-sm transition-colors ${
                   isDarkMode
-                    ? "bg-[#121418] border-[#37474F] text-white placeholder-gray-500 focus:border-teal-500"
+                    ? "bg-gray-900 border-[#37474F] text-white placeholder-gray-500 focus:border-teal-500"
                     : "bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-teal-500"
-                } focus:outline-none focus:ring-1 focus:ring-teal-500`}
+                } focus:outline-hidden focus:ring-1 focus:ring-teal-500`}
                 required
                 minLength={3}
               />
@@ -208,9 +208,9 @@ export default function AcceptInvite() {
                 placeholder="Override the name set by your admin"
                 className={`w-full pl-10 pr-4 py-2.5 rounded-lg border text-sm transition-colors ${
                   isDarkMode
-                    ? "bg-[#121418] border-[#37474F] text-white placeholder-gray-500 focus:border-teal-500"
+                    ? "bg-gray-900 border-[#37474F] text-white placeholder-gray-500 focus:border-teal-500"
                     : "bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-teal-500"
-                } focus:outline-none focus:ring-1 focus:ring-teal-500`}
+                } focus:outline-hidden focus:ring-1 focus:ring-teal-500`}
               />
             </div>
           </div>
@@ -237,9 +237,9 @@ export default function AcceptInvite() {
                 placeholder="At least 8 characters"
                 className={`w-full pl-10 pr-10 py-2.5 rounded-lg border text-sm transition-colors ${
                   isDarkMode
-                    ? "bg-[#121418] border-[#37474F] text-white placeholder-gray-500 focus:border-teal-500"
+                    ? "bg-gray-900 border-[#37474F] text-white placeholder-gray-500 focus:border-teal-500"
                     : "bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-teal-500"
-                } focus:outline-none focus:ring-1 focus:ring-teal-500`}
+                } focus:outline-hidden focus:ring-1 focus:ring-teal-500`}
                 required
                 minLength={8}
               />
@@ -275,9 +275,9 @@ export default function AcceptInvite() {
                 placeholder="Re-enter your password"
                 className={`w-full pl-10 pr-4 py-2.5 rounded-lg border text-sm transition-colors ${
                   isDarkMode
-                    ? "bg-[#121418] border-[#37474F] text-white placeholder-gray-500 focus:border-teal-500"
+                    ? "bg-gray-900 border-[#37474F] text-white placeholder-gray-500 focus:border-teal-500"
                     : "bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-teal-500"
-                } focus:outline-none focus:ring-1 focus:ring-teal-500`}
+                } focus:outline-hidden focus:ring-1 focus:ring-teal-500`}
                 required
                 minLength={8}
               />
@@ -291,7 +291,7 @@ export default function AcceptInvite() {
             className={`w-full py-3 rounded-lg font-medium text-white transition-all duration-300 ${
               status === "submitting"
                 ? "bg-gray-500 cursor-not-allowed"
-                : "bg-gradient-to-br from-teal-600 to-teal-700 hover:from-teal-500 hover:to-teal-600 hover:-translate-y-0.5 shadow-sm hover:shadow-md"
+                : "bg-linear-to-br from-teal-600 to-teal-700 hover:from-teal-500 hover:to-teal-600 hover:-translate-y-0.5 shadow-xs hover:shadow-md"
             }`}
           >
             {status === "submitting" ? (

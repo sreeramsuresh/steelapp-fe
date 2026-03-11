@@ -104,7 +104,7 @@ const CostCenterList = () => {
           <button
             type="button"
             onClick={() => setShowHelper((v) => !v)}
-            className="text-gray-400 hover:text-blue-500 focus:outline-none"
+            className="text-gray-400 hover:text-blue-500 focus:outline-hidden"
             title="What is a Cost Center?"
           >
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-label="Help">
@@ -244,7 +244,7 @@ const CostCenterList = () => {
         </div>
       )}
 
-      <div className="overflow-x-auto bg-white dark:bg-gray-800 rounded-lg shadow">
+      <div className="overflow-x-auto bg-white dark:bg-gray-800 rounded-lg shadow-sm">
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead className="bg-gray-50 dark:bg-gray-900">
             <tr>

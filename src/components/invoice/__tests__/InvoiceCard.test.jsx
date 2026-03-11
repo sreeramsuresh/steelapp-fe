@@ -13,10 +13,10 @@ describe("InvoiceCard", () => {
     expect(screen.getByText("Card content")).toBeInTheDocument();
   });
 
-  it("applies rounded and shadow classes", () => {
+  it("applies rounded and shadow-sm classes", () => {
     const { container } = renderWithTheme(<Card>Styled</Card>);
     expect(container.firstChild.className).toContain("rounded-xl");
-    expect(container.firstChild.className).toContain("shadow-sm");
+    expect(container.firstChild.className).toContain("shadow-xs");
   });
 
   it("applies custom className", () => {

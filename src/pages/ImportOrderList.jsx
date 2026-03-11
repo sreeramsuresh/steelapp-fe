@@ -125,7 +125,7 @@ const ImportOrderList = () => {
       </div>
 
       {/* Filters */}
-      <div className={`${isDarkMode ? "bg-gray-800" : "bg-white"} rounded-lg p-4 mb-6 shadow-sm`}>
+      <div className={`${isDarkMode ? "bg-gray-800" : "bg-white"} rounded-lg p-4 mb-6 shadow-xs`}>
         <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-5 gap-4">
           <div className="md:col-span-2">
             <div className="relative">
@@ -193,7 +193,7 @@ const ImportOrderList = () => {
       {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{error}</div>}
 
       {/* Orders Table */}
-      <div className={`${isDarkMode ? "bg-gray-800" : "bg-white"} rounded-lg shadow-sm overflow-hidden`}>
+      <div className={`${isDarkMode ? "bg-gray-800" : "bg-white"} rounded-lg shadow-xs overflow-hidden`}>
         {loading ? (
           <div className="p-8 text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600 mx-auto"></div>

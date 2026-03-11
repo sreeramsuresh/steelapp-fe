@@ -299,7 +299,7 @@ describe('Color & Utilities Components', () => {
       const props = {
         from: '#FF5733',
         to: '#0000FF',
-        className: 'bg-gradient-to-r',
+        className: 'bg-linear-to-r',
       };
 
       ok(props.className.includes('gradient'), 'Should apply gradient');
@@ -310,7 +310,7 @@ describe('Color & Utilities Components', () => {
         from: '#FF5733',
         to: '#0000FF',
         type: 'text',
-        className: 'bg-gradient-to-r bg-clip-text text-transparent',
+        className: 'bg-linear-to-r bg-clip-text text-transparent',
       };
 
       strictEqual(props.type, 'text', 'Should be text gradient');
@@ -403,16 +403,16 @@ describe('Color & Utilities Components', () => {
   });
 
   describe('Suite 4: Shadow Component', () => {
-    test('Test 4.1: Should render shadow effect', () => {
+    test('Test 4.1: Should render shadow-sm effect', () => {
       const props = {
         elevation: 1,
-        className: 'shadow-sm',
+        className: 'shadow-xs',
       };
 
-      ok(props.className.includes('shadow'), 'Should apply shadow');
+      ok(props.className.includes('shadow-sm'), 'Should apply shadow-sm');
     });
 
-    test('Test 4.2: Should support shadow levels', () => {
+    test('Test 4.2: Should support shadow-sm levels', () => {
       const levels = [0, 1, 2, 3, 4, 5];
 
       levels.forEach((level) => {
@@ -425,7 +425,7 @@ describe('Color & Utilities Components', () => {
       });
     });
 
-    test('Test 4.3: Should apply shadow classes', () => {
+    test('Test 4.3: Should apply shadow-sm classes', () => {
       const props = {
         elevation: 2,
         className: 'shadow-md',
@@ -444,17 +444,17 @@ describe('Color & Utilities Components', () => {
       ok(props.className.includes('blue'), 'Should apply color');
     });
 
-    test('Test 4.5: Should support blur effect', () => {
+    test('Test 4.5: Should support blur-sm effect', () => {
       const props = {
         elevation: 2,
         blur: true,
-        className: 'shadow-lg backdrop-blur',
+        className: 'shadow-lg backdrop-blur-sm',
       };
 
-      ok(props.blur, 'Should have blur');
+      ok(props.blur, 'Should have blur-sm');
     });
 
-    test('Test 4.6: Should support inset shadow', () => {
+    test('Test 4.6: Should support inset shadow-sm', () => {
       const props = {
         inset: true,
         className: 'shadow-inner',
@@ -463,13 +463,13 @@ describe('Color & Utilities Components', () => {
       ok(props.inset, 'Should be inset');
     });
 
-    test('Test 4.7: Should support drop shadow', () => {
+    test('Test 4.7: Should support drop shadow-sm', () => {
       const props = {
         type: 'drop',
         className: 'drop-shadow-lg',
       };
 
-      strictEqual(props.type, 'drop', 'Should be drop shadow');
+      strictEqual(props.type, 'drop', 'Should be drop shadow-sm');
     });
 
     test('Test 4.8: Should apply dark mode shadows', () => {
@@ -478,14 +478,14 @@ describe('Color & Utilities Components', () => {
         className: 'shadow-md dark:shadow-lg',
       };
 
-      ok(props.className.includes('dark:'), 'Should apply dark shadow');
+      ok(props.className.includes('dark:'), 'Should apply dark shadow-sm');
     });
 
     test('Test 4.9: Should support hover elevation', () => {
       const props = {
         elevation: 1,
         hoverElevation: 3,
-        className: 'shadow-sm hover:shadow-lg',
+        className: 'shadow-xs hover:shadow-lg',
       };
 
       ok(props.hoverElevation, 'Should elevate on hover');
@@ -494,7 +494,7 @@ describe('Color & Utilities Components', () => {
     test('Test 4.10: Should be responsive', () => {
       const props = {
         elevation: 1,
-        className: 'shadow-sm md:shadow-md lg:shadow-lg',
+        className: 'shadow-xs md:shadow-md lg:shadow-lg',
       };
 
       ok(props.className.includes('md:'), 'Should be responsive');
@@ -631,7 +631,7 @@ describe('Color & Utilities Components', () => {
 
     test('Test 5.12: Should work with components', () => {
       const props = {
-        className: 'border rounded-lg shadow-sm',
+        className: 'border rounded-lg shadow-xs',
       };
 
       ok(props.className.includes('rounded'), 'Should work with styles');
@@ -790,12 +790,12 @@ describe('Color & Utilities Components', () => {
       ok(props.className.includes('dark:'), 'Should support dark mode');
     });
 
-    test('Test 9.2: Should adjust shadow in dark mode', () => {
+    test('Test 9.2: Should adjust shadow-sm in dark mode', () => {
       const props = {
         className: 'shadow-md dark:shadow-lg',
       };
 
-      ok(props.className.includes('dark:shadow'), 'Should adjust shadow');
+      ok(props.className.includes('dark:shadow-sm'), 'Should adjust shadow-sm');
     });
 
     test('Test 9.3: Should adjust border in dark mode', () => {

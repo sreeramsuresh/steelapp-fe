@@ -139,7 +139,7 @@ test('Test 1.3: Should support HEX format', () => {
 });
 
 // Shadow elevation levels
-test('Test 4.2: Should support shadow levels', () => {
+test('Test 4.2: Should support shadow-sm levels', () => {
   const levels = [0, 1, 2, 3, 4, 5];
   levels.forEach((level) => {
     const props = { elevation: level };
@@ -262,7 +262,7 @@ test('Test 4.5: Should support border/ring', () => {
 ```javascript
 // Badge variants
 test('Test 1.2: Should support variant styles', () => {
-  const variants = ['default', 'secondary', 'destructive', 'outline', 'success', 'warning'];
+  const variants = ['default', 'secondary', 'destructive', 'outline-solid', 'success', 'warning'];
   variants.forEach((variant) => {
     const props = { variant: variant };
     strictEqual(props.variant, variant, `Should have ${variant} variant`);

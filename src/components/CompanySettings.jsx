@@ -70,13 +70,13 @@ const Button = ({
   const { isDarkMode } = useTheme();
 
   const baseClasses =
-    "inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer";
+    "inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-300 focus:outline-hidden focus:ring-2 focus:ring-offset-2 cursor-pointer";
 
   const getVariantClasses = () => {
     if (variant === "primary") {
-      return `bg-gradient-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 hover:-translate-y-0.5 focus:ring-teal-500 ${
+      return `bg-linear-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 hover:-translate-y-0.5 focus:ring-teal-500 ${
         isDarkMode ? "disabled:bg-gray-600 focus:ring-offset-gray-800" : "disabled:bg-gray-400 focus:ring-offset-white"
-      } disabled:hover:translate-y-0 shadow-sm hover:shadow-md`;
+      } disabled:hover:translate-y-0 shadow-xs hover:shadow-md`;
     } else {
       // outline
       return `border ${
@@ -101,7 +101,7 @@ const Button = ({
       className={`${baseClasses} ${getVariantClasses()} ${sizes[size]} ${disabled ? "cursor-not-allowed" : ""} ${className}`}
       {...componentProps}
     >
-      {startIcon && <span className="flex-shrink-0">{startIcon}</span>}
+      {startIcon && <span className="shrink-0">{startIcon}</span>}
       {children}
     </Component>
   );
@@ -132,7 +132,7 @@ const Input = ({ label, error, className = "", type = "text", startIcon, endIcon
         <input
           id={inputId}
           type={type}
-          className={`w-full ${startIcon ? "pl-10" : "pl-3"} ${endIcon ? "pr-10" : "pr-3"} py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+          className={`w-full ${startIcon ? "pl-10" : "pl-3"} ${endIcon ? "pr-10" : "pr-3"} py-2 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
             isDarkMode
               ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
               : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
@@ -164,7 +164,7 @@ const Select = ({ label, options, value, onChange, placeholder = "Select...", cl
         id={selectId}
         value={value}
         onChange={onChange}
-        className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+        className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
           isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
         } ${className}`}
       >
@@ -285,7 +285,7 @@ const TextField = ({
             rows={rows || 3}
             disabled={disabled}
             readOnly={readOnly}
-            className={`w-full px-3 ${startAdornment ? "pl-10" : ""} ${endAdornment ? "pr-10" : ""} py-2 border rounded-lg resize-none transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+            className={`w-full px-3 ${startAdornment ? "pl-10" : ""} ${endAdornment ? "pr-10" : ""} py-2 border rounded-lg resize-none transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
               error ? "border-red-500" : isDarkMode ? "border-gray-600" : "border-gray-300"
             } ${
               isDarkMode ? "bg-gray-800 text-white placeholder-gray-400" : "bg-white text-gray-900 placeholder-gray-500"
@@ -300,7 +300,7 @@ const TextField = ({
             placeholder={placeholder}
             disabled={disabled}
             readOnly={readOnly}
-            className={`w-full px-3 ${startAdornment ? "pl-10" : ""} ${endAdornment ? "pr-10" : ""} py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+            className={`w-full px-3 ${startAdornment ? "pl-10" : ""} ${endAdornment ? "pr-10" : ""} py-2 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
               error ? "border-red-500" : isDarkMode ? "border-gray-600" : "border-gray-300"
             } ${
               isDarkMode ? "bg-gray-800 text-white placeholder-gray-400" : "bg-white text-gray-900 placeholder-gray-500"
@@ -1725,9 +1725,9 @@ const CompanySettings = () => {
     return (
       <div className="flex flex-col lg:flex-row gap-6 lg:min-h-[600px]">
         {/* Left Column - VAT Configuration (60%) */}
-        <div className="lg:w-3/5 flex-shrink-0">
+        <div className="lg:w-3/5 shrink-0">
           <div
-            className={`rounded-2xl border ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"} shadow-sm`}
+            className={`rounded-2xl border ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"} shadow-xs`}
           >
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
@@ -1748,7 +1748,7 @@ const CompanySettings = () => {
                 }`}
               >
                 <div className="flex items-start">
-                  <div className="flex-shrink-0">
+                  <div className="shrink-0">
                     <svg aria-label="icon" className="h-5 w-5 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                       <title>Icon</title>
                       <path
@@ -1848,7 +1848,7 @@ const CompanySettings = () => {
                               onChange={() => toggleVatRateActive(vatRate.id)}
                               className="sr-only peer"
                             />
-                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-teal-300 dark:peer-focus:ring-teal-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-teal-600"></div>
+                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-hidden peer-focus:ring-4 peer-focus:ring-teal-300 dark:peer-focus:ring-teal-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-teal-600"></div>
                           </label>
                           <span
                             className={`text-sm font-medium ${
@@ -1960,7 +1960,7 @@ const CompanySettings = () => {
         {/* Right Column - Help Panel (40%) - Full height from top */}
         <div className="lg:w-2/5 lg:self-stretch lg:min-h-[600px]">
           <div
-            className={`h-full rounded-xl shadow-sm border overflow-hidden ${
+            className={`h-full rounded-xl shadow-xs border overflow-hidden ${
               isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
             }`}
           >
@@ -2017,7 +2017,7 @@ const CompanySettings = () => {
         {/* Left Column - Actionable Content (60%) */}
         <div className="lg:w-3/5 space-y-4">
           <div
-            className={`rounded-xl shadow-sm border ${
+            className={`rounded-xl shadow-xs border ${
               isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
             }`}
           >
@@ -2267,7 +2267,7 @@ const CompanySettings = () => {
         {/* Right Column - Documentation/Help (40%) */}
         <div className="lg:w-2/5 lg:self-stretch">
           <div
-            className={`h-full rounded-xl shadow-sm border overflow-hidden ${
+            className={`h-full rounded-xl shadow-xs border overflow-hidden ${
               isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
             }`}
           >
@@ -2294,7 +2294,7 @@ const CompanySettings = () => {
 
   return (
     <div
-      className={`p-4 md:p-6 lg:p-8 min-h-screen w-full overflow-auto ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
+      className={`p-4 md:p-6 lg:p-8 min-h-screen w-full overflow-auto ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}
     >
       {/* Back Button */}
       <div className="mb-4">
@@ -2311,7 +2311,7 @@ const CompanySettings = () => {
 
       {/* Header Section */}
       <div
-        className={`mb-6 rounded-2xl border overflow-hidden ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"} shadow-sm`}
+        className={`mb-6 rounded-2xl border overflow-hidden ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"} shadow-xs`}
       >
         <div className="p-6">
           <div className="flex items-center gap-4 mb-4">

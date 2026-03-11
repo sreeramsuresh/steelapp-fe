@@ -301,9 +301,7 @@ const CreditNotePreview = ({ creditNote, company, onClose }) => {
             className={`px-6 py-3 border-t ${isDarkMode ? "bg-yellow-900/20 border-yellow-800" : "bg-yellow-50 border-yellow-200"}`}
           >
             <div className="flex items-start gap-2">
-              <AlertTriangle
-                className={`h-5 w-5 flex-shrink-0 ${isDarkMode ? "text-yellow-400" : "text-yellow-600"}`}
-              />
+              <AlertTriangle className={`h-5 w-5 shrink-0 ${isDarkMode ? "text-yellow-400" : "text-yellow-600"}`} />
               <div>
                 <p className={`text-sm font-medium ${isDarkMode ? "text-yellow-300" : "text-yellow-800"}`}>
                   Incomplete fields:

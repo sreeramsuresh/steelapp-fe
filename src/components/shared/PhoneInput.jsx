@@ -392,7 +392,7 @@ const PhoneInput = ({
             type="button"
             disabled={disabled}
             onClick={() => setDropdownOpen((prev) => !prev)}
-            className="inline-flex items-center gap-1 px-2.5 h-full whitespace-nowrap bg-gray-50 dark:bg-gray-700 border-r border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors flex-shrink-0 cursor-pointer disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-1 px-2.5 h-full whitespace-nowrap bg-gray-50 dark:bg-gray-700 border-r border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors shrink-0 cursor-pointer disabled:cursor-not-allowed"
           >
             <span className="text-xs font-medium text-gray-500 dark:text-gray-400">{selectedCountry.code}</span>
             <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">{selectedCountry.dial}</span>
@@ -414,19 +414,15 @@ const PhoneInput = ({
             placeholder={selectedCountry.placeholder}
             maxLength={selectedCountry.maxDigits + 4}
             autoComplete="tel-national"
-            className="flex-1 min-w-0 h-full border-none outline-none px-3 text-[15px] tracking-wide text-gray-900 dark:text-white bg-transparent placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:tracking-normal"
+            className="flex-1 min-w-0 h-full border-none outline-hidden px-3 text-[15px] tracking-wide text-gray-900 dark:text-white bg-transparent placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:tracking-normal"
           />
 
           {/* Status icon */}
           {validation.status === "valid" && (
-            <span className="inline-flex items-center px-2.5 h-full text-green-500 flex-shrink-0 text-base">
-              &#10003;
-            </span>
+            <span className="inline-flex items-center px-2.5 h-full text-green-500 shrink-0 text-base">&#10003;</span>
           )}
           {validation.status === "invalid" && (
-            <span className="inline-flex items-center px-2.5 h-full text-red-500 flex-shrink-0 text-base">
-              &#10007;
-            </span>
+            <span className="inline-flex items-center px-2.5 h-full text-red-500 shrink-0 text-base">&#10007;</span>
           )}
         </div>
 
@@ -439,7 +435,7 @@ const PhoneInput = ({
               value={searchFilter}
               onChange={(e) => setSearchFilter(e.target.value)}
               placeholder="Search country..."
-              className="w-full px-3 py-2.5 border-b border-gray-200 dark:border-gray-600 text-sm outline-none bg-transparent text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500"
+              className="w-full px-3 py-2.5 border-b border-gray-200 dark:border-gray-600 text-sm outline-hidden bg-transparent text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500"
             />
             {filteredCountries.map((c) => (
               <button

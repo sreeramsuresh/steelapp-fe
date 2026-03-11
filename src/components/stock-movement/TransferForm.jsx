@@ -308,7 +308,7 @@ const TransferForm = ({ onCancel, onSuccess }) => {
               isDarkMode ? "bg-amber-900/20 border border-amber-700" : "bg-amber-50 border border-amber-200"
             }`}
           >
-            <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+            <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
             <div className="flex-1">
               <p className={`text-sm font-medium ${isDarkMode ? "text-amber-100" : "text-amber-900"}`}>
                 Inactive warehouse involved
@@ -329,7 +329,7 @@ const TransferForm = ({ onCancel, onSuccess }) => {
             isDarkMode ? "bg-red-900 bg-opacity-30 border border-red-700" : "bg-red-50 border border-red-200"
           }`}
         >
-          <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+          <AlertTriangle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
           <div className="flex-1">
             <p className="text-sm font-medium text-red-700 dark:text-red-300 mb-1">Please fix the following errors:</p>
             <ul className="list-disc list-inside text-sm text-red-700 dark:text-red-300 space-y-1">
@@ -359,7 +359,7 @@ const TransferForm = ({ onCancel, onSuccess }) => {
             isDarkMode ? "bg-red-900 bg-opacity-30 border border-red-700" : "bg-red-50 border border-red-200"
           }`}
         >
-          <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+          <AlertTriangle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
           <div className="flex-1">
             <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
           </div>
@@ -401,7 +401,7 @@ const TransferForm = ({ onCancel, onSuccess }) => {
                       : "border-gray-300"
                 } ${
                   isDarkMode ? "bg-gray-700 text-white" : "bg-white text-gray-900"
-                } focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                } focus:outline-hidden focus:ring-2 focus:ring-blue-500 ${
                   loadingWarehouses ? "opacity-50 cursor-not-allowed" : ""
                 }`}
                 data-testid="source-warehouse-select"
@@ -439,7 +439,7 @@ const TransferForm = ({ onCancel, onSuccess }) => {
                       : "border-gray-300"
                 } ${
                   isDarkMode ? "bg-gray-700 text-white" : "bg-white text-gray-900"
-                } focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                } focus:outline-hidden focus:ring-2 focus:ring-blue-500 ${
                   loadingWarehouses ? "opacity-50 cursor-not-allowed" : ""
                 }`}
                 data-testid="destination-warehouse-select"
@@ -470,7 +470,7 @@ const TransferForm = ({ onCancel, onSuccess }) => {
               onChange={(e) => setExpectedDate(e.target.value)}
               className={`w-full px-3 py-2 rounded-lg border ${
                 isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
-              } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              } focus:outline-hidden focus:ring-2 focus:ring-blue-500`}
             />
           </div>
 
@@ -488,7 +488,7 @@ const TransferForm = ({ onCancel, onSuccess }) => {
               onChange={(e) => setTransferType(e.target.value)}
               className={`w-full px-3 py-2 rounded-lg border ${
                 isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
-              } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              } focus:outline-hidden focus:ring-2 focus:ring-blue-500`}
             >
               <option value="REGULAR">Regular - Normal inter-warehouse transfer</option>
               <option value="URGENT">Urgent - Priority handling & expedited processing</option>
@@ -521,7 +521,7 @@ const TransferForm = ({ onCancel, onSuccess }) => {
               isDarkMode
                 ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
                 : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
-            } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+            } focus:outline-hidden focus:ring-2 focus:ring-blue-500`}
           />
         </div>
       </div>
@@ -599,7 +599,7 @@ const TransferForm = ({ onCancel, onSuccess }) => {
                   isDarkMode
                     ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
                     : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
-                } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                } focus:outline-hidden focus:ring-2 focus:ring-blue-500`}
               />
             </div>
 
@@ -673,7 +673,7 @@ const TransferForm = ({ onCancel, onSuccess }) => {
                                 : isDarkMode
                                   ? "bg-gray-700 border-gray-600 text-white"
                                   : "bg-white border-gray-300 text-gray-900"
-                            } focus:outline-none focus:ring-2`}
+                            } focus:outline-hidden focus:ring-2`}
                             aria-label={`Transfer quantity for ${item.productName}`}
                           />
                         </td>
@@ -687,7 +687,7 @@ const TransferForm = ({ onCancel, onSuccess }) => {
                               isDarkMode
                                 ? "bg-gray-700 border-gray-600 text-white"
                                 : "bg-white border-gray-300 text-gray-900"
-                            } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                            } focus:outline-hidden focus:ring-2 focus:ring-blue-500`}
                             aria-label={`Notes for ${item.productName}`}
                           />
                         </td>

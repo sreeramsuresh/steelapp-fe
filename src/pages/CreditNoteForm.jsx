@@ -1172,7 +1172,7 @@ const CreditNoteForm = () => {
             }`}
           >
             <div className="flex items-start gap-3">
-              <AlertTriangle className={`flex-shrink-0 h-5 w-5 ${isDarkMode ? "text-amber-400" : "text-amber-600"}`} />
+              <AlertTriangle className={`shrink-0 h-5 w-5 ${isDarkMode ? "text-amber-400" : "text-amber-600"}`} />
               <div className="flex-1">
                 <p className={`font-semibold mb-1 ${isDarkMode ? "text-amber-300" : "text-amber-900"}`}>
                   Read-Only Mode - Credit Note Locked
@@ -1221,7 +1221,7 @@ const CreditNoteForm = () => {
             }`}
           >
             <div className="flex items-start gap-3">
-              <AlertTriangle className={`flex-shrink-0 ${isDarkMode ? "text-red-400" : "text-red-600"}`} size={24} />
+              <AlertTriangle className={`shrink-0 ${isDarkMode ? "text-red-400" : "text-red-600"}`} size={24} />
               <div className="flex-1">
                 <h4 className="font-bold text-lg mb-2">Please fix the following errors:</h4>
                 <ul className="list-disc list-inside space-y-1 text-sm">
@@ -1287,7 +1287,7 @@ const CreditNoteForm = () => {
                             : isDarkMode
                               ? "border-gray-600 bg-gray-700 text-white focus:ring-teal-500 focus:border-teal-500"
                               : "border-gray-300 bg-white text-gray-900 focus:ring-teal-500 focus:border-teal-500"
-                        } focus:outline-none focus:ring-2`}
+                        } focus:outline-hidden focus:ring-2`}
                       />
                       {isSearching && (
                         <Loader2
@@ -1313,7 +1313,7 @@ const CreditNoteForm = () => {
                               isDarkMode
                                 ? "border-gray-600 bg-gray-700 text-white"
                                 : "border-gray-300 bg-white text-gray-900"
-                            } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                            } focus:outline-hidden focus:ring-2 focus:ring-teal-500`}
                           >
                             <SelectValue />
                           </SelectTrigger>
@@ -1332,7 +1332,7 @@ const CreditNoteForm = () => {
                               isDarkMode
                                 ? "border-gray-600 bg-gray-700 text-white"
                                 : "border-gray-300 bg-white text-gray-900"
-                            } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                            } focus:outline-hidden focus:ring-2 focus:ring-teal-500`}
                           >
                             <SelectValue />
                           </SelectTrigger>
@@ -1625,7 +1625,7 @@ const CreditNoteForm = () => {
                                     : isDarkMode
                                       ? "border-gray-600 bg-gray-700 text-white disabled:bg-gray-800 disabled:text-gray-500 focus:ring-teal-500 focus:border-teal-500"
                                       : "border-gray-300 bg-white text-gray-900 disabled:bg-gray-100 disabled:text-gray-500 focus:ring-teal-500 focus:border-teal-500"
-                                } focus:outline-none focus:ring-2`}
+                                } focus:outline-hidden focus:ring-2`}
                               />
                               {/* Inline quantity precision error */}
                               {itemQuantityErrors[index] && (
@@ -1725,7 +1725,7 @@ const CreditNoteForm = () => {
                               : isDarkMode
                                 ? "border-gray-600 bg-gray-700 text-white focus:ring-teal-500 focus:border-teal-500"
                                 : "border-gray-300 bg-white text-gray-900 focus:ring-teal-500 focus:border-teal-500"
-                        } focus:outline-none focus:ring-2`}
+                        } focus:outline-hidden focus:ring-2`}
                       >
                         <SelectValue placeholder="-- Select Credit Note Type --" />
                       </SelectTrigger>
@@ -1783,7 +1783,7 @@ const CreditNoteForm = () => {
                           : isDarkMode
                             ? "border-gray-600 bg-gray-700 text-white focus:ring-teal-500 focus:border-teal-500"
                             : "border-gray-300 bg-white text-gray-900 focus:ring-teal-500 focus:border-teal-500"
-                      } focus:outline-none focus:ring-2`}
+                      } focus:outline-hidden focus:ring-2`}
                     />
                     {(shouldShowError("creditNoteDate") || invalidFields.has("creditNoteDate")) && (
                       <p className="mt-1 text-sm text-red-500 flex items-center gap-1">
@@ -1834,7 +1834,7 @@ const CreditNoteForm = () => {
                             : isDarkMode
                               ? "border-gray-600 bg-gray-700 text-white focus:ring-teal-500 focus:border-teal-500"
                               : "border-gray-300 bg-white text-gray-900 focus:ring-teal-500 focus:border-teal-500"
-                        } focus:outline-none focus:ring-2`}
+                        } focus:outline-hidden focus:ring-2`}
                       >
                         <SelectValue placeholder="Select reason..." />
                       </SelectTrigger>
@@ -1907,7 +1907,7 @@ const CreditNoteForm = () => {
                         isDarkMode
                           ? "border-gray-600 bg-gray-700 text-white placeholder-gray-500"
                           : "border-gray-300 bg-white text-gray-900 placeholder-gray-400"
-                      } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                      } focus:outline-hidden focus:ring-2 focus:ring-teal-500`}
                     />
                   </div>
                 </div>
@@ -1946,7 +1946,7 @@ const CreditNoteForm = () => {
                             isDarkMode
                               ? "border-gray-600 bg-gray-700 text-white"
                               : "border-gray-300 bg-white text-gray-900"
-                          } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                          } focus:outline-hidden focus:ring-2 focus:ring-teal-500`}
                         >
                           <SelectValue placeholder="Select category..." />
                         </SelectTrigger>
@@ -1986,7 +1986,7 @@ const CreditNoteForm = () => {
                             isDarkMode
                               ? "border-gray-600 bg-gray-700 text-white"
                               : "border-gray-300 bg-white text-gray-900"
-                          } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                          } focus:outline-hidden focus:ring-2 focus:ring-teal-500`}
                         >
                           <SelectValue placeholder="Select disposition..." />
                         </SelectTrigger>
@@ -2025,7 +2025,7 @@ const CreditNoteForm = () => {
                             isDarkMode
                               ? "border-gray-600 bg-gray-700 text-white"
                               : "border-gray-300 bg-white text-gray-900"
-                          } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                          } focus:outline-hidden focus:ring-2 focus:ring-teal-500`}
                         />
                         <input
                           type="text"
@@ -2047,7 +2047,7 @@ const CreditNoteForm = () => {
                             isDarkMode
                               ? "border-gray-600 bg-gray-700 text-white"
                               : "border-gray-300 bg-white text-gray-900"
-                          } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                          } focus:outline-hidden focus:ring-2 focus:ring-teal-500`}
                         />
                         <Select
                           value={
@@ -2136,7 +2136,7 @@ const CreditNoteForm = () => {
                             isDarkMode
                               ? "border-gray-600 bg-gray-700 text-white"
                               : "border-gray-300 bg-white text-gray-900"
-                          } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                          } focus:outline-hidden focus:ring-2 focus:ring-teal-500`}
                         />
                         <input
                           type="text"
@@ -2160,7 +2160,7 @@ const CreditNoteForm = () => {
                             isDarkMode
                               ? "border-gray-600 bg-gray-700 text-white"
                               : "border-gray-300 bg-white text-gray-900"
-                          } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                          } focus:outline-hidden focus:ring-2 focus:ring-teal-500`}
                         />
                       </div>
                     </div>
@@ -2191,7 +2191,7 @@ const CreditNoteForm = () => {
                               isDarkMode
                                 ? "border-gray-600 bg-gray-700 text-white"
                                 : "border-gray-300 bg-white text-gray-900"
-                            } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                            } focus:outline-hidden focus:ring-2 focus:ring-teal-500`}
                           />
                           <input
                             type="text"
@@ -2213,7 +2213,7 @@ const CreditNoteForm = () => {
                               isDarkMode
                                 ? "border-gray-600 bg-gray-700 text-white"
                                 : "border-gray-300 bg-white text-gray-900"
-                            } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                            } focus:outline-hidden focus:ring-2 focus:ring-teal-500`}
                           />
                           <input
                             type="text"
@@ -2235,7 +2235,7 @@ const CreditNoteForm = () => {
                               isDarkMode
                                 ? "border-gray-600 bg-gray-700 text-white"
                                 : "border-gray-300 bg-white text-gray-900"
-                            } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                            } focus:outline-hidden focus:ring-2 focus:ring-teal-500`}
                           />
                           <input
                             type="date"
@@ -2256,7 +2256,7 @@ const CreditNoteForm = () => {
                               isDarkMode
                                 ? "border-gray-600 bg-gray-700 text-white"
                                 : "border-gray-300 bg-white text-gray-900"
-                            } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                            } focus:outline-hidden focus:ring-2 focus:ring-teal-500`}
                           />
                         </div>
                       </div>
@@ -2320,7 +2320,7 @@ const CreditNoteForm = () => {
                               isDarkMode
                                 ? "border-gray-600 bg-gray-700 text-white"
                                 : "border-gray-300 bg-white text-gray-900"
-                            } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                            } focus:outline-hidden focus:ring-2 focus:ring-teal-500`}
                           />
                           <input
                             type="number"
@@ -2342,7 +2342,7 @@ const CreditNoteForm = () => {
                               isDarkMode
                                 ? "border-gray-600 bg-gray-700 text-white"
                                 : "border-gray-300 bg-white text-gray-900"
-                            } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                            } focus:outline-hidden focus:ring-2 focus:ring-teal-500`}
                           />
                           <input
                             type="text"
@@ -2364,7 +2364,7 @@ const CreditNoteForm = () => {
                               isDarkMode
                                 ? "border-gray-600 bg-gray-700 text-white"
                                 : "border-gray-300 bg-white text-gray-900"
-                            } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                            } focus:outline-hidden focus:ring-2 focus:ring-teal-500`}
                           />
                         </div>
                       </div>
@@ -2509,7 +2509,7 @@ const CreditNoteForm = () => {
                               : isDarkMode
                                 ? "border-gray-600 bg-gray-700 text-white"
                                 : "border-gray-300 bg-white text-gray-900"
-                          } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                          } focus:outline-hidden focus:ring-2 focus:ring-teal-500`}
                         >
                           <SelectValue placeholder="Select settlement method..." />
                         </SelectTrigger>
@@ -2545,7 +2545,7 @@ const CreditNoteForm = () => {
                           isDarkMode
                             ? "border-gray-600 bg-gray-700 text-white"
                             : "border-gray-300 bg-white text-gray-900"
-                        } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                        } focus:outline-hidden focus:ring-2 focus:ring-teal-500`}
                       />
                     </div>
                     <div>
@@ -2590,7 +2590,7 @@ const CreditNoteForm = () => {
                             : isDarkMode
                               ? "border-gray-600 bg-gray-700 text-white placeholder-gray-500"
                               : "border-gray-300 bg-white text-gray-900 placeholder-gray-400"
-                        } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                        } focus:outline-hidden focus:ring-2 focus:ring-teal-500`}
                       />
                     </div>
                   </div>
@@ -2752,7 +2752,7 @@ const CreditNoteForm = () => {
                             : isDarkMode
                               ? "border-gray-600 bg-gray-700 text-white placeholder-gray-500 focus:ring-teal-500 focus:border-teal-500"
                               : "border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:ring-teal-500 focus:border-teal-500"
-                        } focus:outline-none focus:ring-2`}
+                        } focus:outline-hidden focus:ring-2`}
                       />
                       {(shouldShowError("manualCreditAmount") || invalidFields.has("manualCreditAmount")) && (
                         <p className="mt-1 text-sm text-red-500 flex items-center gap-1">
@@ -2932,7 +2932,7 @@ const CreditNoteForm = () => {
                   : isDarkMode
                     ? "border-gray-600 bg-gray-700 text-white focus:ring-teal-500 focus:border-teal-500"
                     : "border-gray-300 bg-white text-gray-900 focus:ring-teal-500 focus:border-teal-500"
-              } focus:outline-none focus:ring-2`}
+              } focus:outline-hidden focus:ring-2`}
             />
             {invalidFields.has("expectedReturnDate") && (
               <p className="mt-1 text-sm text-red-500 flex items-center gap-1">
@@ -2963,7 +2963,7 @@ const CreditNoteForm = () => {
                 isDarkMode
                   ? "border-gray-600 bg-gray-700 text-white placeholder-gray-500"
                   : "border-gray-300 bg-white text-gray-900 placeholder-gray-400"
-              } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+              } focus:outline-hidden focus:ring-2 focus:ring-teal-500`}
             />
           </div>
           <div>
@@ -2988,7 +2988,7 @@ const CreditNoteForm = () => {
                 isDarkMode
                   ? "border-gray-600 bg-gray-700 text-white placeholder-gray-500"
                   : "border-gray-300 bg-white text-gray-900 placeholder-gray-400"
-              } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+              } focus:outline-hidden focus:ring-2 focus:ring-teal-500`}
             />
             <p className={`mt-1 text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
               Fee charged for processing the return

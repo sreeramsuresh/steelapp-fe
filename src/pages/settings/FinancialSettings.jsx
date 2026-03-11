@@ -140,7 +140,7 @@ export default function FinancialSettings() {
         </div>
       )}
 
-      <div className={`${cardBg} rounded-lg shadow p-6 space-y-5`}>
+      <div className={`${cardBg} rounded-lg shadow-sm p-6 space-y-5`}>
         {SETTING_FIELDS.map((field) => {
           const options = getAccountOptions(field.coaType);
           return (

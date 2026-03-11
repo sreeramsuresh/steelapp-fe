@@ -69,7 +69,7 @@ const AlertDialog = ({
         data-testid="alert-dialog"
       >
         <div className="flex items-start gap-4">
-          {icon && <div className={`flex-shrink-0 ${iconColors[type]}`}>{icon}</div>}
+          {icon && <div className={`shrink-0 ${iconColors[type]}`}>{icon}</div>}
 
           <div className="flex-1">
             <h2 className="text-lg font-semibold mb-2" id="alert-title">

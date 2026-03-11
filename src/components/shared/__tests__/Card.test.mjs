@@ -103,7 +103,7 @@ test('Card - Inventory item display', async (t) => {
 });
 
 test('Card - Styling and appearance', async (t) => {
-  await t.test('applies card shadow', () => {
+  await t.test('applies card shadow-sm', () => {
     const hasShadow = true;
     assert.ok(hasShadow);
   });
@@ -209,7 +209,7 @@ test('Card - Clickable cards', async (t) => {
 
   await t.test('shows focus state', () => {
     const outline = 'ring-2 ring-blue-500';
-    assert.ok(outline.includes('ring'));
+    assert.ok(outline.includes('ring-3'));
   });
 
   await t.test('prevents clicks on interactive elements', () => {

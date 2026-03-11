@@ -338,7 +338,7 @@ const OperatingExpenses = () => {
       {/* Page Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-teal-600 to-teal-700 flex items-center justify-center text-white">
+          <div className="w-10 h-10 rounded-lg bg-linear-to-br from-teal-600 to-teal-700 flex items-center justify-center text-white">
             <Receipt size={20} />
           </div>
           <div>
@@ -651,7 +651,7 @@ const OperatingExpenses = () => {
 
       {/* Create / Edit / View Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 z-[1100] flex items-center justify-center bg-black/40">
+        <div className="fixed inset-0 z-1100 flex items-center justify-center bg-black/40">
           <div
             className={`rounded-lg shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-auto ${
               isDarkMode ? "bg-[#1E2328] text-white" : "bg-white text-gray-900"
@@ -904,7 +904,7 @@ const OperatingExpenses = () => {
 
       {/* Confirmation Dialog */}
       {confirmDialog.open && (
-        <div className="fixed inset-0 z-[1200] flex items-center justify-center bg-black/40">
+        <div className="fixed inset-0 z-1200 flex items-center justify-center bg-black/40">
           <div
             className={`rounded-lg shadow-xl p-6 max-w-sm w-full mx-4 ${
               isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"

@@ -70,7 +70,7 @@ const PriceTrendWidget = ({ data, onNavigate, onProductClick }) => {
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-cyan-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-linear-to-br from-cyan-500 to-cyan-600 flex items-center justify-center">
               <LineChart size={16} className="text-white" />
             </div>
             <div>
@@ -108,7 +108,7 @@ const PriceTrendWidget = ({ data, onNavigate, onProductClick }) => {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-cyan-600 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-linear-to-br from-cyan-500 to-cyan-600 flex items-center justify-center">
             <LineChart size={16} className="text-white" />
           </div>
           <div>
@@ -210,7 +210,7 @@ const PriceTrendWidget = ({ data, onNavigate, onProductClick }) => {
 
       {/* Expanded Chart for Selected Product */}
       {selectedProduct && (
-        <div className={`mt-4 p-3 rounded-lg ${isDarkMode ? "bg-[#121418]" : "bg-gray-50"}`}>
+        <div className={`mt-4 p-3 rounded-lg ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}>
           <div className="flex items-center justify-between mb-3">
             <p className={`text-xs font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
               {selectedProduct.name} - 6 Month Trend

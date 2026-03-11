@@ -66,7 +66,7 @@ const WarehouseCard = ({ warehouse, onView, onEdit, onDelete, onSetDefault }) =>
       <div className={`px-4 py-3 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3 min-w-0">
-            <div className={`p-2 rounded-lg flex-shrink-0 ${isDarkMode ? "bg-teal-900/30" : "bg-teal-100"}`}>
+            <div className={`p-2 rounded-lg shrink-0 ${isDarkMode ? "bg-teal-900/30" : "bg-teal-100"}`}>
               <MapPin className={`w-5 h-5 ${isDarkMode ? "text-teal-400" : "text-teal-600"}`} />
             </div>
             <div className="min-w-0">
@@ -75,7 +75,7 @@ const WarehouseCard = ({ warehouse, onView, onEdit, onDelete, onSetDefault }) =>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-2 shrink-0">
             {/* Default Badge */}
             {isDefault && (
               <span

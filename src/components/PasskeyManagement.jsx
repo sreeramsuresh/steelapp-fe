@@ -168,7 +168,7 @@ export default function PasskeyManagement() {
                           isDarkMode
                             ? "bg-gray-700 border-gray-600 text-white"
                             : "bg-white border-gray-300 text-gray-900"
-                        } focus:outline-none focus:ring-1 focus:ring-teal-500`}
+                        } focus:outline-hidden focus:ring-1 focus:ring-teal-500`}
                       />
                       <button type="button" onClick={() => handleRename(cred.id)}>
                         <Check size={16} className="text-green-500" />

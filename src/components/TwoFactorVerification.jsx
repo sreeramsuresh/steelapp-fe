@@ -97,7 +97,7 @@ export default function TwoFactorVerification({ twoFactorToken, methods, onVerif
   return (
     <div className="space-y-4">
       <div className="text-center">
-        <div className="mx-auto w-12 h-12 rounded-full bg-gradient-to-br from-teal-600 to-teal-700 flex items-center justify-center mb-3">
+        <div className="mx-auto w-12 h-12 rounded-full bg-linear-to-br from-teal-600 to-teal-700 flex items-center justify-center mb-3">
           <Shield size={24} className="text-white" />
         </div>
         <h2 className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
@@ -123,7 +123,7 @@ export default function TwoFactorVerification({ twoFactorToken, methods, onVerif
           maxLength={maxLength}
           disabled={loading}
           placeholder={placeholder}
-          className={`w-full text-center text-2xl tracking-[0.3em] font-mono py-3 border rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+          className={`w-full text-center text-2xl tracking-[0.3em] font-mono py-3 border rounded-lg transition-all duration-300 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
             isDarkMode
               ? "bg-[#1E2328] border-gray-600 text-white placeholder-gray-600"
               : "bg-white border-gray-300 text-gray-900 placeholder-gray-400"
@@ -145,7 +145,7 @@ export default function TwoFactorVerification({ twoFactorToken, methods, onVerif
         type="button"
         onClick={() => handleVerify()}
         disabled={loading || !code.trim()}
-        className="w-full py-3 rounded-lg font-semibold text-white bg-gradient-to-br from-teal-600 to-teal-700 hover:from-teal-500 hover:to-teal-600 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        className="w-full py-3 rounded-lg font-semibold text-white bg-linear-to-br from-teal-600 to-teal-700 hover:from-teal-500 hover:to-teal-600 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
       >
         {loading ? (
           <>

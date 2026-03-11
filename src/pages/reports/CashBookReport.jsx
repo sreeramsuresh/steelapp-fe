@@ -98,7 +98,7 @@ export default function CashBookReport() {
       <h1 className={`text-2xl font-bold mb-6 ${textPrimary}`}>Cash Book</h1>
 
       {/* Filters */}
-      <div className={`${cardBg} p-4 rounded-lg shadow mb-6`}>
+      <div className={`${cardBg} p-4 rounded-lg shadow-sm mb-6`}>
         <div className="grid grid-cols-5 gap-4">
           <div>
             <label htmlFor="cash-account" className={`block text-sm font-medium ${textLabel} mb-1`}>
@@ -174,19 +174,19 @@ export default function CashBookReport() {
       {/* Summary */}
       {summary && (
         <div className="grid grid-cols-5 gap-4 mb-6">
-          <div className={`${cardBg} p-4 rounded-lg shadow`}>
+          <div className={`${cardBg} p-4 rounded-lg shadow-sm`}>
             <div className={`${textSecondary} text-sm`}>Total Receipts</div>
             <div className="text-xl font-bold text-green-600">
               {bankReconciliationService.formatCurrency(summary.totals.total_receipts)}
             </div>
           </div>
-          <div className={`${cardBg} p-4 rounded-lg shadow`}>
+          <div className={`${cardBg} p-4 rounded-lg shadow-sm`}>
             <div className={`${textSecondary} text-sm`}>Total Payments</div>
             <div className="text-xl font-bold text-red-600">
               {bankReconciliationService.formatCurrency(summary.totals.total_payments)}
             </div>
           </div>
-          <div className={`${cardBg} p-4 rounded-lg shadow`}>
+          <div className={`${cardBg} p-4 rounded-lg shadow-sm`}>
             <div className={`${textSecondary} text-sm`}>Net Cash Flow</div>
             <div
               className={`text-xl font-bold ${summary.totals.net_cash_flow >= 0 ? "text-green-600" : "text-red-600"}`}
@@ -194,11 +194,11 @@ export default function CashBookReport() {
               {bankReconciliationService.formatCurrency(summary.totals.net_cash_flow)}
             </div>
           </div>
-          <div className={`${cardBg} p-4 rounded-lg shadow`}>
+          <div className={`${cardBg} p-4 rounded-lg shadow-sm`}>
             <div className={`${textSecondary} text-sm`}>Total Days</div>
             <div className={`text-xl font-bold ${textPrimary}`}>{summary.totals.total_days}</div>
           </div>
-          <div className={`${cardBg} p-4 rounded-lg shadow`}>
+          <div className={`${cardBg} p-4 rounded-lg shadow-sm`}>
             <div className={`${textSecondary} text-sm`}>Transactions</div>
             <div className={`text-xl font-bold ${textPrimary}`}>{data?.pagination?.total || 0}</div>
           </div>
@@ -207,7 +207,7 @@ export default function CashBookReport() {
 
       {/* Daily Summary */}
       {summary?.summary && summary.summary.length > 0 && (
-        <div className={`${cardBg} rounded-lg shadow mb-6 overflow-x-auto`}>
+        <div className={`${cardBg} rounded-lg shadow-sm mb-6 overflow-x-auto`}>
           <table className="min-w-full">
             <thead>
               <tr className={`${theadBg} ${rowBorder}`}>
@@ -257,11 +257,11 @@ export default function CashBookReport() {
 
       {/* Transactions */}
       {loading ? (
-        <div className={`${cardBg} p-8 rounded-lg shadow text-center`}>
+        <div className={`${cardBg} p-8 rounded-lg shadow-sm text-center`}>
           <div className={`${textSecondary} animate-pulse`}>Loading cash book...</div>
         </div>
       ) : data?.entries && data.entries.length > 0 ? (
-        <div className={`${cardBg} rounded-lg shadow overflow-x-auto`}>
+        <div className={`${cardBg} rounded-lg shadow-sm overflow-x-auto`}>
           <table className="min-w-full">
             <thead>
               <tr className={`${theadBg} ${rowBorder}`}>

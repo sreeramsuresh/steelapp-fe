@@ -276,12 +276,12 @@ const CashFlowWidget = ({ data: propData, onRefresh, loading: externalLoading })
                     <div className="h-24 flex items-end gap-0.5 w-full">
                       {/* Inflow Bar */}
                       <div
-                        className="flex-1 bg-gradient-to-t from-green-600 to-green-400 rounded-t transition-all duration-300 hover:opacity-80"
+                        className="flex-1 bg-linear-to-t from-green-600 to-green-400 rounded-t transition-all duration-300 hover:opacity-80"
                         style={{ height: `${Math.max(inflowHeight, 2)}%` }}
                       />
                       {/* Outflow Bar */}
                       <div
-                        className="flex-1 bg-gradient-to-t from-red-600 to-red-400 rounded-t transition-all duration-300 hover:opacity-80"
+                        className="flex-1 bg-linear-to-t from-red-600 to-red-400 rounded-t transition-all duration-300 hover:opacity-80"
                         style={{ height: `${Math.max(outflowHeight, 2)}%` }}
                       />
                     </div>
@@ -301,11 +301,11 @@ const CashFlowWidget = ({ data: propData, onRefresh, loading: externalLoading })
             className={`flex justify-center gap-4 mt-3 pt-3 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
           >
             <div className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded bg-gradient-to-r from-green-600 to-green-400"></span>
+              <span className="w-3 h-3 rounded bg-linear-to-r from-green-600 to-green-400"></span>
               <span className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Inflows</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded bg-gradient-to-r from-red-600 to-red-400"></span>
+              <span className="w-3 h-3 rounded bg-linear-to-r from-red-600 to-red-400"></span>
               <span className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Outflows</span>
             </div>
           </div>

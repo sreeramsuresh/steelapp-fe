@@ -36,7 +36,7 @@ export default function LineItemEmptyState({
       <button
         type="button"
         onClick={onAdd}
-        className="inline-flex items-center gap-1.5 px-4 py-2 bg-teal-600 text-white rounded-md text-[13px] font-semibold hover:bg-teal-700 transition-colors shadow-sm hover:shadow-md hover:-translate-y-px"
+        className="inline-flex items-center gap-1.5 px-4 py-2 bg-teal-600 text-white rounded-md text-[13px] font-semibold hover:bg-teal-700 transition-colors shadow-xs hover:shadow-md hover:-translate-y-px"
       >
         <Plus size={15} />
         {buttonText}

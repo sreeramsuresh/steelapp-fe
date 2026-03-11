@@ -53,7 +53,7 @@ const CARD_CLASSES = (isDarkMode) =>
   `${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"} border rounded-2xl p-4`;
 
 const INPUT_CLASSES = (isDarkMode) =>
-  `w-full ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"} border rounded-xl py-2.5 px-3 text-[13px] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition-colors`;
+  `w-full ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"} border rounded-xl py-2.5 px-3 text-[13px] outline-hidden focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition-colors`;
 
 const LABEL_CLASSES = (isDarkMode) => `block text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"} mb-1.5`;
 
@@ -82,13 +82,13 @@ const DIVIDER_CLASSES = (isDarkMode) => `h-px ${isDarkMode ? "bg-gray-700" : "bg
 //   const { isDarkMode } = useTheme();
 //
 //   const baseClasses =
-//     'inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2';
+//     'inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-300 focus:outline-hidden focus:ring-2 focus:ring-offset-2';
 //
 //   const getVariantClasses = () => {
 //     if (variant === 'primary') {
 //       return isDarkMode
-//         ? `bg-gradient-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 hover:-translate-y-0.5 focus:ring-teal-500 disabled:bg-gray-600 disabled:hover:translate-y-0 shadow-sm hover:shadow-md focus:ring-offset-gray-800`
-//         : `bg-gradient-to-br from-teal-500 to-teal-600 text-white hover:from-teal-400 hover:to-teal-500 hover:-translate-y-0.5 focus:ring-teal-500 disabled:bg-gray-400 disabled:hover:translate-y-0 shadow-sm hover:shadow-md focus:ring-offset-white`;
+//         ? `bg-linear-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 hover:-translate-y-0.5 focus:ring-teal-500 disabled:bg-gray-600 disabled:hover:translate-y-0 shadow-xs hover:shadow-md focus:ring-offset-gray-800`
+//         : `bg-linear-to-br from-teal-500 to-teal-600 text-white hover:from-teal-400 hover:to-teal-500 hover:-translate-y-0.5 focus:ring-teal-500 disabled:bg-gray-400 disabled:hover:translate-y-0 shadow-xs hover:shadow-md focus:ring-offset-white`;
 //     } else if (variant === 'secondary') {
 //       return `${isDarkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'} ${isDarkMode ? 'text-white' : 'text-gray-800'} focus:ring-gray-400`;
 //     } else if (variant === 'danger') {
@@ -140,7 +140,7 @@ const DIVIDER_CLASSES = (isDarkMode) => `h-px ${isDarkMode ? "bg-gray-700" : "bg
 //       )}
 //       <input
 //         type={type}
-//         className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+//         className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
 //           isDarkMode
 //             ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400'
 //             : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
@@ -457,7 +457,7 @@ const ProductDetailDrawer = ({ product, isOpen, onClose, isDarkMode, navigate })
       />
       {/* Drawer */}
       <div
-        className={`fixed top-0 right-0 h-full w-[min(520px,92vw)] z-[31] overflow-auto transition-transform duration-300 ease-out ${
+        className={`fixed top-0 right-0 h-full w-[min(520px,92vw)] z-31 overflow-auto transition-transform duration-300 ease-out ${
           isDarkMode ? "bg-gray-800 border-l border-gray-700" : "bg-white border-l border-gray-200"
         } ${isOpen ? "translate-x-0" : "translate-x-full"}`}
       >
@@ -465,7 +465,7 @@ const ProductDetailDrawer = ({ product, isOpen, onClose, isDarkMode, navigate })
         <div className="p-4">
           {/* Sticky Header */}
           <div
-            className={`sticky top-0 flex justify-between items-start gap-2.5 p-4 -m-4 mb-3 z-[1] ${
+            className={`sticky top-0 flex justify-between items-start gap-2.5 p-4 -m-4 mb-3 z-1 ${
               isDarkMode ? "bg-gray-800 border-b border-gray-700" : "bg-white border-b border-gray-200"
             }`}
           >
@@ -1788,7 +1788,7 @@ export default function PriceListForm() {
                                       value={getProductPrice(product.id)}
                                       onChange={(e) => handlePriceChange(product.id, e.target.value)}
                                       placeholder="0.00"
-                                      className={`w-24 py-1.5 px-2 text-[13px] text-right border rounded-xl focus:outline-none focus:ring-2 font-mono ${
+                                      className={`w-24 py-1.5 px-2 text-[13px] text-right border rounded-xl focus:outline-hidden focus:ring-2 font-mono ${
                                         isNegativeMargin
                                           ? "border-red-500 focus:ring-red-500/20 bg-red-900/10"
                                           : "focus:ring-teal-500/20 focus:border-teal-500"

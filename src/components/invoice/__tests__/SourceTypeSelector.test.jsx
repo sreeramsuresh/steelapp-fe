@@ -347,7 +347,7 @@ describe("SourceTypeSelector", () => {
       expect(trigger).toBeInTheDocument();
     });
 
-    it("should have focus ring on focus", () => {
+    it("should have focus ring-3 on focus", () => {
       const { container } = renderWithProviders(<SourceTypeSelector {...defaultProps} />);
 
       const trigger = container.querySelector("button");

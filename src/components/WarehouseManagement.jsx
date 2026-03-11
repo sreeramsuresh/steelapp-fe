@@ -254,7 +254,7 @@ const WarehouseManagement = () => {
         }`}
       >
         <div className="flex gap-4 items-center">
-          <div className="flex-grow relative">
+          <div className="grow relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <Search size={20} className={isDarkMode ? "text-gray-400" : "text-gray-500"} />
             </div>
@@ -263,7 +263,7 @@ const WarehouseManagement = () => {
               placeholder="Search warehouses..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+              className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                 isDarkMode
                   ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
                   : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
@@ -284,7 +284,7 @@ const WarehouseManagement = () => {
                 setLoading(false);
               }
             }}
-            className="flex items-center gap-2 px-4 py-3 bg-gradient-to-br from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-500 hover:to-blue-600 transition-all duration-300 shadow-sm hover:shadow-md"
+            className="flex items-center gap-2 px-4 py-3 bg-linear-to-br from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-500 hover:to-blue-600 transition-all duration-300 shadow-xs hover:shadow-md"
           >
             <Package size={16} />
             Seed Warehouses
@@ -301,7 +301,7 @@ const WarehouseManagement = () => {
                 notificationService.error("Failed to fetch debug data");
               }
             }}
-            className="flex items-center gap-2 px-4 py-3 bg-gradient-to-br from-purple-600 to-purple-700 text-white rounded-lg hover:from-purple-500 hover:to-purple-600 transition-all duration-300 shadow-sm hover:shadow-md"
+            className="flex items-center gap-2 px-4 py-3 bg-linear-to-br from-purple-600 to-purple-700 text-white rounded-lg hover:from-purple-500 hover:to-purple-600 transition-all duration-300 shadow-xs hover:shadow-md"
           >
             <Search size={16} />
             Debug DB
@@ -310,7 +310,7 @@ const WarehouseManagement = () => {
             <button
               type="button"
               onClick={() => handleOpenDialog()}
-              className="flex items-center gap-2 px-4 py-3 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
+              className="flex items-center gap-2 px-4 py-3 bg-linear-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-xs hover:shadow-md"
             >
               <Add size={16} />
               Add Warehouse
@@ -470,7 +470,7 @@ const WarehouseManagement = () => {
                 <button
                   type="button"
                   onClick={() => handleOpenDialog()}
-                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 mx-auto"
+                  className="flex items-center gap-2 px-4 py-2 bg-linear-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 mx-auto"
                 >
                   <Add size={16} />
                   Add Warehouse
@@ -508,7 +508,7 @@ const WarehouseManagement = () => {
                     type="text"
                     value={formData.name}
                     onChange={(e) => handleInputChange("name", e.target.value)}
-                    className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                    className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                       isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                     }`}
                   />
@@ -526,7 +526,7 @@ const WarehouseManagement = () => {
                     value={formData.code}
                     onChange={(e) => handleInputChange("code", e.target.value)}
                     placeholder="e.g. WH-MAIN"
-                    className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                    className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                       isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                     }`}
                   />
@@ -543,7 +543,7 @@ const WarehouseManagement = () => {
                     type="text"
                     value={formData.address}
                     onChange={(e) => handleInputChange("address", e.target.value)}
-                    className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                    className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                       isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                     }`}
                   />
@@ -560,7 +560,7 @@ const WarehouseManagement = () => {
                     type="text"
                     value={formData.city}
                     onChange={(e) => handleInputChange("city", e.target.value)}
-                    className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                    className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                       isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                     }`}
                   />
@@ -577,7 +577,7 @@ const WarehouseManagement = () => {
                     type="text"
                     value={formData.state}
                     onChange={(e) => handleInputChange("state", e.target.value)}
-                    className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                    className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                       isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                     }`}
                   />
@@ -594,7 +594,7 @@ const WarehouseManagement = () => {
                     type="text"
                     value={formData.contactPerson}
                     onChange={(e) => handleInputChange("contact_person", e.target.value)}
-                    className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                    className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                       isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                     }`}
                   />
@@ -612,7 +612,7 @@ const WarehouseManagement = () => {
                     value={formData.phone}
                     onChange={(e) => handleInputChange("phone", e.target.value)}
                     placeholder="+971-50-123-4567"
-                    className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                    className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                       isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                     }`}
                   />
@@ -629,7 +629,7 @@ const WarehouseManagement = () => {
                     type="email"
                     value={formData.email}
                     onChange={(e) => handleInputChange("email", e.target.value)}
-                    className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                    className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                       isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                     }`}
                   />
@@ -647,7 +647,7 @@ const WarehouseManagement = () => {
                     value={formData.capacity}
                     onChange={(e) => handleInputChange("capacity", e.target.value)}
                     placeholder="e.g. 5000 MT"
-                    className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                    className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                       isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                     }`}
                   />
@@ -664,7 +664,7 @@ const WarehouseManagement = () => {
                     value={formData.description}
                     onChange={(e) => handleInputChange("description", e.target.value)}
                     rows={3}
-                    className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none ${
+                    className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none ${
                       isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                     }`}
                   />
@@ -701,7 +701,7 @@ const WarehouseManagement = () => {
               <button
                 type="button"
                 onClick={handleSubmit}
-                className="px-6 py-3 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
+                className="px-6 py-3 bg-linear-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-xs hover:shadow-md"
               >
                 {editingWarehouse ? "Update Warehouse" : "Add Warehouse"}
               </button>

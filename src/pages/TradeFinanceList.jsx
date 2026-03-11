@@ -471,7 +471,7 @@ const TradeFinanceModal = ({
                 value={formData.document_type}
                 onChange={(e) => handleChange("document_type", e.target.value)}
                 disabled={!!editingRecord}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                   isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                 } ${editingRecord ? "opacity-60" : ""}`}
               >
@@ -497,7 +497,7 @@ const TradeFinanceModal = ({
                 value={formData.reference_number}
                 onChange={(e) => handleChange("reference_number", e.target.value)}
                 placeholder="e.g., LC-2024-001"
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                   isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                 } ${errors.reference_number ? "border-red-500" : ""}`}
               />
@@ -516,7 +516,7 @@ const TradeFinanceModal = ({
                 id="tf-import-order"
                 value={formData.import_order_id || ""}
                 onChange={(e) => handleChange("import_order_id", e.target.value ? parseInt(e.target.value, 10) : null)}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                   isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                 }`}
               >
@@ -543,7 +543,7 @@ const TradeFinanceModal = ({
                 value={formData.issuing_bank}
                 onChange={(e) => handleChange("issuing_bank", e.target.value)}
                 placeholder="e.g., Emirates NBD"
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                   isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                 } ${errors.issuing_bank ? "border-red-500" : ""}`}
               />
@@ -564,7 +564,7 @@ const TradeFinanceModal = ({
                 value={formData.advising_bank}
                 onChange={(e) => handleChange("advising_bank", e.target.value)}
                 placeholder="e.g., HSBC Bank"
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                   isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                 }`}
               />
@@ -584,7 +584,7 @@ const TradeFinanceModal = ({
                 value={formData.applicant}
                 onChange={(e) => handleChange("applicant", e.target.value)}
                 placeholder="e.g., Ultimate Steel LLC"
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                   isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                 }`}
               />
@@ -604,7 +604,7 @@ const TradeFinanceModal = ({
                 value={formData.beneficiary}
                 onChange={(e) => handleChange("beneficiary", e.target.value)}
                 placeholder="e.g., Steel Manufacturer Co."
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                   isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                 } ${errors.beneficiary ? "border-red-500" : ""}`}
               />
@@ -627,7 +627,7 @@ const TradeFinanceModal = ({
                 placeholder="0.00"
                 min="0"
                 step="0.01"
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                   isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                 } ${errors.amount ? "border-red-500" : ""}`}
               />
@@ -646,7 +646,7 @@ const TradeFinanceModal = ({
                 id="tf-currency"
                 value={formData.currency}
                 onChange={(e) => handleChange("currency", e.target.value)}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                   isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                 }`}
               >
@@ -671,7 +671,7 @@ const TradeFinanceModal = ({
                 type="date"
                 value={formData.issue_date}
                 onChange={(e) => handleChange("issue_date", e.target.value)}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                   isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                 } ${errors.issue_date ? "border-red-500" : ""}`}
               />
@@ -691,7 +691,7 @@ const TradeFinanceModal = ({
                 type="date"
                 value={formData.expiry_date}
                 onChange={(e) => handleChange("expiry_date", e.target.value)}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                   isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                 } ${errors.expiry_date ? "border-red-500" : ""}`}
               />
@@ -711,7 +711,7 @@ const TradeFinanceModal = ({
                 type="date"
                 value={formData.latest_shipment_date}
                 onChange={(e) => handleChange("latest_shipment_date", e.target.value)}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                   isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                 }`}
               />
@@ -729,7 +729,7 @@ const TradeFinanceModal = ({
                 id="tf-tenor"
                 value={formData.tenor}
                 onChange={(e) => handleChange("tenor", e.target.value)}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                   isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                 }`}
               >
@@ -788,7 +788,7 @@ const TradeFinanceModal = ({
                     onChange={(e) => handleChange("special_conditions", e.target.value)}
                     rows="3"
                     placeholder="Enter any special conditions or clauses..."
-                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                    className={`w-full px-3 py-2 border rounded-lg focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                       isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                     }`}
                   />
@@ -808,7 +808,7 @@ const TradeFinanceModal = ({
                     onChange={(e) => handleChange("notes", e.target.value)}
                     rows="2"
                     placeholder="Internal notes..."
-                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                    className={`w-full px-3 py-2 border rounded-lg focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                       isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                     }`}
                   />
@@ -881,7 +881,7 @@ const TradeFinanceModal = ({
                     type="date"
                     value={formData.amendment_date}
                     onChange={(e) => handleChange("amendment_date", e.target.value)}
-                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                    className={`w-full px-3 py-2 border rounded-lg focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                       isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                     }`}
                   />
@@ -902,7 +902,7 @@ const TradeFinanceModal = ({
                   onChange={(e) => handleChange("amendment_details", e.target.value)}
                   rows="4"
                   placeholder="Describe the changes made in this amendment..."
-                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                  className={`w-full px-3 py-2 border rounded-lg focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                     isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                   } ${errors.amendment_details ? "border-red-500" : ""}`}
                 />
@@ -1267,7 +1267,7 @@ const TradeFinanceList = () => {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
+        <div className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-xs`}>
           <div className="flex items-center gap-3">
             <div className={`p-2 rounded-lg ${isDarkMode ? "bg-blue-900/30" : "bg-blue-100"}`}>
               <FileText size={20} className="text-blue-600" />
@@ -1279,7 +1279,7 @@ const TradeFinanceList = () => {
           </div>
         </div>
 
-        <div className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
+        <div className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-xs`}>
           <div className="flex items-center gap-3">
             <div className={`p-2 rounded-lg ${isDarkMode ? "bg-yellow-900/30" : "bg-yellow-100"}`}>
               <Clock size={20} className="text-yellow-600" />
@@ -1291,7 +1291,7 @@ const TradeFinanceList = () => {
           </div>
         </div>
 
-        <div className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
+        <div className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-xs`}>
           <div className="flex items-center gap-3">
             <div className={`p-2 rounded-lg ${isDarkMode ? "bg-red-900/30" : "bg-red-100"}`}>
               <AlertTriangle size={20} className="text-red-600" />
@@ -1303,7 +1303,7 @@ const TradeFinanceList = () => {
           </div>
         </div>
 
-        <div className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
+        <div className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-xs`}>
           <div className="flex items-center gap-3">
             <div className={`p-2 rounded-lg ${isDarkMode ? "bg-green-900/30" : "bg-green-100"}`}>
               <DollarSign size={20} className="text-green-600" />
@@ -1317,7 +1317,7 @@ const TradeFinanceList = () => {
       </div>
 
       {/* Filters */}
-      <div className={`${isDarkMode ? "bg-gray-800" : "bg-white"} rounded-lg p-4 mb-6 shadow-sm`}>
+      <div className={`${isDarkMode ? "bg-gray-800" : "bg-white"} rounded-lg p-4 mb-6 shadow-xs`}>
         <div className="flex flex-wrap items-center gap-4">
           {/* Search */}
           <div className="flex-1 min-w-[200px]">
@@ -1466,7 +1466,7 @@ const TradeFinanceList = () => {
       )}
 
       {/* Table */}
-      <div className={`${isDarkMode ? "bg-gray-800" : "bg-white"} rounded-lg shadow-sm overflow-hidden`}>
+      <div className={`${isDarkMode ? "bg-gray-800" : "bg-white"} rounded-lg shadow-xs overflow-hidden`}>
         {loading ? (
           <div className="p-8 text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600 mx-auto"></div>

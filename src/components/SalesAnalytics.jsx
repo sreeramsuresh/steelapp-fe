@@ -260,7 +260,7 @@ const SalesAnalytics = () => {
               id="period-select"
               value={dateRange}
               onChange={(e) => setDateRange(e.target.value)}
-              className={`w-32 px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
+              className={`w-32 px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
                 isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
               }`}
             >
@@ -283,7 +283,7 @@ const SalesAnalytics = () => {
               type="month"
               value={format(selectedPeriod, "yyyy-MM")}
               onChange={(e) => setSelectedPeriod(new Date(e.target.value))}
-              className={`w-40 px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+              className={`w-40 px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                 isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
               }`}
             />
@@ -499,7 +499,7 @@ const SalesAnalytics = () => {
                     >
                       <div className="flex items-end h-36 mb-2">
                         <div
-                          className="w-5 bg-gradient-to-br from-teal-600 to-teal-700 rounded-t transition-all duration-300"
+                          className="w-5 bg-linear-to-br from-teal-600 to-teal-700 rounded-t transition-all duration-300"
                           style={{ height: `${height}px`, minHeight: "4px" }}
                         />
                       </div>
@@ -551,7 +551,7 @@ const SalesAnalytics = () => {
                         </div>
                         <div className={`h-2 rounded-full mb-1 ${isDarkMode ? "bg-gray-700" : "bg-gray-300"}`}>
                           <div
-                            className="h-2 bg-gradient-to-r from-teal-600 to-teal-700 rounded-full transition-all duration-300"
+                            className="h-2 bg-linear-to-r from-teal-600 to-teal-700 rounded-full transition-all duration-300"
                             style={{ width: `${percentage}%` }}
                           />
                         </div>
@@ -725,7 +725,7 @@ const SalesAnalytics = () => {
                           className={`h-2 rounded-full overflow-hidden ${isDarkMode ? "bg-gray-700" : "bg-gray-200"}`}
                         >
                           <div
-                            className="h-full bg-gradient-to-r from-teal-600 to-teal-700 rounded-full transition-all duration-300"
+                            className="h-full bg-linear-to-r from-teal-600 to-teal-700 rounded-full transition-all duration-300"
                             style={{
                               width: `${(customer.revenue / (analytics.topCustomers[0]?.revenue || 1)) * 100}%`,
                             }}
@@ -813,7 +813,7 @@ const SalesAnalytics = () => {
         </h3>
         <div className="relative">
           <select
-            className={`w-48 px-4 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
+            className={`w-48 px-4 py-2 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
               isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
             }`}
             defaultValue="revenue"
@@ -972,7 +972,7 @@ const SalesAnalytics = () => {
                   </div>
                   <div className={`h-1.5 rounded-full overflow-hidden ${isDarkMode ? "bg-gray-700" : "bg-gray-200"}`}>
                     <div
-                      className="h-full bg-gradient-to-r from-teal-600 to-teal-700 rounded-full transition-all duration-300"
+                      className="h-full bg-linear-to-r from-teal-600 to-teal-700 rounded-full transition-all duration-300"
                       style={{
                         width: `${(product.revenue / (analytics.topProducts[0]?.revenue || 1)) * 100}%`,
                       }}
@@ -1391,7 +1391,7 @@ const SalesAnalytics = () => {
   );
 
   return (
-    <div className={`p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}>
+    <div className={`p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}>
       <div
         className={`border rounded-xl overflow-hidden shadow-lg ${
           isDarkMode ? "border-[#37474F] bg-[#1E2328]" : "border-gray-200 bg-white"

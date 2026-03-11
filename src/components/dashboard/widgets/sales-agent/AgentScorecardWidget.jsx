@@ -240,7 +240,7 @@ const AgentScorecardWidget = ({ data: propData, onRefresh, onViewDetails, isLoad
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center shadow-lg">
+          <div className="w-10 h-10 rounded-xl bg-linear-to-br from-teal-500 to-teal-600 flex items-center justify-center shadow-lg">
             <Target size={20} className="text-white" />
           </div>
           <div>
@@ -286,7 +286,7 @@ const AgentScorecardWidget = ({ data: propData, onRefresh, onViewDetails, isLoad
         <select
           value={selectedAgentId}
           onChange={(e) => setSelectedAgentId(parseInt(e.target.value, 10))}
-          className={`flex-1 text-sm px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+          className={`flex-1 text-sm px-3 py-2 rounded-lg border focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
             isDarkMode ? "bg-[#2E3B4E] border-[#37474F] text-white" : "bg-gray-50 border-gray-200 text-gray-700"
           }`}
         >
@@ -299,7 +299,7 @@ const AgentScorecardWidget = ({ data: propData, onRefresh, onViewDetails, isLoad
         <select
           value={selectedPeriod}
           onChange={(e) => setSelectedPeriod(e.target.value)}
-          className={`text-sm px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+          className={`text-sm px-3 py-2 rounded-lg border focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
             isDarkMode ? "bg-[#2E3B4E] border-[#37474F] text-white" : "bg-gray-50 border-gray-200 text-gray-700"
           }`}
         >
@@ -317,12 +317,12 @@ const AgentScorecardWidget = ({ data: propData, onRefresh, onViewDetails, isLoad
           <div
             className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold ${
               selectedAgent.rank === 1
-                ? "bg-gradient-to-br from-yellow-400 to-yellow-600"
+                ? "bg-linear-to-br from-yellow-400 to-yellow-600"
                 : selectedAgent.rank === 2
-                  ? "bg-gradient-to-br from-gray-400 to-gray-500"
+                  ? "bg-linear-to-br from-gray-400 to-gray-500"
                   : selectedAgent.rank === 3
-                    ? "bg-gradient-to-br from-amber-500 to-amber-700"
-                    : "bg-gradient-to-br from-teal-500 to-teal-600"
+                    ? "bg-linear-to-br from-amber-500 to-amber-700"
+                    : "bg-linear-to-br from-teal-500 to-teal-600"
             }`}
           >
             {selectedAgent.avatar}

@@ -81,7 +81,7 @@ export default function TwoFactorSetup({ onComplete, onCancel }) {
   const cardClass = `rounded-2xl border shadow-lg p-6 ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"}`;
   const labelClass = `block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`;
   const btnPrimary =
-    "w-full py-3 rounded-lg font-semibold text-white bg-gradient-to-br from-teal-600 to-teal-700 hover:from-teal-500 hover:to-teal-600 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2";
+    "w-full py-3 rounded-lg font-semibold text-white bg-linear-to-br from-teal-600 to-teal-700 hover:from-teal-500 hover:to-teal-600 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2";
   const btnSecondary = `w-full py-2 rounded-lg font-medium transition-colors ${isDarkMode ? "bg-gray-700 text-white hover:bg-gray-600" : "bg-gray-200 text-gray-900 hover:bg-gray-300"}`;
 
   // ── Step 1: Introduction ─────────────────────────
@@ -89,7 +89,7 @@ export default function TwoFactorSetup({ onComplete, onCancel }) {
     return (
       <div className={cardClass}>
         <div className="text-center mb-6">
-          <div className="mx-auto w-14 h-14 rounded-full bg-gradient-to-br from-teal-600 to-teal-700 flex items-center justify-center mb-4">
+          <div className="mx-auto w-14 h-14 rounded-full bg-linear-to-br from-teal-600 to-teal-700 flex items-center justify-center mb-4">
             <Shield size={28} className="text-white" />
           </div>
           <h3 className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
@@ -184,7 +184,7 @@ export default function TwoFactorSetup({ onComplete, onCancel }) {
             onChange={(e) => setVerifyCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
             maxLength={6}
             placeholder="000000"
-            className={`w-full text-center text-2xl tracking-[0.3em] font-mono py-3 border rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+            className={`w-full text-center text-2xl tracking-[0.3em] font-mono py-3 border rounded-lg transition-all focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
               isDarkMode
                 ? "bg-[#1E2328] border-gray-600 text-white placeholder-gray-600"
                 : "bg-white border-gray-300 text-gray-900 placeholder-gray-400"

@@ -26,13 +26,13 @@ export default function ResetPassword() {
   if (!token) {
     return (
       <div
-        className={`min-h-screen w-screen fixed top-0 left-0 right-0 bottom-0 flex items-center justify-center p-0 m-0 ${isDarkMode ? "bg-[#121418]" : "bg-gray-100"}`}
+        className={`min-h-screen w-screen fixed top-0 left-0 right-0 bottom-0 flex items-center justify-center p-0 m-0 ${isDarkMode ? "bg-gray-900" : "bg-gray-100"}`}
       >
         <div
           className={`w-full max-w-md min-w-80 mx-4 rounded-2xl border shadow-xl p-6 ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"}`}
         >
           <div className="text-center mb-6">
-            <h1 className="text-3xl font-bold mb-2 bg-gradient-to-br from-teal-600 to-teal-700 bg-clip-text text-transparent">
+            <h1 className="text-3xl font-bold mb-2 bg-linear-to-br from-teal-600 to-teal-700 bg-clip-text text-transparent">
               ULTIMATE STEELS
             </h1>
           </div>
@@ -79,13 +79,13 @@ export default function ResetPassword() {
 
   return (
     <div
-      className={`min-h-screen w-screen fixed top-0 left-0 right-0 bottom-0 flex items-center justify-center p-0 m-0 ${isDarkMode ? "bg-[#121418]" : "bg-gray-100"}`}
+      className={`min-h-screen w-screen fixed top-0 left-0 right-0 bottom-0 flex items-center justify-center p-0 m-0 ${isDarkMode ? "bg-gray-900" : "bg-gray-100"}`}
     >
       <div
         className={`w-full max-w-md min-w-80 mx-4 rounded-2xl border shadow-xl p-6 ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"}`}
       >
         <div className="text-center mb-6">
-          <h1 className="text-3xl font-bold mb-2 bg-gradient-to-br from-teal-600 to-teal-700 bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold mb-2 bg-linear-to-br from-teal-600 to-teal-700 bg-clip-text text-transparent">
             ULTIMATE STEELS
           </h1>
           <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
@@ -131,7 +131,7 @@ export default function ResetPassword() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   minLength={8}
-                  className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                  className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-all duration-300 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                     isDarkMode
                       ? "bg-[#1E2328] border-gray-600 text-white placeholder-gray-500"
                       : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
@@ -159,7 +159,7 @@ export default function ResetPassword() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
-                  className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                  className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-all duration-300 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                     isDarkMode
                       ? "bg-[#1E2328] border-gray-600 text-white placeholder-gray-500"
                       : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
@@ -188,7 +188,7 @@ export default function ResetPassword() {
             <button
               type="submit"
               disabled={status === "submitting"}
-              className="w-full py-3 rounded-lg font-semibold text-white bg-gradient-to-br from-teal-600 to-teal-700 hover:from-teal-500 hover:to-teal-600 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full py-3 rounded-lg font-semibold text-white bg-linear-to-br from-teal-600 to-teal-700 hover:from-teal-500 hover:to-teal-600 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {status === "submitting" ? (
                 <>

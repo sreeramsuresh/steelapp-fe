@@ -866,7 +866,7 @@ export function SupplierForm() {
     }
   };
 
-  const inputClasses = `w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+  const inputClasses = `w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
     isDarkMode
       ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
       : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
@@ -1891,7 +1891,7 @@ export function SupplierForm() {
             <button
               type="submit"
               disabled={saving}
-              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md disabled:opacity-50"
+              className="flex items-center gap-2 px-6 py-3 bg-linear-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-xs hover:shadow-md disabled:opacity-50"
             >
               {saving ? <Loader2 className="h-5 w-5 animate-spin" /> : <Save size={20} />}
               {isEditMode ? "Update Supplier" : "Create Supplier"}

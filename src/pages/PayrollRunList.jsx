@@ -139,7 +139,7 @@ const PayrollRunList = () => {
       )}
 
       {showCreate && (
-        <div className="bg-white rounded-lg shadow p-4 mb-6">
+        <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
           <h2 className="text-lg font-semibold mb-3">Create Payroll Run</h2>
           <form onSubmit={handleCreate} className="grid grid-cols-4 gap-4 items-end">
             <div>
@@ -223,7 +223,7 @@ const PayrollRunList = () => {
         </div>
       )}
 
-      <div className="bg-white rounded-lg shadow overflow-x-auto">
+      <div className="bg-white rounded-lg shadow-sm overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>

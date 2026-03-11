@@ -118,11 +118,11 @@ describe("IconButton", () => {
     expect(button).toHaveAttribute("type", "button");
   });
 
-  it("should apply focus ring styling", () => {
+  it("should apply focus ring-3 styling", () => {
     const { container } = render(<IconButton icon={<Edit />} title="Edit" />);
 
     const button = container.querySelector("button");
-    expect(button).toHaveClass("focus:outline-none", "focus:ring-2");
+    expect(button).toHaveClass("focus:outline-hidden", "focus:ring-2");
   });
 
   it("should apply disabled state styling", () => {
@@ -178,7 +178,7 @@ describe("IconButton", () => {
     expect(screen.getByText("Delete Item")).toBeInTheDocument();
   });
 
-  it("should hide tooltip on blur", () => {
+  it("should hide tooltip on blur-sm", () => {
     const { container } = render(<IconButton icon={<Trash2 />} title="Delete Item" />);
 
     const button = container.querySelector("button");

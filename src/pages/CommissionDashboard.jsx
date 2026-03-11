@@ -114,7 +114,7 @@ const CommissionDashboard = () => {
         <div className="px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="p-2 bg-gradient-to-br from-green-600 to-green-700 rounded-lg">
+              <div className="p-2 bg-linear-to-br from-green-600 to-green-700 rounded-lg">
                 <DollarSign className="h-6 w-6 text-white" />
               </div>
               <div>

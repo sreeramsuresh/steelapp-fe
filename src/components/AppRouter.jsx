@@ -15,7 +15,7 @@ import ErrorBoundary from "./ErrorBoundary";
 import LegacyRedirect from "./LegacyRedirect";
 
 // Loading Fallbacks
-import { InvoiceFormLoadingFallback } from "./LoadingFallback";
+import { InvoiceFormLoadingFallback, PageLoadingFallback } from "./LoadingFallback";
 
 // Lazy loaded components
 const CustomerDetail = lazy(() => import("../pages/CustomerDetail"));
@@ -280,7 +280,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
 
   return (
     <div
-      className={`w-full ${isMarketing || isAppRoute ? "" : "p-2 sm:p-1 min-h-[calc(100vh-64px)]"} ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
+      className={`w-full ${isMarketing || isAppRoute ? "" : "p-2 sm:p-1 min-h-[calc(100vh-64px)]"} ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}
     >
       <Suspense
         fallback={
@@ -432,7 +432,9 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
               element={
                 <ErrorBoundary>
                   <ProtectedRoute user={user} requiredPermission="invoices.read">
-                    <InvoiceList />
+                    <Suspense fallback={<PageLoadingFallback label="Loading invoices..." />}>
+                      <InvoiceList />
+                    </Suspense>
                   </ProtectedRoute>
                 </ErrorBoundary>
               }

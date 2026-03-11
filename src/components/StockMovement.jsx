@@ -265,7 +265,7 @@ const StockMovement = () => {
     return (
       <div
         className={`p-6 min-h-[calc(100vh-64px)] w-full overflow-auto ${
-          isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"
+          isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"
         } md:p-4 sm:p-3`}
       >
         <div className="flex items-center justify-center min-h-96 gap-4">
@@ -279,7 +279,7 @@ const StockMovement = () => {
   return (
     <div
       className={`p-6 min-h-[calc(100vh-64px)] w-full overflow-auto ${
-        isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"
+        isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"
       } md:p-4 sm:p-3`}
     >
       <div className={`mb-6 pb-4 border-b ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}>
@@ -299,7 +299,7 @@ const StockMovement = () => {
             }`}
           >
             <AlertCircle size={20} />
-            <span className="flex-grow">{error}</span>
+            <span className="grow">{error}</span>
             <button type="button" onClick={() => setError("")} className="ml-2">
               <X size={16} />
             </button>
@@ -314,7 +314,7 @@ const StockMovement = () => {
       >
         <div className="p-4">
           <div className="flex gap-4 items-center">
-            <div className="flex-grow relative">
+            <div className="grow relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <Search size={20} className={isDarkMode ? "text-gray-400" : "text-gray-500"} />
               </div>
@@ -323,7 +323,7 @@ const StockMovement = () => {
                 placeholder="Search movements..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                   isDarkMode
                     ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
                     : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
@@ -352,7 +352,7 @@ const StockMovement = () => {
             <button
               type="button"
               onClick={() => handleOpenDialog()}
-              className="flex items-center gap-2 px-4 py-3 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md font-semibold"
+              className="flex items-center gap-2 px-4 py-3 bg-linear-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-xs hover:shadow-md font-semibold"
             >
               <Add size={16} />
               Add Movement
@@ -691,7 +691,7 @@ const StockMovement = () => {
                         <button
                           type="button"
                           onClick={() => handleOpenDialog()}
-                          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 mx-auto"
+                          className="flex items-center gap-2 px-4 py-2 bg-linear-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 mx-auto"
                         >
                           <Add size={16} />
                           Add Movement
@@ -760,9 +760,9 @@ const StockMovement = () => {
                           value={productQuery}
                           onChange={(e) => setProductQuery(e.target.value)}
                           placeholder="Search and select a product to auto-fill fields..."
-                          className={`w-full px-3 py-2 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                          className={`w-full px-3 py-2 border rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                             isDarkMode
-                              ? "bg-[#121418] border-[#37474F] text-white placeholder-gray-400"
+                              ? "bg-gray-900 border-[#37474F] text-white placeholder-gray-400"
                               : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
                           }`}
                         />
@@ -775,7 +775,7 @@ const StockMovement = () => {
                         )}
                         {productOptions.length > 0 && (
                           <div
-                            className={`absolute z-10 mt-1 w-full max-h-56 overflow-auto rounded-lg border shadow ${isDarkMode ? "bg-[#1E2328] border-gray-700" : "bg-white border-gray-200"}`}
+                            className={`absolute z-10 mt-1 w-full max-h-56 overflow-auto rounded-lg border shadow-sm ${isDarkMode ? "bg-[#1E2328] border-gray-700" : "bg-white border-gray-200"}`}
                           >
                             {productOptions.map((p) => (
                               <button
@@ -817,7 +817,7 @@ const StockMovement = () => {
                       onChange={(e) => handleInputChange("date", e.target.value)}
                       className={`w-full px-3 py-2 border rounded-lg ${
                         isDarkMode
-                          ? "bg-[#121418] border-[#37474F] text-white"
+                          ? "bg-gray-900 border-[#37474F] text-white"
                           : "bg-white border-gray-300 text-gray-900"
                       }`}
                     />
@@ -835,7 +835,7 @@ const StockMovement = () => {
                       onChange={(e) => handleInputChange("movement", e.target.value)}
                       className={`w-full px-3 py-2 border rounded-lg ${
                         isDarkMode
-                          ? "bg-[#121418] border-[#37474F] text-white"
+                          ? "bg-gray-900 border-[#37474F] text-white"
                           : "bg-white border-gray-300 text-gray-900"
                       }`}
                     >
@@ -859,7 +859,7 @@ const StockMovement = () => {
                       onChange={(e) => handleInputChange("productType", e.target.value)}
                       className={`w-full px-3 py-2 border rounded-lg ${
                         isDarkMode
-                          ? "bg-[#121418] border-[#37474F] text-white"
+                          ? "bg-gray-900 border-[#37474F] text-white"
                           : "bg-white border-gray-300 text-gray-900"
                       }`}
                     >
@@ -883,7 +883,7 @@ const StockMovement = () => {
                       onChange={(e) => handleInputChange("grade", e.target.value)}
                       className={`w-full px-3 py-2 border rounded-lg ${
                         isDarkMode
-                          ? "bg-[#121418] border-[#37474F] text-white"
+                          ? "bg-gray-900 border-[#37474F] text-white"
                           : "bg-white border-gray-300 text-gray-900"
                       }`}
                     >
@@ -908,7 +908,7 @@ const StockMovement = () => {
                       onChange={(e) => handleInputChange("thickness", e.target.value)}
                       className={`w-full px-3 py-2 border rounded-lg ${
                         isDarkMode
-                          ? "bg-[#121418] border-[#37474F] text-white"
+                          ? "bg-gray-900 border-[#37474F] text-white"
                           : "bg-white border-gray-300 text-gray-900"
                       }`}
                     />
@@ -927,7 +927,7 @@ const StockMovement = () => {
                       onChange={(e) => handleInputChange("size", e.target.value)}
                       className={`w-full px-3 py-2 border rounded-lg ${
                         isDarkMode
-                          ? "bg-[#121418] border-[#37474F] text-white"
+                          ? "bg-gray-900 border-[#37474F] text-white"
                           : "bg-white border-gray-300 text-gray-900"
                       }`}
                     />
@@ -945,7 +945,7 @@ const StockMovement = () => {
                       onChange={(e) => handleInputChange("finish", e.target.value)}
                       className={`w-full px-3 py-2 border rounded-lg ${
                         isDarkMode
-                          ? "bg-[#121418] border-[#37474F] text-white"
+                          ? "bg-gray-900 border-[#37474F] text-white"
                           : "bg-white border-gray-300 text-gray-900"
                       }`}
                     >
@@ -970,7 +970,7 @@ const StockMovement = () => {
                       onChange={(e) => handleInputChange("invoiceNo", e.target.value)}
                       className={`w-full px-3 py-2 border rounded-lg ${
                         isDarkMode
-                          ? "bg-[#121418] border-[#37474F] text-white"
+                          ? "bg-gray-900 border-[#37474F] text-white"
                           : "bg-white border-gray-300 text-gray-900"
                       }`}
                     />
@@ -997,7 +997,7 @@ const StockMovement = () => {
                       }}
                       className={`w-full px-3 py-2 border rounded-lg ${
                         isDarkMode
-                          ? "bg-[#121418] border-[#37474F] text-white"
+                          ? "bg-gray-900 border-[#37474F] text-white"
                           : "bg-white border-gray-300 text-gray-900"
                       }`}
                     />
@@ -1028,7 +1028,7 @@ const StockMovement = () => {
                       }
                       className={`w-full px-3 py-2 border rounded-lg ${
                         isDarkMode
-                          ? "bg-[#121418] border-[#37474F] text-white"
+                          ? "bg-gray-900 border-[#37474F] text-white"
                           : "bg-white border-gray-300 text-gray-900"
                       }`}
                     />
@@ -1047,7 +1047,7 @@ const StockMovement = () => {
                       onChange={(e) => handleInputChange("seller", e.target.value)}
                       className={`w-full px-3 py-2 border rounded-lg ${
                         isDarkMode
-                          ? "bg-[#121418] border-[#37474F] text-white"
+                          ? "bg-gray-900 border-[#37474F] text-white"
                           : "bg-white border-gray-300 text-gray-900"
                       }`}
                     />
@@ -1071,7 +1071,7 @@ const StockMovement = () => {
                 <button
                   type="button"
                   onClick={handleSubmit}
-                  className="px-6 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 font-semibold"
+                  className="px-6 py-2 bg-linear-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 font-semibold"
                 >
                   {editingMovement ? "Update Movement" : "Add Movement"}
                 </button>

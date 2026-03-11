@@ -425,7 +425,7 @@ describe('TextInput Component', () => {
       ok(onBlur.calledOnce, 'Should call onBlur');
     });
 
-    test('Test 6.3: Should trigger validation on blur', () => {
+    test('Test 6.3: Should trigger validation on blur-sm', () => {
       const onBlur = sandbox.stub();
       const validate = sandbox.stub().returns('Required');
       const event = { target: { value: '' } };
@@ -434,7 +434,7 @@ describe('TextInput Component', () => {
       const error = validate();
 
       ok(onBlur.calledOnce, 'Should call onBlur');
-      strictEqual(error, 'Required', 'Should validate on blur');
+      strictEqual(error, 'Required', 'Should validate on blur-sm');
     });
 
     test('Test 6.4: Should apply focus styling', () => {

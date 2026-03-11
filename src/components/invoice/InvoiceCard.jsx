@@ -5,7 +5,7 @@ const Card = ({ children, className = "" }) => {
 
   return (
     <div
-      className={`rounded-xl shadow-sm hover:shadow-md transition-all duration-300 ${
+      className={`rounded-xl shadow-xs hover:shadow-md transition-all duration-300 ${
         isDarkMode ? "bg-gray-800 border border-gray-600" : "bg-white border border-gray-200"
       } ${className}`}
     >

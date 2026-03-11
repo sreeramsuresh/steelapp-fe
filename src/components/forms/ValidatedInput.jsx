@@ -70,7 +70,7 @@ const ValidatedInput = ({
       <input
         id={inputId}
         data-testid={dataTestId}
-        className={`w-full px-2 py-2 text-sm border rounded-md shadow-sm focus:ring-1 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200 h-[38px] ${
+        className={`w-full px-2 py-2 text-sm border rounded-md shadow-xs focus:ring-1 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200 h-[38px] ${
           isDarkMode
             ? "text-white placeholder-gray-500 disabled:bg-gray-700 disabled:text-gray-500"
             : "text-gray-900 placeholder-gray-400 disabled:bg-gray-100 disabled:text-gray-400"

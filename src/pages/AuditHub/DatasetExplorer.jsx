@@ -114,7 +114,7 @@ export default function DatasetExplorer() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+      <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
         <div className="flex items-center justify-center h-screen">
           <div className="text-center">
             <div className="animate-spin">
@@ -129,7 +129,7 @@ export default function DatasetExplorer() {
 
   if (!dataset) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+      <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <button
             type="button"
@@ -153,9 +153,9 @@ export default function DatasetExplorer() {
   const paginatedData = moduleData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
       {/* Header */}
-      <div className="bg-white dark:bg-slate-800 shadow-sm border-b border-slate-200 dark:border-slate-700">
+      <div className="bg-white dark:bg-slate-800 shadow-xs border-b border-slate-200 dark:border-slate-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between mb-4">
             <button
@@ -208,7 +208,7 @@ export default function DatasetExplorer() {
         </div>
 
         {/* Data Tabs */}
-        <div className="bg-white dark:bg-slate-800 rounded-lg shadow">
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm">
           <DatasetTabs
             modules={modules}
             activeModule={activeModule}

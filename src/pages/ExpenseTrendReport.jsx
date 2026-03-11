@@ -81,7 +81,7 @@ export default function ExpenseTrendReport() {
       ) : (
         <div className="space-y-6">
           {/* Monthly Trend */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
             <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Monthly Expense Trend</h3>
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
@@ -127,7 +127,7 @@ export default function ExpenseTrendReport() {
           </div>
 
           {/* Category Breakdown */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
             <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Category Breakdown</h3>
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">

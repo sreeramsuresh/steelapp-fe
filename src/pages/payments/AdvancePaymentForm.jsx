@@ -490,7 +490,7 @@ const AdvancePaymentForm = () => {
                         value={customerSearch}
                         onChange={(e) => setCustomerSearch(e.target.value)}
                         onFocus={() => filteredCustomers.length > 0 && setShowCustomerDropdown(true)}
-                        className={`w-full pl-9 pr-9 py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus}`}
+                        className={`w-full pl-9 pr-9 py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-hidden ${inputFocus}`}
                       />
                       {customerSearching && (
                         <Loader2
@@ -591,7 +591,7 @@ const AdvancePaymentForm = () => {
                           receiptNumber: e.target.value,
                         }))
                       }
-                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus}`}
+                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-hidden ${inputFocus}`}
                     />
                   </div>
 
@@ -611,7 +611,7 @@ const AdvancePaymentForm = () => {
                           paymentDate: e.target.value,
                         }))
                       }
-                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus}`}
+                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-hidden ${inputFocus}`}
                     />
                   </div>
 
@@ -656,7 +656,7 @@ const AdvancePaymentForm = () => {
                         value={payment.totalAmount || ""}
                         onChange={(e) => handleTotalAmountChange(e.target.value)}
                         placeholder="0.00"
-                        className={`w-full pl-11 pr-3 py-2.5 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus}`}
+                        className={`w-full pl-11 pr-3 py-2.5 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-hidden ${inputFocus}`}
                       />
                     </div>
                   </div>
@@ -678,7 +678,7 @@ const AdvancePaymentForm = () => {
                         }))
                       }
                       placeholder="Transaction or cheque #"
-                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus}`}
+                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-hidden ${inputFocus}`}
                     />
                   </div>
 
@@ -720,7 +720,7 @@ const AdvancePaymentForm = () => {
                         }))
                       }
                       placeholder="e.g., Deposit for steel order, Project advance..."
-                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus}`}
+                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-hidden ${inputFocus}`}
                     />
                   </div>
                 </div>
@@ -779,7 +779,7 @@ const AdvancePaymentForm = () => {
                             }))
                           }
                           placeholder="1.0000"
-                          className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus}`}
+                          className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-hidden ${inputFocus}`}
                         />
                       </div>
                     )}
@@ -831,7 +831,7 @@ const AdvancePaymentForm = () => {
                           }))
                         }
                         placeholder="e.g., Emirates NBD"
-                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus}`}
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-hidden ${inputFocus}`}
                       />
                     </div>
 
@@ -852,7 +852,7 @@ const AdvancePaymentForm = () => {
                           }))
                         }
                         placeholder="If payment by cheque"
-                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus}`}
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-hidden ${inputFocus}`}
                       />
                     </div>
 
@@ -873,7 +873,7 @@ const AdvancePaymentForm = () => {
                           }))
                         }
                         placeholder="Bank transaction or reference ID"
-                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus}`}
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-hidden ${inputFocus}`}
                       />
                     </div>
                   </div>
@@ -1019,7 +1019,7 @@ const AdvancePaymentForm = () => {
                           }))
                         }
                         placeholder="Receipt # issued to customer"
-                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus}`}
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-hidden ${inputFocus}`}
                       />
                     </div>
 
@@ -1043,7 +1043,7 @@ const AdvancePaymentForm = () => {
                           }))
                         }
                         placeholder="https://example.com/doc1.pdf, https://example.com/doc2.pdf"
-                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus}`}
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-hidden ${inputFocus}`}
                       />
                     </div>
                   </div>
@@ -1078,7 +1078,7 @@ const AdvancePaymentForm = () => {
                           }))
                         }
                         placeholder="Optional"
-                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus}`}
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-hidden ${inputFocus}`}
                       />
                     </div>
 
@@ -1099,7 +1099,7 @@ const AdvancePaymentForm = () => {
                           }))
                         }
                         placeholder="e.g., CC-001"
-                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus}`}
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-hidden ${inputFocus}`}
                       />
                     </div>
 
@@ -1120,7 +1120,7 @@ const AdvancePaymentForm = () => {
                           }))
                         }
                         placeholder="Optional"
-                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus}`}
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-hidden ${inputFocus}`}
                       />
                     </div>
                   </div>
@@ -1191,7 +1191,7 @@ const AdvancePaymentForm = () => {
                             validUntil: e.target.value || null,
                           }))
                         }
-                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus}`}
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-hidden ${inputFocus}`}
                       />
                     </div>
 
@@ -1254,7 +1254,7 @@ const AdvancePaymentForm = () => {
                               }))
                             }
                             placeholder="0.00"
-                            className={`w-full pl-11 pr-3 py-2.5 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus}`}
+                            className={`w-full pl-11 pr-3 py-2.5 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-hidden ${inputFocus}`}
                           />
                         </div>
                       </div>
@@ -1276,7 +1276,7 @@ const AdvancePaymentForm = () => {
                             }))
                           }
                           placeholder="e.g., Bank transfer"
-                          className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus}`}
+                          className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-hidden ${inputFocus}`}
                         />
                       </div>
 
@@ -1297,7 +1297,7 @@ const AdvancePaymentForm = () => {
                             }))
                           }
                           placeholder="Transaction ref"
-                          className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus}`}
+                          className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-hidden ${inputFocus}`}
                         />
                       </div>
                     </div>
@@ -1325,7 +1325,7 @@ const AdvancePaymentForm = () => {
                     onChange={(e) => setPayment((prev) => ({ ...prev, notes: e.target.value }))}
                     rows={3}
                     placeholder="Additional notes..."
-                    className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus}`}
+                    className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-hidden ${inputFocus}`}
                   />
                 </div>
               </details>

@@ -179,7 +179,7 @@ const WarehouseUtilizationWidget = ({
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-linear-to-br from-indigo-500 to-indigo-600 flex items-center justify-center">
             <Warehouse size={16} className="text-white" />
           </div>
           <div>
@@ -277,7 +277,7 @@ const WarehouseUtilizationWidget = ({
               </div>
 
               {/* Progress Bar */}
-              <div className={`h-2 rounded-full overflow-hidden ${isDarkMode ? "bg-[#121418]" : "bg-gray-100"}`}>
+              <div className={`h-2 rounded-full overflow-hidden ${isDarkMode ? "bg-gray-900" : "bg-gray-100"}`}>
                 <div
                   className={`h-full rounded-full transition-all ${getUtilizationColor(warehouse.utilization)}`}
                   style={{ width: `${warehouse.utilization}%` }}
@@ -312,7 +312,7 @@ const WarehouseUtilizationWidget = ({
 
       {/* Transfer Recommendations */}
       {warehouseData.transfers.length > 0 && (
-        <div className={`p-3 rounded-lg ${isDarkMode ? "bg-[#121418]" : "bg-gray-50"}`}>
+        <div className={`p-3 rounded-lg ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}>
           <div className="flex items-center gap-2 mb-2">
             <ArrowRightLeft size={14} className={isDarkMode ? "text-gray-400" : "text-gray-500"} />
             <p className={`text-xs font-medium ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>

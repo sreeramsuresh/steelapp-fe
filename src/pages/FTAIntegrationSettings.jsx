@@ -389,8 +389,8 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
             <div
               className={`relative overflow-hidden rounded-xl ${
                 isDarkMode
-                  ? "bg-gradient-to-r from-teal-900 via-teal-800 to-emerald-900"
-                  : "bg-gradient-to-r from-teal-600 via-teal-500 to-emerald-500"
+                  ? "bg-linear-to-r from-teal-900 via-teal-800 to-emerald-900"
+                  : "bg-linear-to-r from-teal-600 via-teal-500 to-emerald-500"
               }`}
             >
               <div className="relative px-5 py-3 flex items-center justify-between">
@@ -419,11 +419,11 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
                 isDarkMode ? "bg-teal-900/30 border border-teal-800" : "bg-teal-50 border border-teal-200"
               }`}
             >
-              <Info className={`h-4 w-4 flex-shrink-0 ${isDarkMode ? "text-teal-400" : "text-teal-600"}`} />
+              <Info className={`h-4 w-4 shrink-0 ${isDarkMode ? "text-teal-400" : "text-teal-600"}`} />
               <span className={`text-sm ${isDarkMode ? "text-teal-300" : "text-teal-700"}`}>
                 First time setting up? See the guide on the right
               </span>
-              <ArrowRight className={`h-4 w-4 flex-shrink-0 ${isDarkMode ? "text-teal-400" : "text-teal-600"}`} />
+              <ArrowRight className={`h-4 w-4 shrink-0 ${isDarkMode ? "text-teal-400" : "text-teal-600"}`} />
             </div>
 
             {/* Error Alert */}
@@ -501,7 +501,7 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
               {/* API Configuration Card - takes remaining space */}
               <div className="flex-1">
                 <div
-                  className={`h-full rounded-xl shadow-sm border ${
+                  className={`h-full rounded-xl shadow-xs border ${
                     isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
                   }`}
                 >
@@ -726,7 +726,7 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
                         >
                           {/* iOS-style rounded square icon */}
                           <div
-                            className={`w-7 h-7 rounded-lg flex-shrink-0 flex items-center justify-center ${
+                            className={`w-7 h-7 rounded-lg shrink-0 flex items-center justify-center ${
                               isCurrent ? item.iconBg : "bg-gray-300 dark:bg-gray-600"
                             }`}
                           >
@@ -755,7 +755,7 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
             {/* Usage & Audit Card - Only show when configured */}
             {isConfigured && (
               <div
-                className={`rounded-xl shadow-sm border ${
+                className={`rounded-xl shadow-xs border ${
                   isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
                 }`}
               >
@@ -870,7 +870,7 @@ const FTAIntegrationSettings = ({ embedded = false }) => {
           {/* Right Column - Help Panel (40%) - Full height from top */}
           <div className="lg:w-2/5 lg:self-stretch">
             <div
-              className={`h-full rounded-xl shadow-sm border overflow-hidden ${
+              className={`h-full rounded-xl shadow-xs border overflow-hidden ${
                 isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
               }`}
             >

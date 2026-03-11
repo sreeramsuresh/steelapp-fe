@@ -60,7 +60,7 @@ const VATReconciliationWidget = ({
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center shadow-lg">
+            <div className="w-10 h-10 rounded-xl bg-linear-to-br from-indigo-500 to-indigo-600 flex items-center justify-center shadow-lg">
               <Scale size={20} className="text-white" />
             </div>
             <div>
@@ -171,8 +171,8 @@ const VATReconciliationWidget = ({
           <div
             className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-lg ${
               pendingDiscrepancies.length > 0
-                ? "bg-gradient-to-br from-yellow-500 to-yellow-600"
-                : "bg-gradient-to-br from-indigo-500 to-indigo-600"
+                ? "bg-linear-to-br from-yellow-500 to-yellow-600"
+                : "bg-linear-to-br from-indigo-500 to-indigo-600"
             }`}
           >
             <Scale size={20} className="text-white" />

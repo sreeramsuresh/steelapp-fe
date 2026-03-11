@@ -57,7 +57,7 @@ const Toast = ({
       data-testid={`toast-${id}`}
       data-type={type}
     >
-      <span className="flex-shrink-0 text-lg font-bold">{typeIcons[type]}</span>
+      <span className="shrink-0 text-lg font-bold">{typeIcons[type]}</span>
 
       <div className="flex-1">
         {title && <h3 className="font-semibold mb-1">{title}</h3>}
@@ -78,7 +78,7 @@ const Toast = ({
         <button
           type="button"
           onClick={onClose}
-          className="flex-shrink-0 opacity-70 hover:opacity-100"
+          className="shrink-0 opacity-70 hover:opacity-100"
           aria-label="Close toast"
           data-testid={`toast-close-${id}`}
         >
@@ -360,7 +360,7 @@ describe("Toast Component", () => {
       expect(getByTestId("toast-toast-1").className).toContain("rounded-lg");
     });
 
-    it("should have shadow", () => {
+    it("should have shadow-sm", () => {
       const { getByTestId } = renderWithProviders(<Toast {...defaultProps} />);
       expect(getByTestId("toast-toast-1").className).toContain("shadow-lg");
     });

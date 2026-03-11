@@ -248,7 +248,7 @@ const RoleManagementModal = ({ open, onClose, onRoleUpdated }) => {
                 <div
                   className={`mb-4 p-3 rounded-lg flex items-start gap-2 ${isDarkMode ? "bg-blue-900/20 text-blue-300" : "bg-blue-50 text-blue-800"}`}
                 >
-                  <AlertCircle size={20} className="flex-shrink-0 mt-0.5" />
+                  <AlertCircle size={20} className="shrink-0 mt-0.5" />
                   <div className="text-sm">
                     <strong>System Role:</strong> You can edit the description and director status, but cannot change
                     the role name.
@@ -286,7 +286,7 @@ const RoleManagementModal = ({ open, onClose, onRoleUpdated }) => {
                           : "border-gray-300"
                     } ${
                       isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
-                    } ${editingRole?.isSystemRole ? "opacity-50 cursor-not-allowed" : ""} focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                    } ${editingRole?.isSystemRole ? "opacity-50 cursor-not-allowed" : ""} focus:outline-hidden focus:ring-2 focus:ring-teal-500`}
                   />
                   {validationErrors.displayName && (
                     <p className="text-red-500 text-sm mt-1">{validationErrors.displayName}</p>
@@ -314,7 +314,7 @@ const RoleManagementModal = ({ open, onClose, onRoleUpdated }) => {
                     rows={3}
                     className={`w-full px-3 py-2 border rounded-lg transition-colors ${
                       isDarkMode ? "border-gray-600 bg-gray-800 text-white" : "border-gray-300 bg-white text-gray-900"
-                    } focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none`}
+                    } focus:outline-hidden focus:ring-2 focus:ring-teal-500 resize-none`}
                   />
                 </div>
 

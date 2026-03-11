@@ -189,7 +189,7 @@ const TRNVerifyInput = ({
             onChange={handleChange}
             disabled={disabled}
             placeholder={placeholder || formatInfo?.example || "Enter TRN"}
-            className={`w-full pl-3 pr-10 py-1.5 text-sm border rounded-md shadow-sm focus:ring-1 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200 ${
+            className={`w-full pl-3 pr-10 py-1.5 text-sm border rounded-md shadow-xs focus:ring-1 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200 ${
               isDarkMode
                 ? "bg-gray-800 text-white placeholder-gray-500 disabled:bg-gray-700 disabled:text-gray-500"
                 : "bg-white text-gray-900 placeholder-gray-400 disabled:bg-gray-100 disabled:text-gray-400"

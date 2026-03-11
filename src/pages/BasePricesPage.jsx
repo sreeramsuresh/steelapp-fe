@@ -324,7 +324,7 @@ export default function BasePricesPage() {
               isDarkMode ? "bg-red-900/20 border-red-700" : "bg-red-50 border-red-300"
             }`}
           >
-            <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+            <AlertTriangle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
             <div>
               <p className={`font-medium ${isDarkMode ? "text-red-100" : "text-red-900"}`}>Error Loading Prices</p>
               <p className={`text-sm ${isDarkMode ? "text-red-200/70" : "text-red-700"}`}>{error}</p>
@@ -372,7 +372,7 @@ export default function BasePricesPage() {
                   isDarkMode
                     ? "bg-gray-700 border-gray-600 text-white placeholder-gray-500 focus:border-teal-500 focus:ring-teal-500"
                     : "bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500"
-                } focus:outline-none focus:ring-1`}
+                } focus:outline-hidden focus:ring-1`}
               />
             </div>
 
@@ -387,7 +387,7 @@ export default function BasePricesPage() {
                 isDarkMode
                   ? "bg-gray-700 border-gray-600 text-white focus:border-teal-500 focus:ring-teal-500"
                   : "bg-white border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-              } focus:outline-none focus:ring-1`}
+              } focus:outline-hidden focus:ring-1`}
             >
               <option value="all">All Grades</option>
               {grades.map((g) => (
@@ -408,7 +408,7 @@ export default function BasePricesPage() {
                 isDarkMode
                   ? "bg-gray-700 border-gray-600 text-white focus:border-teal-500 focus:ring-teal-500"
                   : "bg-white border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-              } focus:outline-none focus:ring-1`}
+              } focus:outline-hidden focus:ring-1`}
             >
               <option value="all">All Forms</option>
               {forms.map((f) => (
@@ -427,7 +427,7 @@ export default function BasePricesPage() {
                   isDarkMode
                     ? "bg-gray-700 border-gray-600 text-white focus:border-teal-500 focus:ring-teal-500"
                     : "bg-white border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-                } focus:outline-none focus:ring-1`}
+                } focus:outline-hidden focus:ring-1`}
               >
                 <option value="productName">Name</option>
                 <option value="price">Price</option>

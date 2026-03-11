@@ -97,7 +97,7 @@ const PaymentDrawer = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[1100] flex" data-testid="payment-drawer">
+    <div className="fixed inset-0 z-1100 flex" data-testid="payment-drawer">
       {/* Backdrop */}
       <button
         type="button"
@@ -163,8 +163,8 @@ const PaymentDrawer = ({
           <div
             className={`p-4 rounded-lg border-2 ${
               isDarkMode
-                ? "bg-gradient-to-r from-blue-900/30 to-cyan-900/30 border-blue-700"
-                : "bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-300"
+                ? "bg-linear-to-r from-blue-900/30 to-cyan-900/30 border-blue-700"
+                : "bg-linear-to-r from-blue-50 to-cyan-50 border-blue-300"
             }`}
           >
             <div
@@ -408,7 +408,7 @@ const PaymentDrawer = ({
                                   {/* Void Reason Dropdown */}
                                   {onVoidPayment && isDropdownOpen && (
                                     <div
-                                      className={`void-dropdown absolute right-0 top-full mt-1 z-[9999] w-56 rounded-lg shadow-xl border ${
+                                      className={`void-dropdown absolute right-0 top-full mt-1 z-9999 w-56 rounded-lg shadow-xl border ${
                                         isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
                                       }`}
                                       onClick={(e) => e.stopPropagation()}

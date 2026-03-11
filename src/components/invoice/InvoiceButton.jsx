@@ -12,13 +12,13 @@ const Button = ({
   const { isDarkMode } = useTheme();
 
   const baseClasses =
-    "inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2";
+    "inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-300 focus:outline-hidden focus:ring-2 focus:ring-offset-2";
 
   const getVariantClasses = () => {
     if (variant === "primary") {
-      return `bg-gradient-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 hover:-translate-y-0.5 focus:ring-teal-500 ${
+      return `bg-linear-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 hover:-translate-y-0.5 focus:ring-teal-500 ${
         isDarkMode ? "disabled:bg-gray-600 focus:ring-offset-gray-800" : "disabled:bg-gray-400 focus:ring-offset-white"
-      } disabled:hover:translate-y-0 shadow-sm hover:shadow-md`;
+      } disabled:hover:translate-y-0 shadow-xs hover:shadow-md`;
     } else if (variant === "secondary") {
       return `${
         isDarkMode

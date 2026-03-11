@@ -620,7 +620,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
               Invoice
             </span>
             <div
-              className="w-7 h-7 rounded-md border-2 border-white shadow-sm flex-shrink-0"
+              className="w-7 h-7 rounded-md border-2 border-white shadow-xs shrink-0"
               style={{ backgroundColor: getInvoiceColor() }}
             />
             <span className={`text-xs w-16 ${isDarkMode ? "text-teal-300" : "text-teal-700"}`}>
@@ -640,7 +640,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
               Quotation
             </span>
             <div
-              className="w-7 h-7 rounded-md border-2 border-white shadow-sm cursor-pointer relative overflow-hidden flex-shrink-0"
+              className="w-7 h-7 rounded-md border-2 border-white shadow-xs cursor-pointer relative overflow-hidden shrink-0"
               style={{
                 backgroundColor: documentTemplates.quotation?.useInvoiceSettings
                   ? getInvoiceColor()
@@ -683,7 +683,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
               Purchase Order
             </span>
             <div
-              className="w-7 h-7 rounded-md border-2 border-white shadow-sm cursor-pointer relative overflow-hidden flex-shrink-0"
+              className="w-7 h-7 rounded-md border-2 border-white shadow-xs cursor-pointer relative overflow-hidden shrink-0"
               style={{
                 backgroundColor: documentTemplates.purchaseOrder?.useInvoiceSettings
                   ? getInvoiceColor()
@@ -726,7 +726,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
               Delivery Note
             </span>
             <div
-              className="w-7 h-7 rounded-md border-2 border-white shadow-sm cursor-pointer relative overflow-hidden flex-shrink-0"
+              className="w-7 h-7 rounded-md border-2 border-white shadow-xs cursor-pointer relative overflow-hidden shrink-0"
               style={{
                 backgroundColor: documentTemplates.deliveryNote?.useInvoiceSettings
                   ? getInvoiceColor()
@@ -769,7 +769,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
               Credit Note
             </span>
             <div
-              className="w-7 h-7 rounded-md border-2 border-white shadow-sm cursor-pointer relative overflow-hidden flex-shrink-0"
+              className="w-7 h-7 rounded-md border-2 border-white shadow-xs cursor-pointer relative overflow-hidden shrink-0"
               style={{
                 backgroundColor: documentTemplates.creditNote?.useInvoiceSettings
                   ? getInvoiceColor()
@@ -812,7 +812,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
               Statement
             </span>
             <div
-              className="w-7 h-7 rounded-md border-2 border-white shadow-sm cursor-pointer relative overflow-hidden flex-shrink-0"
+              className="w-7 h-7 rounded-md border-2 border-white shadow-xs cursor-pointer relative overflow-hidden shrink-0"
               style={{
                 backgroundColor: documentTemplates.statement?.useInvoiceSettings
                   ? getInvoiceColor()
@@ -852,7 +852,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
       {validationErrors.length > 0 && (
         <div className="mb-4 p-4 bg-red-100 border border-red-400 rounded-lg">
           <div className="flex items-start gap-2">
-            <AlertTriangle className="text-red-600 flex-shrink-0 mt-0.5" size={20} />
+            <AlertTriangle className="text-red-600 shrink-0 mt-0.5" size={20} />
             <div>
               <h4 className="font-semibold text-red-800 mb-1">Validation Errors:</h4>
               <ul className="text-sm text-red-700 list-disc list-inside">
@@ -936,7 +936,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
         >
           <div className="flex items-start gap-3">
             <AlertTriangle
-              className={`flex-shrink-0 mt-0.5 ${isDarkMode ? "text-yellow-400" : "text-yellow-600"}`}
+              className={`shrink-0 mt-0.5 ${isDarkMode ? "text-yellow-400" : "text-yellow-600"}`}
               size={20}
             />
             <div className="flex-1">
@@ -948,7 +948,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
                 them.
               </p>
             </div>
-            <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="flex items-center gap-2 shrink-0">
               <button
                 type="button"
                 onClick={handleSave}
@@ -1084,7 +1084,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
           {/* Warning Banner */}
           <div className="p-4 bg-yellow-100 border border-yellow-400 rounded-lg">
             <div className="flex items-start gap-2">
-              <AlertTriangle className="text-yellow-600 flex-shrink-0 mt-0.5" size={20} />
+              <AlertTriangle className="text-yellow-600 shrink-0 mt-0.5" size={20} />
               <div>
                 <h4 className="font-semibold text-yellow-800 mb-1">Advanced Settings</h4>
                 <p className="text-sm text-yellow-700">

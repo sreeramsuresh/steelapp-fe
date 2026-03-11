@@ -111,7 +111,7 @@ export default function SignOffWorkflow() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+      <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
         <div className="flex items-center justify-center h-screen">
           <div className="text-center">
             <Clock className="w-8 h-8 text-blue-600 dark:text-blue-400 mx-auto animate-spin" />
@@ -124,7 +124,7 @@ export default function SignOffWorkflow() {
 
   if (!dataset) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+      <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <button
             type="button"
@@ -165,9 +165,9 @@ export default function SignOffWorkflow() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
       {/* Header */}
-      <div className="bg-white dark:bg-slate-800 shadow-sm border-b border-slate-200 dark:border-slate-700">
+      <div className="bg-white dark:bg-slate-800 shadow-xs border-b border-slate-200 dark:border-slate-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <button
             type="button"
@@ -188,7 +188,7 @@ export default function SignOffWorkflow() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Sign-Off Timeline */}
           <div className="lg:col-span-2">
-            <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
+            <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-6">
               <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-6">Approval Timeline</h2>
 
               {/* Timeline */}
@@ -312,7 +312,7 @@ export default function SignOffWorkflow() {
 
           {/* Sidebar: Status & Info */}
           <div className="space-y-4">
-            <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
+            <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-6">
               <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Workflow Status</h3>
 
               <div className="space-y-3">
@@ -339,7 +339,7 @@ export default function SignOffWorkflow() {
             {currentStage === "LOCKED" && (
               <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-6">
                 <div className="flex items-start gap-3">
-                  <Lock className="w-5 h-5 text-green-600 mt-1 flex-shrink-0" />
+                  <Lock className="w-5 h-5 text-green-600 mt-1 shrink-0" />
                   <div>
                     <h4 className="font-semibold text-green-900 dark:text-green-100">Period Locked</h4>
                     <p className="text-sm text-green-800 dark:text-green-200 mt-1">

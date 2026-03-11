@@ -213,8 +213,8 @@ const TRNValidationWidget = ({
           <div
             className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-lg ${
               trnData.summary.invalid > 0
-                ? "bg-gradient-to-br from-red-500 to-red-600"
-                : "bg-gradient-to-br from-cyan-500 to-cyan-600"
+                ? "bg-linear-to-br from-red-500 to-red-600"
+                : "bg-linear-to-br from-cyan-500 to-cyan-600"
             }`}
           >
             <Shield size={20} className="text-white" />
@@ -356,9 +356,9 @@ const TRNValidationWidget = ({
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 flex-1 min-w-0">
                     {validation.entityType === "customer" ? (
-                      <Users size={14} className="text-blue-500 flex-shrink-0" />
+                      <Users size={14} className="text-blue-500 shrink-0" />
                     ) : (
-                      <Building size={14} className="text-purple-500 flex-shrink-0" />
+                      <Building size={14} className="text-purple-500 shrink-0" />
                     )}
                     <div className="flex-1 min-w-0">
                       <p className={`text-sm font-medium truncate ${isDarkMode ? "text-white" : "text-gray-900"}`}>
@@ -405,7 +405,7 @@ const TRNValidationWidget = ({
                     </p>
                     <p className={`text-xs mt-1 text-red-500`}>{invalid.reason}</p>
                   </div>
-                  <XCircle size={16} className="text-red-500 flex-shrink-0 ml-2" />
+                  <XCircle size={16} className="text-red-500 shrink-0 ml-2" />
                 </div>
               </button>
             ))

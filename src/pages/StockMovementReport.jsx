@@ -284,7 +284,7 @@ export default function StockMovementReport() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Date From */}
           <div>
@@ -297,7 +297,7 @@ export default function StockMovementReport() {
               value={dateFrom}
               onChange={(e) => setDateFrom(e.target.value)}
               required
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 dark:bg-gray-700 dark:text-white"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 dark:bg-gray-700 dark:text-white"
             />
           </div>
 
@@ -312,7 +312,7 @@ export default function StockMovementReport() {
               value={dateTo}
               onChange={(e) => setDateTo(e.target.value)}
               required
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 dark:bg-gray-700 dark:text-white"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 dark:bg-gray-700 dark:text-white"
             />
           </div>
 
@@ -327,7 +327,7 @@ export default function StockMovementReport() {
                 value={selectedWarehouse}
                 onChange={(e) => setSelectedWarehouse(e.target.value)}
                 disabled={loadingWarehouses}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 dark:bg-gray-700 dark:text-white disabled:opacity-50"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 dark:bg-gray-700 dark:text-white disabled:opacity-50"
               >
                 <option value="">All Warehouses</option>
                 {warehouses.map((warehouse) => (
@@ -363,7 +363,7 @@ export default function StockMovementReport() {
                 value={selectedProduct}
                 onChange={(e) => setSelectedProduct(e.target.value)}
                 disabled={loadingProducts}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 dark:bg-gray-700 dark:text-white disabled:opacity-50"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 dark:bg-gray-700 dark:text-white disabled:opacity-50"
               >
                 <option value="">All Products</option>
                 {products.map((product) => (
@@ -448,7 +448,7 @@ export default function StockMovementReport() {
               id="stock-movement-procurement-channel"
               value={procurementChannel}
               onChange={(e) => setProcurementChannel(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 dark:bg-gray-700 dark:text-white"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 dark:bg-gray-700 dark:text-white"
             >
               {PROCUREMENT_CHANNELS.map((channel) => (
                 <option key={channel.value} value={channel.value}>
@@ -493,22 +493,22 @@ export default function StockMovementReport() {
       {/* Summary Cards */}
       {movements.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Total In</p>
             <p className="text-2xl font-bold text-green-600">{summary.totalIn.toFixed(2)} KG</p>
           </div>
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Total Out</p>
             <p className="text-2xl font-bold text-red-600">{summary.totalOut.toFixed(2)} KG</p>
           </div>
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Net Movement</p>
             <p className={`text-2xl font-bold ${summary.netMovement >= 0 ? "text-green-600" : "text-red-600"}`}>
               {summary.netMovement >= 0 ? "+" : ""}
               {summary.netMovement.toFixed(2)} KG
             </p>
           </div>
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Total Value</p>
             <p className="text-2xl font-bold text-blue-600">AED {summary.totalValue.toFixed(2)}</p>
           </div>
@@ -517,7 +517,7 @@ export default function StockMovementReport() {
 
       {/* Results Section */}
       {loading ? (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-12">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-12">
           <div className="flex flex-col items-center justify-center">
             <Loader2 className="w-12 h-12 animate-spin text-blue-600 mb-4" />
             <p className="text-gray-600 dark:text-gray-400">Loading stock movements...</p>
@@ -525,7 +525,7 @@ export default function StockMovementReport() {
         </div>
       ) : !hasSearched ? (
         /* Initial state - prompt user to search */
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-12">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-12">
           <div className="flex flex-col items-center justify-center text-center">
             <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mb-4">
               <Package className="w-8 h-8 text-blue-600 dark:text-blue-400" />
@@ -541,7 +541,7 @@ export default function StockMovementReport() {
         </div>
       ) : movements.length === 0 ? (
         /* Empty state after search */
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-12">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-12">
           <div className="flex flex-col items-center justify-center text-center">
             <div className="w-16 h-16 bg-yellow-100 dark:bg-yellow-900 rounded-full flex items-center justify-center mb-4">
               <AlertCircle className="w-8 h-8 text-yellow-600 dark:text-yellow-400" />
@@ -559,7 +559,7 @@ export default function StockMovementReport() {
         </div>
       ) : (
         /* Results table */
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
           <div className="p-6 border-b border-gray-200 dark:border-gray-700">
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-semibold">Stock Movements</h2>

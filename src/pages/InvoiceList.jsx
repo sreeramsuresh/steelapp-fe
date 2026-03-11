@@ -397,7 +397,7 @@ const InvoiceTableRow = memo(function InvoiceTableRow({
           {actions.editOrLock.enabled ? (
             <Link
               to={actions.editOrLock.link}
-              className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
+              className={`p-2 rounded transition-all shadow-xs hover:shadow-md ${
                 isDarkMode
                   ? "text-blue-400 hover:text-blue-300 bg-gray-800/30 hover:bg-gray-700/50"
                   : "hover:bg-blue-50 text-blue-600 bg-white"
@@ -408,7 +408,7 @@ const InvoiceTableRow = memo(function InvoiceTableRow({
             </Link>
           ) : (
             <span
-              className={`p-2 rounded shadow-sm ${
+              className={`p-2 rounded shadow-xs ${
                 isDarkMode ? "bg-gray-800/30 text-gray-500" : "bg-gray-100 text-gray-400"
               }`}
             >
@@ -419,7 +419,7 @@ const InvoiceTableRow = memo(function InvoiceTableRow({
           {/* View button */}
           <button
             type="button"
-            className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
+            className={`p-2 rounded transition-all shadow-xs hover:shadow-md ${
               isDarkMode
                 ? "text-cyan-400 hover:text-cyan-300 bg-gray-800/30 hover:bg-gray-700/50"
                 : "hover:bg-cyan-50 text-cyan-600 bg-white"
@@ -435,7 +435,7 @@ const InvoiceTableRow = memo(function InvoiceTableRow({
             <div className="relative">
               <button
                 type="button"
-                className={`p-2 rounded transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${
+                className={`p-2 rounded transition-all shadow-xs hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${
                   isDownloading
                     ? "bg-transparent"
                     : !actions.download.isValid
@@ -473,7 +473,7 @@ const InvoiceTableRow = memo(function InvoiceTableRow({
             <button
               type="button"
               disabled
-              className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
+              className={`p-2 rounded shadow-xs cursor-not-allowed opacity-30 ${
                 isDarkMode ? "bg-gray-800/30 text-gray-500" : "bg-gray-100 text-gray-400"
               }`}
               title={actions.download.tooltip}
@@ -487,7 +487,7 @@ const InvoiceTableRow = memo(function InvoiceTableRow({
             <button
               type="button"
               onClick={() => onDeliveryNoteClick(invoice, actions)}
-              className={`relative p-2 rounded transition-all shadow-sm hover:shadow-md ${
+              className={`relative p-2 rounded transition-all shadow-xs hover:shadow-md ${
                 actions.deliveryNote.hasNotes
                   ? isDarkMode
                     ? "text-blue-400 hover:text-blue-300 bg-gray-800/30 hover:bg-gray-700/50"
@@ -517,7 +517,7 @@ const InvoiceTableRow = memo(function InvoiceTableRow({
             </button>
           ) : ["issued", "sent"].includes(invoice.status) ? null : (
             <span
-              className={`p-2 rounded shadow-sm opacity-30 ${
+              className={`p-2 rounded shadow-xs opacity-30 ${
                 isDarkMode ? "bg-gray-800/30 text-gray-500" : "bg-gray-100 text-gray-400"
               }`}
               title={actions.deliveryNote.tooltip}
@@ -533,7 +533,7 @@ const InvoiceTableRow = memo(function InvoiceTableRow({
           {actions.recordPayment.enabled ? (
             <button
               type="button"
-              className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
+              className={`p-2 rounded transition-all shadow-xs hover:shadow-md ${
                 actions.recordPayment.isPaid
                   ? isDarkMode
                     ? "text-blue-400 hover:text-blue-300 bg-gray-800/30 hover:bg-gray-700/50"
@@ -552,7 +552,7 @@ const InvoiceTableRow = memo(function InvoiceTableRow({
             <button
               type="button"
               disabled
-              className={`p-2 rounded shadow-sm cursor-not-allowed opacity-30 ${
+              className={`p-2 rounded shadow-xs cursor-not-allowed opacity-30 ${
                 isDarkMode ? "bg-gray-800/30 text-gray-500" : "bg-gray-100 text-gray-400"
               }`}
               title={actions.recordPayment.tooltip}
@@ -570,7 +570,7 @@ const InvoiceTableRow = memo(function InvoiceTableRow({
             <div className="relative actions-dropdown">
               <button
                 type="button"
-                className={`p-2 rounded transition-all shadow-sm hover:shadow-md ${
+                className={`p-2 rounded transition-all shadow-xs hover:shadow-md ${
                   isDarkMode
                     ? "text-gray-400 hover:text-gray-300 bg-gray-800/30 hover:bg-gray-700/50"
                     : "hover:bg-gray-100 text-gray-600 bg-white"
@@ -2032,7 +2032,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   if (loading) {
     return (
       <div
-        className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
+        className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}
       >
         <div className="flex justify-center items-center min-h-[400px]">
           <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-teal-600"></div>
@@ -2138,7 +2138,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
   return (
     <div
-      className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
+      className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}
       data-testid="invoice-list"
     >
       {/* Invoice Preview Modal
@@ -2329,7 +2329,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
           <button
             type="button"
             onClick={() => handleCardClick("outstanding")}
-            className={`text-center border rounded-2xl shadow-sm transition-all duration-200 hover:shadow-lg cursor-pointer ${
+            className={`text-center border rounded-2xl shadow-xs transition-all duration-200 hover:shadow-lg cursor-pointer ${
               activeCardFilter === "outstanding"
                 ? isDarkMode
                   ? "bg-orange-900/30 border-orange-600 ring-2 ring-orange-600"
@@ -2352,7 +2352,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
           <button
             type="button"
             onClick={() => handleCardClick("overdue")}
-            className={`text-center border rounded-2xl shadow-sm transition-all duration-200 hover:shadow-lg cursor-pointer ${
+            className={`text-center border rounded-2xl shadow-xs transition-all duration-200 hover:shadow-lg cursor-pointer ${
               activeCardFilter === "overdue"
                 ? isDarkMode
                   ? "bg-red-900/30 border-red-600 ring-2 ring-red-600"
@@ -2379,7 +2379,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
           <button
             type="button"
             onClick={() => handleCardClick("due_soon")}
-            className={`text-center border rounded-2xl shadow-sm transition-all duration-200 hover:shadow-lg cursor-pointer ${
+            className={`text-center border rounded-2xl shadow-xs transition-all duration-200 hover:shadow-lg cursor-pointer ${
               activeCardFilter === "due_soon"
                 ? isDarkMode
                   ? "bg-yellow-900/30 border-yellow-600 ring-2 ring-yellow-600"
@@ -2406,7 +2406,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
           <button
             type="button"
             onClick={() => handleCardClick("paid")}
-            className={`text-center border rounded-2xl shadow-sm transition-all duration-200 hover:shadow-lg cursor-pointer ${
+            className={`text-center border rounded-2xl shadow-xs transition-all duration-200 hover:shadow-lg cursor-pointer ${
               activeCardFilter === "paid"
                 ? isDarkMode
                   ? "bg-green-900/30 border-green-600 ring-2 ring-green-600"
@@ -2469,7 +2469,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
 
         {/* Filters Section */}
         <div className="flex gap-4 mb-6 flex-wrap items-center">
-          <div className="flex-grow flex-shrink min-w-[200px] max-w-[350px] relative">
+          <div className="grow shrink min-w-[200px] max-w-[350px] relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <Search size={20} className={isDarkMode ? "text-gray-400" : "text-gray-500"} />
             </div>
@@ -2478,7 +2478,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
               placeholder="Search invoices..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+              className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                 isDarkMode
                   ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
                   : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
@@ -2507,7 +2507,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
               aria-label="Filter by status"
-              className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
+              className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
                 isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
               }`}
             >
@@ -2526,7 +2526,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
             <select
               value={paymentStatusFilter}
               onChange={(e) => setPaymentStatusFilter(e.target.value)}
-              className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
+              className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
                 isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
               }`}
             >
@@ -2543,7 +2543,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
             <select
               value={pageSize}
               onChange={handlePageSizeChange}
-              className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
+              className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent appearance-none ${
                 isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
               }`}
             >

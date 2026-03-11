@@ -101,13 +101,13 @@ describe('Card Component', () => {
       ok(props.border, 'Should have border');
     });
 
-    test('Test 1.8: Should render with shadow', () => {
+    test('Test 1.8: Should render with shadow-sm', () => {
       const props = {
         shadow: 'medium',
         className: 'shadow-md',
       };
 
-      strictEqual(props.shadow, 'medium', 'Should set shadow');
+      strictEqual(props.shadow, 'medium', 'Should set shadow-sm');
     });
   });
 
@@ -188,10 +188,10 @@ describe('Card Component', () => {
   });
 
   describe('Suite 3: Styling & Appearance', () => {
-    test('Test 3.1: Should render with shadow elevation', () => {
+    test('Test 3.1: Should render with shadow-sm elevation', () => {
       const props = {
         elevation: 1,
-        className: 'shadow-sm',
+        className: 'shadow-xs',
       };
 
       strictEqual(props.elevation, 1, 'Should set elevation');
@@ -443,14 +443,14 @@ describe('Card Component', () => {
       ok(props.className.includes('dark:border'), 'Should apply dark border');
     });
 
-    test('Test 6.4: Should maintain shadow in dark mode', () => {
+    test('Test 6.4: Should maintain shadow-sm in dark mode', () => {
       const props = {
         darkMode: true,
         shadow: 'medium',
         className: 'shadow-md dark:shadow-lg',
       };
 
-      ok(props.className.includes('shadow'), 'Should maintain shadow');
+      ok(props.className.includes('shadow-sm'), 'Should maintain shadow-sm');
     });
 
     test('Test 6.5: Should apply dark mode hover state', () => {

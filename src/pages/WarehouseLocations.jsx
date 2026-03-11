@@ -6,14 +6,14 @@ import { useConfirm } from "../hooks/useConfirm";
 import { apiClient } from "../services/api.js";
 
 const CARD = (dark) =>
-  `rounded-2xl border p-4 ${dark ? "bg-gray-900 border-gray-700" : "bg-white border-gray-200"} shadow-sm`;
+  `rounded-2xl border p-4 ${dark ? "bg-gray-900 border-gray-700" : "bg-white border-gray-200"} shadow-xs`;
 const LABEL = (dark) => `block text-xs font-semibold mb-1 ${dark ? "text-gray-300" : "text-gray-600"}`;
 const INPUT = (dark) =>
   `w-full rounded-lg border px-3 py-2 text-sm ${
     dark
       ? "bg-gray-800 border-gray-600 text-white placeholder-gray-500 focus:border-teal-500"
       : "bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-teal-500"
-  } focus:outline-none focus:ring-1 focus:ring-teal-500`;
+  } focus:outline-hidden focus:ring-1 focus:ring-teal-500`;
 
 export default function WarehouseLocations() {
   const { isDarkMode } = useTheme();

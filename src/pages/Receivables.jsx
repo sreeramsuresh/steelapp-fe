@@ -690,7 +690,7 @@ const Receivables = () => {
       {/* Top bar */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-teal-600 to-teal-700 flex items-center justify-center text-white">
+          <div className="w-10 h-10 rounded-lg bg-linear-to-br from-teal-600 to-teal-700 flex items-center justify-center text-white">
             <Banknote size={20} />
           </div>
           <div>
@@ -1003,7 +1003,7 @@ const Receivables = () => {
                   onChange={(e) => {
                     setFilters({ ...filters, size: e.target.value, page: "1" });
                   }}
-                  className={`px-2 py-1 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                  className={`px-2 py-1 border rounded-md text-sm focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                     isDarkMode ? "bg-gray-800 border-gray-700 text-gray-300" : "bg-white border-gray-300 text-gray-700"
                   }`}
                 >

@@ -59,7 +59,7 @@ const SearchResults = () => {
   const groupsWithResults = SEARCH_GROUPS.filter((g) => grouped[g.key] && grouped[g.key].length > 0);
 
   return (
-    <div className={`p-4 md:p-6 min-h-[calc(100vh-64px)] ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}>
+    <div className={`p-4 md:p-6 min-h-[calc(100vh-64px)] ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}>
       <div
         className={`rounded-xl border p-4 md:p-6 ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"}`}
       >
@@ -119,7 +119,7 @@ const SearchResults = () => {
                             {item.secondaryText}
                           </div>
                         </div>
-                        <ArrowRight size={14} className="flex-shrink-0 text-gray-400 ml-2" />
+                        <ArrowRight size={14} className="shrink-0 text-gray-400 ml-2" />
                       </Link>
                     ))}
                   </div>

@@ -200,7 +200,7 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[1100] flex">
+    <div className="fixed inset-0 z-1100 flex">
       {/* Backdrop */}
       <button
         type="button"
@@ -210,9 +210,9 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
       ></button>
 
       {/* Drawer */}
-      <div className="w-full max-w-lg h-full overflow-auto bg-gradient-to-br from-orange-50 to-amber-50 dark:from-[#2A1E1A] dark:to-[#221A16] text-gray-900 dark:text-white shadow-xl border-l-2 border-orange-300 dark:border-orange-700">
+      <div className="w-full max-w-lg h-full overflow-auto bg-linear-to-br from-orange-50 to-amber-50 dark:from-[#2A1E1A] dark:to-[#221A16] text-gray-900 dark:text-white shadow-xl border-l-2 border-orange-300 dark:border-orange-700">
         {/* Header */}
-        <div className="sticky top-0 z-10 bg-gradient-to-r from-orange-100 to-amber-100 dark:from-orange-900/40 dark:to-amber-900/40 px-6 py-4 border-b-2 border-orange-300 dark:border-orange-700 backdrop-blur-sm">
+        <div className="sticky top-0 z-10 bg-linear-to-r from-orange-100 to-amber-100 dark:from-orange-900/40 dark:to-amber-900/40 px-6 py-4 border-b-2 border-orange-300 dark:border-orange-700 backdrop-blur-xs">
           <div className="flex justify-between items-start">
             <div>
               <div className="flex items-center gap-2">
@@ -253,7 +253,7 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
         {/* Content - Scrollable */}
         <div className="p-6 space-y-4">
           {/* Invoice Summary Section */}
-          <div className="p-4 bg-gradient-to-r from-orange-100 to-amber-100 dark:from-orange-900/30 dark:to-amber-900/30 rounded-lg border-2 border-orange-300 dark:border-orange-700">
+          <div className="p-4 bg-linear-to-r from-orange-100 to-amber-100 dark:from-orange-900/30 dark:to-amber-900/30 rounded-lg border-2 border-orange-300 dark:border-orange-700">
             <div className="text-sm font-semibold text-orange-900 dark:text-orange-100 mb-3 flex items-center gap-2">
               <span>📊</span> Invoice Summary
             </div>
@@ -482,7 +482,7 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
                 <button
                   type="submit"
                   disabled={isSaving}
-                  className={`flex-1 px-4 py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 dark:from-orange-600 dark:to-amber-600 text-white rounded-lg hover:from-orange-600 hover:to-amber-600 dark:hover:from-orange-700 dark:hover:to-amber-700 transition-all font-medium shadow-md hover:shadow-lg inline-flex items-center justify-center ${
+                  className={`flex-1 px-4 py-2.5 bg-linear-to-r from-orange-500 to-amber-500 dark:from-orange-600 dark:to-amber-600 text-white rounded-lg hover:from-orange-600 hover:to-amber-600 dark:hover:from-orange-700 dark:hover:to-amber-700 transition-all font-medium shadow-md hover:shadow-lg inline-flex items-center justify-center ${
                     isSaving ? "opacity-60 cursor-not-allowed pointer-events-none" : ""
                   }`}
                 >

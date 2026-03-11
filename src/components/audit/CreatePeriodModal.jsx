@@ -70,7 +70,7 @@ export default function CreatePeriodModal({ isOpen, onClose, onCreatePeriod, isL
               value={periodType}
               onChange={(e) => setPeriodType(e.target.value)}
               disabled={isLoading}
-              className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white disabled:opacity-50 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
             >
               <option value="MONTHLY">Monthly</option>
               <option value="QUARTERLY">Quarterly</option>
@@ -88,7 +88,7 @@ export default function CreatePeriodModal({ isOpen, onClose, onCreatePeriod, isL
               value={year}
               onChange={(e) => setYear(parseInt(e.target.value, 10))}
               disabled={isLoading}
-              className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white disabled:opacity-50 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
             >
               {[currentYear - 1, currentYear, currentYear + 1].map((y) => (
                 <option key={y} value={y}>
@@ -112,7 +112,7 @@ export default function CreatePeriodModal({ isOpen, onClose, onCreatePeriod, isL
                 value={month}
                 onChange={(e) => setMonth(parseInt(e.target.value, 10))}
                 disabled={isLoading}
-                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white disabled:opacity-50 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
               >
                 {monthOptions.map((m) => (
                   <option key={m.value} value={m.value}>

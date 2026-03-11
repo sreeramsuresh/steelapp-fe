@@ -29,7 +29,7 @@ const ThemedApp = ({ isLoading, user, handleSaveInvoice, onLoginSuccess }) => {
   if (isLoading) {
     return (
       <div
-        className={`flex items-center justify-center min-h-screen gap-4 ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
+        className={`flex items-center justify-center min-h-screen gap-4 ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}
       >
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
         <span className={isDarkMode ? "text-white" : "text-gray-900"}>Loading ULTIMATE STEELS...</span>

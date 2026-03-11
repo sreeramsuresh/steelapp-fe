@@ -67,11 +67,11 @@ const Button = ({
   const { isDarkMode } = useTheme();
 
   const baseClasses =
-    "inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2";
+    "inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-300 focus:outline-hidden focus:ring-2 focus:ring-offset-2";
 
   const getVariantClasses = () => {
     if (variant === "primary") {
-      return `bg-gradient-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 hover:-translate-y-0.5 focus:ring-teal-500 disabled:opacity-50 disabled:hover:translate-y-0 shadow-sm hover:shadow-md`;
+      return `bg-linear-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 hover:-translate-y-0.5 focus:ring-teal-500 disabled:opacity-50 disabled:hover:translate-y-0 shadow-xs hover:shadow-md`;
     } else if (variant === "secondary") {
       return `${
         isDarkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-200 hover:bg-gray-300"
@@ -127,7 +127,7 @@ const Input = ({ label, error, className = "", required = false, helperText, id,
       )}
       <input
         id={inputId}
-        className={`w-full px-2 py-1.5 text-sm border rounded-md shadow-sm focus:ring-1 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200 ${
+        className={`w-full px-2 py-1.5 text-sm border rounded-md shadow-xs focus:ring-1 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200 ${
           isDarkMode
             ? "border-gray-600 bg-gray-800 text-white placeholder-gray-500 disabled:bg-gray-700 disabled:text-gray-500"
             : "border-gray-300 bg-white text-gray-900 placeholder-gray-400 disabled:bg-gray-100 disabled:text-gray-400"
@@ -159,7 +159,7 @@ const Textarea = ({ label, error, className = "", required = false, id, ...props
       )}
       <textarea
         id={textareaId}
-        className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-300 resize-none ${
+        className={`w-full px-3 py-2 border rounded-lg shadow-xs focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-300 resize-none ${
           isDarkMode
             ? "border-gray-600 bg-gray-800 text-white placeholder-gray-500"
             : "border-gray-300 bg-white text-gray-900 placeholder-gray-400"
@@ -1956,7 +1956,7 @@ const ExportOrderForm = () => {
     <div className={`min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`} data-testid="export-order-form">
       {/* Header */}
       <div
-        className={`sticky top-0 z-10 ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"} border-b shadow-sm`}
+        className={`sticky top-0 z-10 ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"} border-b shadow-xs`}
       >
         <div className="max-w-7xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
@@ -2121,7 +2121,7 @@ const ExportOrderForm = () => {
                   }}
                   onFocus={() => setShowCustomerDropdown(true)}
                   placeholder="Search customer..."
-                  className={`w-full px-2 py-1.5 text-sm border rounded-md shadow-sm focus:ring-1 focus:ring-teal-500 focus:border-teal-500 ${
+                  className={`w-full px-2 py-1.5 text-sm border rounded-md shadow-xs focus:ring-1 focus:ring-teal-500 focus:border-teal-500 ${
                     isDarkMode
                       ? "border-gray-600 bg-gray-800 text-white placeholder-gray-500"
                       : "border-gray-300 bg-white text-gray-900 placeholder-gray-400"
@@ -2420,9 +2420,7 @@ const ExportOrderForm = () => {
             className={`mb-4 p-4 rounded-lg ${isDarkMode ? "bg-green-900/30 border border-green-700" : "bg-green-50 border border-green-200"}`}
           >
             <div className="flex items-start gap-3">
-              <CheckCircle
-                className={`h-5 w-5 mt-0.5 flex-shrink-0 ${isDarkMode ? "text-green-400" : "text-green-600"}`}
-              />
+              <CheckCircle className={`h-5 w-5 mt-0.5 shrink-0 ${isDarkMode ? "text-green-400" : "text-green-600"}`} />
               <div>
                 <p className={`font-semibold ${isDarkMode ? "text-green-300" : "text-green-800"}`}>
                   Export VAT Treatment: Zero-Rated (0%)
@@ -3142,7 +3140,7 @@ const ExportOrderForm = () => {
               >
                 <div className="flex items-start gap-2">
                   <CheckCircle
-                    className={`h-4 w-4 mt-0.5 flex-shrink-0 ${isDarkMode ? "text-green-400" : "text-green-600"}`}
+                    className={`h-4 w-4 mt-0.5 shrink-0 ${isDarkMode ? "text-green-400" : "text-green-600"}`}
                   />
                   <div>
                     <p className={`text-xs font-semibold ${isDarkMode ? "text-green-300" : "text-green-800"}`}>

@@ -175,13 +175,13 @@ const Button = ({
   const { isDarkMode } = useTheme();
 
   const baseClasses =
-    "inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2";
+    "inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-300 focus:outline-hidden focus:ring-2 focus:ring-offset-2";
 
   const getVariantClasses = () => {
     if (variant === "primary") {
-      return `bg-gradient-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 hover:-translate-y-0.5 focus:ring-teal-500 ${
+      return `bg-linear-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 hover:-translate-y-0.5 focus:ring-teal-500 ${
         isDarkMode ? "disabled:bg-gray-600 focus:ring-offset-gray-800" : "disabled:bg-gray-400 focus:ring-offset-white"
-      } disabled:hover:translate-y-0 shadow-sm hover:shadow-md`;
+      } disabled:hover:translate-y-0 shadow-xs hover:shadow-md`;
     } else if (variant === "secondary") {
       return `${
         isDarkMode
@@ -263,7 +263,7 @@ const _Input = ({
       )}
       <input
         id={inputId}
-        className={`w-full px-2 py-2 text-sm border rounded-md shadow-sm focus:ring-1 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200 h-[38px] ${
+        className={`w-full px-2 py-2 text-sm border rounded-md shadow-xs focus:ring-1 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200 h-[38px] ${
           isDarkMode
             ? "text-white placeholder-gray-500 disabled:bg-gray-700 disabled:text-gray-500"
             : "text-gray-900 placeholder-gray-400 disabled:bg-gray-100 disabled:text-gray-400"
@@ -285,7 +285,7 @@ const ToggleSwitch = ({ enabled, onChange, label, description, isDarkMode }) => 
     <button
       type="button"
       onClick={onChange}
-      className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-1 focus:ring-teal-500 focus:border-teal-500 focus:ring-offset-2 ${
+      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden focus:ring-1 focus:ring-teal-500 focus:border-teal-500 focus:ring-offset-2 ${
         enabled ? "bg-teal-600" : isDarkMode ? "bg-gray-600" : "bg-gray-200"
       }`}
     >
@@ -392,7 +392,7 @@ const Drawer = ({ isOpen, onClose, title, subtitle, children, isDarkMode, width 
       />
       {/* Drawer Panel */}
       <div
-        className={`fixed top-0 right-0 h-full ${width} z-[31]
+        className={`fixed top-0 right-0 h-full ${width} z-31
           ${isDarkMode ? "bg-gray-800 border-l border-gray-700" : "bg-white border-l border-gray-200"}
           overflow-auto transition-transform duration-300 ${isOpen ? "translate-x-0" : "translate-x-full"}`}
       >
@@ -401,7 +401,7 @@ const Drawer = ({ isOpen, onClose, title, subtitle, children, isDarkMode, width 
           <div
             className={`sticky top-0 flex justify-between items-start gap-2.5 mb-3 p-4 -m-4 mb-3
             ${isDarkMode ? "bg-gray-800 border-b border-gray-700" : "bg-white border-b border-gray-200"}
-            z-[1]`}
+            z-1`}
           >
             <div>
               <div className="text-sm font-bold">{title}</div>
@@ -430,7 +430,7 @@ const CARD_CLASSES = (isDarkMode) =>
   `${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"} border rounded-2xl p-4`;
 
 const INPUT_CLASSES = (isDarkMode) =>
-  `w-full ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"} border rounded-md py-2 px-3 text-sm outline-none shadow-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 h-[38px]`;
+  `w-full ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"} border rounded-md py-2 px-3 text-sm outline-hidden shadow-xs focus:border-teal-500 focus:ring-1 focus:ring-teal-500 h-[38px]`;
 
 const LABEL_CLASSES = (isDarkMode) =>
   `block text-xs font-medium ${isDarkMode ? "text-gray-400" : "text-gray-500"} mb-1.5`;
@@ -1977,7 +1977,7 @@ const SupplierBillForm = () => {
                                   noOptionsText="No products found"
                                 />
                               </div>
-                              <div className="w-24 flex-shrink-0">
+                              <div className="w-24 shrink-0">
                                 <span
                                   className={`block text-[10.5px] font-semibold uppercase tracking-[0.05em] mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                                 >
@@ -2001,7 +2001,7 @@ const SupplierBillForm = () => {
                                   className={`w-full px-2 py-1.5 text-sm border rounded-md text-right [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"}`}
                                 />
                               </div>
-                              <div className="w-16 flex-shrink-0">
+                              <div className="w-16 shrink-0">
                                 <span
                                   className={`block text-[10.5px] font-semibold uppercase tracking-[0.05em] mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                                 >
@@ -2037,12 +2037,12 @@ const SupplierBillForm = () => {
                                       handleItemChange(index, "unitPrice", parseFloat(e.target.value) || 0)
                                     }
                                     style={{ MozAppearance: "textfield" }}
-                                    className={`min-w-0 w-0 flex-1 px-2 py-1.5 text-sm border-0 outline-none text-right [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none ${isDarkMode ? "bg-gray-900 text-white" : "bg-white text-gray-900"}`}
+                                    className={`min-w-0 w-0 flex-1 px-2 py-1.5 text-sm border-0 outline-hidden text-right [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none ${isDarkMode ? "bg-gray-900 text-white" : "bg-white text-gray-900"}`}
                                   />
                                   <select
                                     value={item.pricingBasis || "PER_MT"}
                                     onChange={(e) => handleItemChange(index, "pricingBasis", e.target.value)}
-                                    className={`flex-shrink-0 text-[10px] font-bold px-1 border-l cursor-pointer outline-none ${
+                                    className={`shrink-0 text-[10px] font-bold px-1 border-l cursor-pointer outline-hidden ${
                                       item.pricingBasis === "PER_KG"
                                         ? "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700"
                                         : item.pricingBasis === "PER_PCS"
@@ -2131,7 +2131,7 @@ const SupplierBillForm = () => {
                               <button
                                 type="button"
                                 onClick={() => setExpandedStockRows((prev) => ({ ...prev, [index]: !prev[index] }))}
-                                className={`flex-shrink-0 p-1 rounded transition-colors ${isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-100 text-gray-500"}`}
+                                className={`shrink-0 p-1 rounded transition-colors ${isDarkMode ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-100 text-gray-500"}`}
                                 title="Stock details"
                               >
                                 {isStockExpanded ? (
@@ -2215,7 +2215,7 @@ const SupplierBillForm = () => {
                                       handleItemChange(index, "weightVariancePercent", variancePercent);
                                     }
                                   }}
-                                  className={`w-full px-2 py-1.5 rounded border text-xs ${isDarkMode ? "border-gray-700 bg-gray-900 text-white" : "border-gray-300 bg-white text-gray-900"} focus:outline-none focus:ring-1 focus:ring-teal-500`}
+                                  className={`w-full px-2 py-1.5 rounded border text-xs ${isDarkMode ? "border-gray-700 bg-gray-900 text-white" : "border-gray-300 bg-white text-gray-900"} focus:outline-hidden focus:ring-1 focus:ring-teal-500`}
                                 />
                               </div>
                               <div>
@@ -2243,7 +2243,7 @@ const SupplierBillForm = () => {
                                       handleItemChange(index, "weightVariancePercent", variancePercent);
                                     }
                                   }}
-                                  className={`w-full px-2 py-1.5 rounded border text-xs ${isDarkMode ? "border-gray-700 bg-gray-900 text-white" : "border-gray-300 bg-white text-gray-900"} focus:outline-none focus:ring-1 focus:ring-teal-500`}
+                                  className={`w-full px-2 py-1.5 rounded border text-xs ${isDarkMode ? "border-gray-700 bg-gray-900 text-white" : "border-gray-300 bg-white text-gray-900"} focus:outline-hidden focus:ring-1 focus:ring-teal-500`}
                                 />
                               </div>
                               <div>
@@ -2288,7 +2288,7 @@ const SupplierBillForm = () => {
                                   placeholder="Auto"
                                   value={item.batchNumber || ""}
                                   onChange={(e) => handleItemChange(index, "batchNumber", e.target.value)}
-                                  className={`w-full px-2 py-1.5 rounded border text-xs ${isDarkMode ? "border-gray-700 bg-gray-900 text-white placeholder-gray-500" : "border-gray-300 bg-white text-gray-900 placeholder-gray-400"} focus:outline-none focus:ring-1 focus:ring-teal-500`}
+                                  className={`w-full px-2 py-1.5 rounded border text-xs ${isDarkMode ? "border-gray-700 bg-gray-900 text-white placeholder-gray-500" : "border-gray-300 bg-white text-gray-900 placeholder-gray-400"} focus:outline-hidden focus:ring-1 focus:ring-teal-500`}
                                 />
                               </div>
                               <div className="flex items-end">
@@ -2728,7 +2728,7 @@ const SupplierBillForm = () => {
                   setBill((prev) => ({ ...prev, freightCharges: amount }));
                   recalculateTotals(bill.items);
                 }}
-                className={`w-full py-2 px-3 text-sm rounded-md border shadow-sm outline-none ${
+                className={`w-full py-2 px-3 text-sm rounded-md border shadow-xs outline-hidden ${
                   isDarkMode
                     ? "bg-gray-900 border-gray-700 text-white focus:border-teal-500"
                     : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
@@ -2754,7 +2754,7 @@ const SupplierBillForm = () => {
                   setBill((prev) => ({ ...prev, customsDuty: amount }));
                   recalculateTotals(bill.items);
                 }}
-                className={`w-full py-2 px-3 text-sm rounded-md border shadow-sm outline-none ${
+                className={`w-full py-2 px-3 text-sm rounded-md border shadow-xs outline-hidden ${
                   isDarkMode
                     ? "bg-gray-900 border-gray-700 text-white focus:border-teal-500"
                     : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
@@ -2780,7 +2780,7 @@ const SupplierBillForm = () => {
                   setBill((prev) => ({ ...prev, insuranceCharges: amount }));
                   recalculateTotals(bill.items);
                 }}
-                className={`w-full py-2 px-3 text-sm rounded-md border shadow-sm outline-none ${
+                className={`w-full py-2 px-3 text-sm rounded-md border shadow-xs outline-hidden ${
                   isDarkMode
                     ? "bg-gray-900 border-gray-700 text-white focus:border-teal-500"
                     : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
@@ -2806,7 +2806,7 @@ const SupplierBillForm = () => {
                   setBill((prev) => ({ ...prev, handlingCharges: amount }));
                   recalculateTotals(bill.items);
                 }}
-                className={`w-full py-2 px-3 text-sm rounded-md border shadow-sm outline-none ${
+                className={`w-full py-2 px-3 text-sm rounded-md border shadow-xs outline-hidden ${
                   isDarkMode
                     ? "bg-gray-900 border-gray-700 text-white focus:border-teal-500"
                     : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
@@ -2832,7 +2832,7 @@ const SupplierBillForm = () => {
                   setBill((prev) => ({ ...prev, otherCharges: amount }));
                   recalculateTotals(bill.items);
                 }}
-                className={`w-full py-2 px-3 text-sm rounded-md border shadow-sm outline-none ${
+                className={`w-full py-2 px-3 text-sm rounded-md border shadow-xs outline-hidden ${
                   isDarkMode
                     ? "bg-gray-900 border-gray-700 text-white focus:border-teal-500"
                     : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
@@ -2901,7 +2901,7 @@ const SupplierBillForm = () => {
               onChange={(e) => setBill((prev) => ({ ...prev, notes: e.target.value }))}
               placeholder="Add any notes about this supplier bill..."
               rows={4}
-              className={`w-full py-2 px-3 text-sm rounded-md border shadow-sm outline-none resize-none ${
+              className={`w-full py-2 px-3 text-sm rounded-md border shadow-xs outline-hidden resize-none ${
                 isDarkMode
                   ? "bg-gray-900 border-gray-700 text-white placeholder-gray-500 focus:border-teal-500"
                   : "bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-teal-500"
@@ -2921,7 +2921,7 @@ const SupplierBillForm = () => {
               onChange={(e) => setBill((prev) => ({ ...prev, terms: e.target.value }))}
               placeholder="Enter payment terms..."
               rows={4}
-              className={`w-full py-2 px-3 text-sm rounded-md border shadow-sm outline-none resize-none ${
+              className={`w-full py-2 px-3 text-sm rounded-md border shadow-xs outline-hidden resize-none ${
                 isDarkMode
                   ? "bg-gray-900 border-gray-700 text-white placeholder-gray-500 focus:border-teal-500"
                   : "bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-teal-500"
@@ -3002,7 +3002,7 @@ const SupplierBillForm = () => {
               }
               placeholder="Enter one URL per line..."
               rows={3}
-              className={`w-full py-2 px-3 text-sm rounded-md border shadow-sm outline-none resize-none ${
+              className={`w-full py-2 px-3 text-sm rounded-md border shadow-xs outline-hidden resize-none ${
                 isDarkMode
                   ? "bg-gray-900 border-gray-700 text-white placeholder-gray-500 focus:border-teal-500"
                   : "bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-teal-500"
@@ -3065,7 +3065,7 @@ const SupplierBillForm = () => {
                 onChange={(e) => setBill((prev) => ({ ...prev, rejectionReason: e.target.value }))}
                 placeholder="Reason for rejection..."
                 rows={3}
-                className={`w-full py-2 px-3 text-sm rounded-md border shadow-sm outline-none resize-none ${
+                className={`w-full py-2 px-3 text-sm rounded-md border shadow-xs outline-hidden resize-none ${
                   isDarkMode
                     ? "bg-gray-900 border-gray-700 text-white placeholder-gray-500 focus:border-teal-500"
                     : "bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-teal-500"

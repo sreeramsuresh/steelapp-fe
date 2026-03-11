@@ -202,7 +202,7 @@ const CustomerPerspective = () => {
   };
 
   return (
-    <div className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}>
+    <div className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}>
       <div
         className={`p-4 sm:p-6 rounded-2xl border ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-[#E0E0E0]"}`}
       >

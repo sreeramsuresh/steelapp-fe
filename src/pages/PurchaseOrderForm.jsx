@@ -24,7 +24,7 @@ const CARD_CLASSES = (isDarkMode) =>
   `${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"} border rounded-2xl p-4`;
 
 const INPUT_CLASSES = (isDarkMode) =>
-  `w-full ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"} border rounded-md py-2 px-3 text-sm outline-none shadow-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 h-[38px]`;
+  `w-full ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"} border rounded-md py-2 px-3 text-sm outline-hidden shadow-xs focus:border-teal-500 focus:ring-1 focus:ring-teal-500 h-[38px]`;
 
 const LABEL_CLASSES = (isDarkMode) =>
   `block text-xs font-medium ${isDarkMode ? "text-gray-400" : "text-gray-700"} mb-0.5`;
@@ -46,10 +46,10 @@ const DIVIDER_CLASSES = (isDarkMode) => `h-px ${isDarkMode ? "bg-gray-700" : "bg
 const DRAWER_OVERLAY = "fixed inset-0 bg-black/55 z-30 transition-opacity";
 
 const DRAWER_PANEL = (isDarkMode) =>
-  `fixed top-0 right-0 h-full w-[min(620px,92vw)] z-[31] ${isDarkMode ? "bg-gray-800 border-l border-gray-700" : "bg-white border-l border-gray-200"} overflow-auto transition-transform`;
+  `fixed top-0 right-0 h-full w-[min(620px,92vw)] z-31 ${isDarkMode ? "bg-gray-800 border-l border-gray-700" : "bg-white border-l border-gray-200"} overflow-auto transition-transform`;
 
 const DRAWER_HEADER = (isDarkMode) =>
-  `sticky top-0 flex justify-between items-start gap-2.5 p-4 ${isDarkMode ? "bg-gray-800 border-b border-gray-700" : "bg-white border-b border-gray-200"} z-[1]`;
+  `sticky top-0 flex justify-between items-start gap-2.5 p-4 ${isDarkMode ? "bg-gray-800 border-b border-gray-700" : "bg-white border-b border-gray-200"} z-1`;
 
 const DRAWER_FOOTER_GRADIENT = (isDarkMode) =>
   isDarkMode
@@ -253,7 +253,7 @@ const ToggleSwitchPO = ({ enabled, onChange, label, description, isDarkMode }) =
     <button
       type="button"
       onClick={onChange}
-      className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 ${
+      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 ${
         enabled ? "bg-teal-600" : isDarkMode ? "bg-gray-600" : "bg-gray-200"
       }`}
     >
@@ -1915,7 +1915,7 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
               }`}
             >
               <div className="flex items-start gap-3">
-                <AlertTriangle className={`flex-shrink-0 ${isDarkMode ? "text-red-400" : "text-red-600"}`} size={20} />
+                <AlertTriangle className={`shrink-0 ${isDarkMode ? "text-red-400" : "text-red-600"}`} size={20} />
                 <div className="flex-1">
                   <h4 className="font-bold text-sm mb-2">Please fix the following errors:</h4>
                   <ul className="list-disc list-inside space-y-1 text-xs">
@@ -2273,7 +2273,7 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
                                 min="0"
                                 step={item.quantityUom === "MT" || item.quantityUom === "KG" ? "0.001" : "1"}
                                 disabled={isPriceLocked}
-                                className={`w-full h-[38px] px-3 text-[13px] font-mono font-medium text-right border-[1.5px] rounded-md outline-none transition-colors focus:border-teal-500 focus:shadow-[0_0_0_3px_rgba(13,148,136,0.1)] ${isPriceLocked ? "opacity-60 cursor-not-allowed" : ""} ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-200 text-gray-900"} ${invalidFields.has(`item.${index}.quantity`) ? "border-red-500" : ""}`}
+                                className={`w-full h-[38px] px-3 text-[13px] font-mono font-medium text-right border-[1.5px] rounded-md outline-hidden transition-colors focus:border-teal-500 focus:shadow-[0_0_0_3px_rgba(13,148,136,0.1)] ${isPriceLocked ? "opacity-60 cursor-not-allowed" : ""} ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-200 text-gray-900"} ${invalidFields.has(`item.${index}.quantity`) ? "border-red-500" : ""}`}
                               />
                               {item.quantityUom && (
                                 <span
@@ -2288,7 +2288,7 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
                         row2Content={
                           <>
                             {/* Rate + Pricing Basis */}
-                            <div className="flex-shrink-0">
+                            <div className="shrink-0">
                               <span
                                 className={`text-[10.5px] font-semibold uppercase tracking-[0.05em] ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
                               >
@@ -2310,14 +2310,14 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
                                   min="0"
                                   step="0.01"
                                   disabled={isPriceLocked}
-                                  className={`w-[100px] h-[38px] px-3 text-[13px] font-mono font-medium text-right border-0 outline-none ${isPriceLocked ? "opacity-60 cursor-not-allowed" : ""} ${isDarkMode ? "bg-gray-900 text-white" : "bg-white text-gray-900"} ${invalidFields.has(`item.${index}.rate`) ? "ring-1 ring-red-500" : ""}`}
+                                  className={`w-[100px] h-[38px] px-3 text-[13px] font-mono font-medium text-right border-0 outline-hidden ${isPriceLocked ? "opacity-60 cursor-not-allowed" : ""} ${isDarkMode ? "bg-gray-900 text-white" : "bg-white text-gray-900"} ${invalidFields.has(`item.${index}.rate`) ? "ring-1 ring-red-500" : ""}`}
                                   placeholder="0.00"
                                 />
                                 <select
                                   value={item.pricingBasis || "PER_PCS"}
                                   onChange={(e) => handleItemChange(index, "pricingBasis", e.target.value)}
                                   disabled={isPriceLocked}
-                                  className={`h-[38px] px-2 text-[11px] font-bold uppercase tracking-[0.03em] border-l cursor-pointer outline-none ${
+                                  className={`h-[38px] px-2 text-[11px] font-bold uppercase tracking-[0.03em] border-l cursor-pointer outline-hidden ${
                                     item.pricingBasis === "PER_KG"
                                       ? "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700"
                                       : item.pricingBasis === "PER_PCS"
@@ -2346,7 +2346,7 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
                             </div>
 
                             {/* VAT */}
-                            <div className="flex-shrink-0 flex items-center gap-1">
+                            <div className="shrink-0 flex items-center gap-1">
                               <select
                                 value={item.supplyType || "standard"}
                                 onChange={(e) => {
@@ -2357,7 +2357,7 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
                                     handleItemChange(index, "vatRate", 5);
                                   }
                                 }}
-                                className={`h-[32px] px-2 text-[11px] font-semibold font-mono rounded-full border-[1.5px] border-transparent cursor-pointer outline-none appearance-none text-center transition-colors ${isDarkMode ? "bg-gray-700 text-gray-300 hover:border-gray-600" : "bg-gray-100 text-gray-600 hover:border-gray-300"}`}
+                                className={`h-[32px] px-2 text-[11px] font-semibold font-mono rounded-full border-[1.5px] border-transparent cursor-pointer outline-hidden appearance-none text-center transition-colors ${isDarkMode ? "bg-gray-700 text-gray-300 hover:border-gray-600" : "bg-gray-100 text-gray-600 hover:border-gray-300"}`}
                                 style={{ paddingRight: "8px" }}
                               >
                                 <option value="standard">VAT 5%</option>

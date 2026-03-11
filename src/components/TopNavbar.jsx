@@ -202,7 +202,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
         backgroundColor: isDarkMode ? "#1f2937" : "#ffffff",
         borderBottomColor: isDarkMode ? "#374151" : "#e5e7eb",
       }}
-      className="sticky top-0 z-[1001] h-16 sm:h-14 md:h-16 border-b shadow-sm"
+      className="sticky top-0 z-1001 h-16 sm:h-14 md:h-16 border-b shadow-xs"
     >
       <div className="h-full px-4 flex justify-between items-center">
         {/* Left Section */}
@@ -234,10 +234,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
               }}
               className="flex items-center rounded-2xl border transition-all duration-200"
             >
-              <div
-                style={{ color: isDarkMode ? "#9ca3af" : "#6b7280" }}
-                className="pl-3 pointer-events-none flex-shrink-0"
-              >
+              <div style={{ color: isDarkMode ? "#9ca3af" : "#6b7280" }} className="pl-3 pointer-events-none shrink-0">
                 {searchLoading ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
               </div>
               <input
@@ -246,7 +243,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
                 placeholder="Search everything…"
                 autoComplete="off"
                 style={{ color: isDarkMode ? "#ffffff" : "#111827", backgroundColor: "transparent" }}
-                className="w-full pl-2 pr-3 py-2.5 border-none outline-none focus:outline-none focus:ring-0 text-sm placeholder-gray-400"
+                className="w-full pl-2 pr-3 py-2.5 border-none outline-hidden focus:outline-hidden focus:ring-0 text-sm placeholder-gray-400"
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
@@ -265,7 +262,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
                     setSearchResults({ grouped: {}, results: [] });
                   }}
                   style={{ color: isDarkMode ? "#9ca3af" : "#6b7280" }}
-                  className="pr-3 hover:opacity-75 text-lg leading-none flex-shrink-0"
+                  className="pr-3 hover:opacity-75 text-lg leading-none shrink-0"
                   aria-label="Clear search"
                 >
                   ×
@@ -280,7 +277,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
                   backgroundColor: isDarkMode ? "#1e2328" : "#ffffff",
                   borderColor: isDarkMode ? "#374151" : "#e5e7eb",
                 }}
-                className="absolute top-full mt-2 left-0 right-0 rounded-xl border shadow-2xl z-[1100] overflow-hidden"
+                className="absolute top-full mt-2 left-0 right-0 rounded-xl border shadow-2xl z-1100 overflow-hidden"
               >
                 {searchLoading && flatResults.length === 0 ? (
                   <div className="flex items-center justify-center gap-2 py-8">
@@ -328,7 +325,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
                                 }}
                                 className="w-full flex items-center gap-3 px-3 py-2 text-left transition-colors duration-100"
                               >
-                                <Icon size={14} className="flex-shrink-0 text-teal-600" />
+                                <Icon size={14} className="shrink-0 text-teal-600" />
                                 <div className="min-w-0">
                                   <div className="text-sm font-medium truncate">{item.primaryText}</div>
                                   <div
@@ -493,7 +490,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
               }}
               className="flex items-center gap-2 p-2 rounded-xl transition-all duration-200 hover:opacity-75"
             >
-              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-teal-600 to-teal-700 flex items-center justify-center text-white text-sm font-semibold">
+              <div className="w-9 h-9 rounded-lg bg-linear-to-br from-teal-600 to-teal-700 flex items-center justify-center text-white text-sm font-semibold">
                 {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
               </div>
               <div className="hidden sm:block text-left">
@@ -525,7 +522,7 @@ const TopNavbar = ({ user, onLogout, onToggleSidebar, currentPage: _currentPage 
               >
                 <div className={`p-4 border-b ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}>
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-teal-600 to-teal-700 flex items-center justify-center text-white text-lg font-semibold">
+                    <div className="w-12 h-12 rounded-lg bg-linear-to-br from-teal-600 to-teal-700 flex items-center justify-center text-white text-lg font-semibold">
                       {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
                     </div>
                     <div className="flex-1">

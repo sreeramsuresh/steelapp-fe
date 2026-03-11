@@ -190,7 +190,7 @@ export default function RolesPage() {
           }
         />
       ) : (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow>
@@ -289,7 +289,7 @@ export default function RolesPage() {
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                   placeholder="e.g., sales_manager"
                   required
                 />
@@ -304,7 +304,7 @@ export default function RolesPage() {
                   type="text"
                   value={formData.displayName}
                   onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                   placeholder="e.g., Sales Manager"
                   required
                 />
@@ -318,7 +318,7 @@ export default function RolesPage() {
                   id="role-description"
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                   placeholder="Brief description of this role's purpose"
                   rows={3}
                 />
@@ -332,7 +332,7 @@ export default function RolesPage() {
                   id="isDirector"
                   checked={formData.isDirector}
                   onChange={(e) => setFormData({ ...formData, isDirector: e.target.checked })}
-                  className="w-4 h-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-4 h-4 border border-gray-300 rounded focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                 />
                 <label htmlFor="isDirector" className="text-sm font-medium dark:text-gray-200">
                   Director Role (elevated privileges)

@@ -440,7 +440,7 @@ const StockMovementForm = () => {
                             placeholder="Search product..."
                             className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${
                               errors.productId ? "border-red-500" : inputBorder
-                            } ${textPrimary} outline-none ${inputFocus}`}
+                            } ${textPrimary} outline-hidden ${inputFocus}`}
                           />
                           {productSearching && (
                             <div className={`absolute right-3 top-1/2 -translate-y-1/2 text-xs ${textMuted}`}>
@@ -557,7 +557,7 @@ const StockMovementForm = () => {
                         disabled={isEditing}
                         className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${
                           errors.quantity ? "border-red-500" : inputBorder
-                        } ${textPrimary} outline-none ${inputFocus} ${isEditing ? "opacity-60" : ""}`}
+                        } ${textPrimary} outline-hidden ${inputFocus} ${isEditing ? "opacity-60" : ""}`}
                       />
                       {errors.quantity && (
                         <p className="mt-1 text-xs text-red-500 flex items-center gap-1">
@@ -619,7 +619,7 @@ const StockMovementForm = () => {
                         onChange={(e) => handleChange("referenceNumber", e.target.value)}
                         placeholder="INV-001, PO-001..."
                         disabled={isEditing}
-                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} ${isEditing ? "opacity-60" : ""}`}
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-hidden ${inputFocus} ${isEditing ? "opacity-60" : ""}`}
                       />
                     </div>
 
@@ -634,7 +634,7 @@ const StockMovementForm = () => {
                         value={formData.movementDate}
                         onChange={(e) => handleChange("movementDate", e.target.value)}
                         disabled={isEditing}
-                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus} ${isEditing ? "opacity-60" : ""}`}
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-hidden ${inputFocus} ${isEditing ? "opacity-60" : ""}`}
                       />
                     </div>
                   </div>
@@ -669,7 +669,7 @@ const StockMovementForm = () => {
                             onChange={(e) => handleChange("pricePerKg", e.target.value)}
                             placeholder="e.g., 5.50"
                             disabled={isEditing}
-                            className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus} ${isEditing ? "opacity-60" : ""}`}
+                            className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-hidden ${inputFocus} ${isEditing ? "opacity-60" : ""}`}
                           />
                         </div>
                         <div className="col-span-6 md:col-span-4">
@@ -685,7 +685,7 @@ const StockMovementForm = () => {
                             onChange={(e) => handleChange("weightPerPieceKg", e.target.value)}
                             placeholder="e.g., 1000"
                             disabled={isEditing}
-                            className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus} ${isEditing ? "opacity-60" : ""}`}
+                            className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-hidden ${inputFocus} ${isEditing ? "opacity-60" : ""}`}
                           />
                         </div>
                         <div className="col-span-12 md:col-span-4">
@@ -705,7 +705,7 @@ const StockMovementForm = () => {
                               onChange={(e) => handleChange("unitCost", e.target.value)}
                               placeholder="Auto-calculated"
                               disabled={isEditing || (formData.pricePerKg && formData.weightPerPieceKg)}
-                              className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus} ${isEditing || (formData.pricePerKg && formData.weightPerPieceKg) ? "opacity-60" : ""}`}
+                              className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-hidden ${inputFocus} ${isEditing || (formData.pricePerKg && formData.weightPerPieceKg) ? "opacity-60" : ""}`}
                             />
                             {formData.unitCost &&
                               formData.weightPerPieceKg &&
@@ -733,7 +733,7 @@ const StockMovementForm = () => {
                           onChange={(e) => handleChange("batchNumber", e.target.value)}
                           placeholder="Batch #"
                           disabled={isEditing}
-                          className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} ${isEditing ? "opacity-60" : ""}`}
+                          className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-hidden ${inputFocus} ${isEditing ? "opacity-60" : ""}`}
                         />
                       </div>
                       <div className="col-span-6 md:col-span-4">
@@ -747,7 +747,7 @@ const StockMovementForm = () => {
                           onChange={(e) => handleChange("coilNumber", e.target.value)}
                           placeholder="Coil #"
                           disabled={isEditing}
-                          className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} ${isEditing ? "opacity-60" : ""}`}
+                          className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-hidden ${inputFocus} ${isEditing ? "opacity-60" : ""}`}
                         />
                       </div>
                       <div className="col-span-6 md:col-span-4">
@@ -761,7 +761,7 @@ const StockMovementForm = () => {
                           onChange={(e) => handleChange("heatNumber", e.target.value)}
                           placeholder="Heat #"
                           disabled={isEditing}
-                          className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} ${isEditing ? "opacity-60" : ""}`}
+                          className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-hidden ${inputFocus} ${isEditing ? "opacity-60" : ""}`}
                         />
                       </div>
                     </div>
@@ -784,7 +784,7 @@ const StockMovementForm = () => {
                       rows={3}
                       placeholder="Additional notes..."
                       disabled={isEditing}
-                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} ${isEditing ? "opacity-60" : ""}`}
+                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-hidden ${inputFocus} ${isEditing ? "opacity-60" : ""}`}
                     />
                   </div>
                 </details>

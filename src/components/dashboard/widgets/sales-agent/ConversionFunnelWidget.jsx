@@ -130,7 +130,7 @@ const ConversionFunnelWidget = ({ data: propData, onRefresh, onViewDetails, isLo
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg">
+          <div className="w-10 h-10 rounded-xl bg-linear-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg">
             <Filter size={20} className="text-white" />
           </div>
           <div>
@@ -196,7 +196,7 @@ const ConversionFunnelWidget = ({ data: propData, onRefresh, onViewDetails, isLo
                 className={`relative overflow-hidden rounded-lg transition-all duration-300 hover:scale-[1.02]`}
                 style={{ width: `${widthPercent}%`, margin: "0 auto" }}
               >
-                <div className={`p-3 bg-gradient-to-r ${stage.color}`}>
+                <div className={`p-3 bg-linear-to-r ${stage.color}`}>
                   <div className="flex items-center justify-between text-white">
                     <div className="flex items-center gap-2">
                       <Icon size={18} />

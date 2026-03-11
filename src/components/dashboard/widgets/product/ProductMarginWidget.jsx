@@ -38,7 +38,7 @@ const ProductMarginWidget = ({ data, onNavigate, onProductClick }) => {
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-linear-to-br from-violet-500 to-violet-600 flex items-center justify-center">
               <Target size={16} className="text-white" />
             </div>
             <div>
@@ -157,7 +157,7 @@ const ProductMarginWidget = ({ data, onNavigate, onProductClick }) => {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-linear-to-br from-violet-500 to-violet-600 flex items-center justify-center">
             <Target size={16} className="text-white" />
           </div>
           <div>
@@ -203,7 +203,7 @@ const ProductMarginWidget = ({ data, onNavigate, onProductClick }) => {
       </div>
 
       {/* Scatter Plot */}
-      <div className={`relative rounded-lg p-2 ${isDarkMode ? "bg-[#121418]" : "bg-gray-50"}`}>
+      <div className={`relative rounded-lg p-2 ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}>
         <svg aria-label="icon" width={chartWidth} height={chartHeight} className="w-full">
           <title>Icon</title>
           {/* Grid lines */}
@@ -300,7 +300,7 @@ const ProductMarginWidget = ({ data, onNavigate, onProductClick }) => {
                   r={isHovered ? size * 1.3 : size}
                   fill={getQuadrantColor(product.quadrant)}
                   opacity={isHovered ? 0.9 : 0.7}
-                  className="cursor-pointer transition-all duration-200 focus:outline-none"
+                  className="cursor-pointer transition-all duration-200 focus:outline-hidden"
                   onMouseEnter={() => setHoveredProduct(product)}
                   onMouseLeave={() => setHoveredProduct(null)}
                   onClick={() => onProductClick?.(product)}

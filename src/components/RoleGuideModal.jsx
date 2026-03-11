@@ -198,7 +198,7 @@ const RoleGuideModal = ({ isOpen, onClose }) => {
           }`}
         >
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-gradient-to-br from-teal-500 to-blue-500">
+            <div className="p-2 rounded-lg bg-linear-to-br from-teal-500 to-blue-500">
               <Info className="text-white" size={24} />
             </div>
             <div>
@@ -448,7 +448,7 @@ const RoleGuideModal = ({ isOpen, onClose }) => {
                     }`}
                   >
                     <div className="flex items-start gap-3">
-                      <Icon className="text-blue-500 flex-shrink-0" size={20} />
+                      <Icon className="text-blue-500 shrink-0" size={20} />
                       <div>
                         <h4 className={`font-semibold mb-1 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                           {practice.title}

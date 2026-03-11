@@ -384,7 +384,7 @@ describe("ContextMenu Component", () => {
       expect(menu.className).toContain("bg-white");
     });
 
-    it("should have shadow", async () => {
+    it("should have shadow-sm", async () => {
       const { getByTestId, queryByTestId } = renderWithProviders(<ContextMenu {...defaultProps} />);
 
       const trigger = getByTestId("context-menu-trigger");

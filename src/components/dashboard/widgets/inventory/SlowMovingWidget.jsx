@@ -36,7 +36,7 @@ const SlowMovingWidget = ({ data, onNavigate, onProductClick, onAction }) => {
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-linear-to-br from-orange-500 to-orange-600 flex items-center justify-center">
               <Snail size={16} className="text-white" />
             </div>
             <div>
@@ -124,7 +124,7 @@ const SlowMovingWidget = ({ data, onNavigate, onProductClick, onAction }) => {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-linear-to-br from-orange-500 to-orange-600 flex items-center justify-center">
             <Snail size={16} className="text-white" />
           </div>
           <div>

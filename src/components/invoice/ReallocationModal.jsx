@@ -458,7 +458,7 @@ const ReallocationModal = ({
                                 : isDarkMode
                                   ? "bg-gray-700 border-gray-600 text-gray-200"
                                   : "bg-white border-gray-300 text-gray-700"
-                            } focus:outline-none focus:ring-1 focus:ring-teal-500`}
+                            } focus:outline-hidden focus:ring-1 focus:ring-teal-500`}
                           />
                         </TableCell>
                       </TableRow>
@@ -497,7 +497,7 @@ const ReallocationModal = ({
               onChange={(e) => setReasonCode(e.target.value)}
               className={`w-full px-3 py-2 rounded-lg border ${
                 isDarkMode ? "bg-gray-800 border-gray-600 text-gray-200" : "bg-white border-gray-300 text-gray-700"
-              } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+              } focus:outline-hidden focus:ring-2 focus:ring-teal-500`}
             >
               <option value="">Select a reason...</option>
               {REASON_CODES.map((code) => (
@@ -516,7 +516,7 @@ const ReallocationModal = ({
                 isDarkMode
                   ? "bg-gray-800 border-gray-600 text-gray-200 placeholder-gray-500"
                   : "bg-white border-gray-300 text-gray-700 placeholder-gray-400"
-              } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+              } focus:outline-hidden focus:ring-2 focus:ring-teal-500`}
             />
           </div>
         </div>

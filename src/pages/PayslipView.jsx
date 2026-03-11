@@ -80,7 +80,7 @@ const PayslipView = () => {
 
       {error && <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg print:hidden">{error}</div>}
 
-      <div className="bg-white rounded-lg shadow p-8 print:shadow-none">
+      <div className="bg-white rounded-lg shadow-sm p-8 print:shadow-none">
         {/* Header */}
         <div className="text-center border-b pb-4 mb-6">
           <h2 className="text-xl font-bold text-gray-900">{run?.companyName || "ULTIMATE STEELS"}</h2>

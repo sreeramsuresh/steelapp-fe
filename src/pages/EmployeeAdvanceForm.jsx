@@ -59,7 +59,7 @@ const EmployeeAdvanceForm = () => {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 space-y-4">
+      <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm p-6 space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Employee ID

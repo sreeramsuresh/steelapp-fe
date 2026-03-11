@@ -115,7 +115,7 @@ export function FormDrawer({ open, onClose, title, subtitle, children, footer })
 
       {/* Panel */}
       <div
-        className={`fixed top-0 right-0 h-full w-[min(620px,92vw)] z-[31] ${
+        className={`fixed top-0 right-0 h-full w-[min(620px,92vw)] z-31 ${
           isDarkMode ? "bg-gray-800 border-l border-gray-700" : "bg-white border-l border-gray-200"
         } overflow-auto transition-transform`}
       >
@@ -123,7 +123,7 @@ export function FormDrawer({ open, onClose, title, subtitle, children, footer })
         <div
           className={`sticky top-0 flex justify-between items-start gap-2.5 p-4 ${
             isDarkMode ? "bg-gray-800 border-b border-gray-700" : "bg-white border-b border-gray-200"
-          } z-[1]`}
+          } z-1`}
         >
           <div>
             <h2 className={`text-lg font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>{title}</h2>
@@ -166,7 +166,7 @@ export const FormDesignTokens = {
     `${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"} border rounded-2xl p-4`,
 
   input: (isDarkMode) =>
-    `w-full ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"} border rounded-md py-2 px-3 text-sm outline-none shadow-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 h-[38px]`,
+    `w-full ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"} border rounded-md py-2 px-3 text-sm outline-hidden shadow-xs focus:border-teal-500 focus:ring-1 focus:ring-teal-500 h-[38px]`,
 
   label: (isDarkMode) => `block text-xs font-medium ${isDarkMode ? "text-gray-400" : "text-gray-500"} mb-1.5`,
 

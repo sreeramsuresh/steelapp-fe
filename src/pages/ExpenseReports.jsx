@@ -95,17 +95,17 @@ const ExpenseReports = () => {
         <div className="space-y-6">
           {/* Summary cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-white rounded-lg shadow p-4">
+            <div className="bg-white rounded-lg shadow-sm p-4">
               <p className="text-sm text-gray-500">Total Expenses</p>
               <p className="text-2xl font-bold text-gray-900">
                 {summary?.totalAmount != null ? Number(summary.totalAmount).toLocaleString() : "0"}
               </p>
             </div>
-            <div className="bg-white rounded-lg shadow p-4">
+            <div className="bg-white rounded-lg shadow-sm p-4">
               <p className="text-sm text-gray-500">Expense Count</p>
               <p className="text-2xl font-bold text-gray-900">{summary?.totalCount || 0}</p>
             </div>
-            <div className="bg-white rounded-lg shadow p-4">
+            <div className="bg-white rounded-lg shadow-sm p-4">
               <p className="text-sm text-gray-500">Average per Expense</p>
               <p className="text-2xl font-bold text-gray-900">
                 {summary?.averageAmount != null ? Number(summary.averageAmount).toLocaleString() : "0"}
@@ -114,7 +114,7 @@ const ExpenseReports = () => {
           </div>
 
           {/* Category Breakdown Chart */}
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white rounded-lg shadow-sm p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Category Breakdown</h2>
             {categoryData.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
@@ -133,7 +133,7 @@ const ExpenseReports = () => {
           </div>
 
           {/* Cost Center Breakdown Table */}
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white rounded-lg shadow-sm p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Cost Center Breakdown</h2>
             {costCenterData.length > 0 ? (
               <table className="min-w-full divide-y divide-gray-200">
@@ -166,7 +166,7 @@ const ExpenseReports = () => {
           </div>
 
           {/* Monthly Trend Chart */}
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white rounded-lg shadow-sm p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Monthly Trend</h2>
             {monthlyTrend.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>

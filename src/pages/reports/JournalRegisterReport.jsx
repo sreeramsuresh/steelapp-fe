@@ -110,7 +110,7 @@ export default function JournalRegisterReport() {
       </div>
 
       {/* Filters */}
-      <div className={`${cardBg} rounded-lg shadow p-6 space-y-4`}>
+      <div className={`${cardBg} rounded-lg shadow-sm p-6 space-y-4`}>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {/* Start Date */}
           <div>
@@ -122,7 +122,7 @@ export default function JournalRegisterReport() {
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${inputCls}`}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500 ${inputCls}`}
             />
           </div>
 
@@ -136,7 +136,7 @@ export default function JournalRegisterReport() {
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${inputCls}`}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500 ${inputCls}`}
             />
           </div>
 
@@ -149,7 +149,7 @@ export default function JournalRegisterReport() {
               id="journal-source-module"
               value={sourceModule}
               onChange={(e) => setSourceModule(e.target.value)}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${inputCls}`}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500 ${inputCls}`}
             >
               <option value="">All Modules</option>
               <option value="AR">Accounts Receivable</option>
@@ -186,13 +186,13 @@ export default function JournalRegisterReport() {
       {/* Report Totals */}
       {data && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className={`${cardBg} rounded-lg shadow p-4`}>
+          <div className={`${cardBg} rounded-lg shadow-sm p-4`}>
             <p className={`${textSecondary} text-sm`}>Total Debit</p>
             <p className={`text-2xl font-bold ${textPrimary} mt-2`}>
               {financialReportsService.formatCurrency(data.totals.debit)}
             </p>
           </div>
-          <div className={`${cardBg} rounded-lg shadow p-4`}>
+          <div className={`${cardBg} rounded-lg shadow-sm p-4`}>
             <p className={`${textSecondary} text-sm`}>Total Credit</p>
             <p className={`text-2xl font-bold ${textPrimary} mt-2`}>
               {financialReportsService.formatCurrency(data.totals.credit)}
@@ -241,7 +241,7 @@ export default function JournalRegisterReport() {
 
       {/* Journal Register Table */}
       {data && (
-        <div className={`${cardBg} rounded-lg shadow overflow-x-auto`}>
+        <div className={`${cardBg} rounded-lg shadow-sm overflow-x-auto`}>
           <table className="min-w-full divide-y divide-gray-200">
             <thead className={theadBg}>
               <tr>
@@ -297,7 +297,7 @@ export default function JournalRegisterReport() {
 
       {/* Pagination */}
       {data?.pagination && (
-        <div className={`${cardBg} rounded-lg shadow p-4 flex items-center justify-between`}>
+        <div className={`${cardBg} rounded-lg shadow-sm p-4 flex items-center justify-between`}>
           <div className={`text-sm ${textSecondary}`}>
             Showing {(currentPage - 1) * data.pagination.limit + 1} to{" "}
             {Math.min(currentPage * data.pagination.limit, data.pagination.total)} of {data.pagination.total} entries

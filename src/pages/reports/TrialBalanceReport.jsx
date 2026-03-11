@@ -90,7 +90,7 @@ export default function TrialBalanceReport() {
       </div>
 
       {/* Filters */}
-      <div className={`${cardBg} rounded-lg shadow p-6 space-y-4`}>
+      <div className={`${cardBg} rounded-lg shadow-sm p-6 space-y-4`}>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Period Selector */}
           <div>
@@ -101,7 +101,7 @@ export default function TrialBalanceReport() {
               id="trial-balance-period"
               value={periodId || ""}
               onChange={(e) => setPeriodId(e.target.value)}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${inputCls}`}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500 ${inputCls}`}
             >
               <option value="">Select Period...</option>
               {periods.map((period) => (
@@ -198,7 +198,7 @@ export default function TrialBalanceReport() {
 
       {/* Trial Balance Table */}
       {data && (
-        <div className={`${cardBg} rounded-lg shadow overflow-x-auto`}>
+        <div className={`${cardBg} rounded-lg shadow-sm overflow-x-auto`}>
           <table className={`min-w-full divide-y ${isDarkMode ? "divide-gray-700" : "divide-gray-200"}`}>
             <thead className={theadBg}>
               <tr>

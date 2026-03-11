@@ -322,10 +322,10 @@ export const a11yClasses = {
   srOnly: "sr-only",
 
   // Focus visible styles
-  focusVisible: "focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2",
+  focusVisible: "focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:ring-offset-2",
 
   // Interactive element base
-  interactive: "cursor-pointer focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2",
+  interactive: "cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:ring-offset-2",
 
   // Disabled state
   disabled: "opacity-50 cursor-not-allowed pointer-events-none",

@@ -507,7 +507,7 @@ export default function CustomerActivityTab({ customerId }) {
                   <div className="flex gap-4">
                     {/* Icon */}
                     <div
-                      className={`flex-shrink-0 w-12 h-12 rounded-full ${config.bgColor} flex items-center justify-center`}
+                      className={`shrink-0 w-12 h-12 rounded-full ${config.bgColor} flex items-center justify-center`}
                     >
                       <Icon size={20} className={config.color} />
                     </div>

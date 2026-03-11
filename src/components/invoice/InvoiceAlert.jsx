@@ -25,7 +25,7 @@ const Alert = ({ variant = "info", children, onClose, className = "" }) => {
   return (
     <div className={`border rounded-lg p-4 ${getVariantClasses()} ${className}`}>
       <div className="flex items-start">
-        <div className="flex-shrink-0">
+        <div className="shrink-0">
           {variant === "warning" && <AlertTriangle className="h-5 w-5" />}
           {variant === "info" && <Info className="h-5 w-5" />}
         </div>
@@ -34,7 +34,7 @@ const Alert = ({ variant = "info", children, onClose, className = "" }) => {
           <button
             type="button"
             onClick={onClose}
-            className={`ml-3 flex-shrink-0 ${
+            className={`ml-3 shrink-0 ${
               isDarkMode ? "text-gray-400 hover:text-white" : "text-gray-500 hover:text-gray-700"
             }`}
           >

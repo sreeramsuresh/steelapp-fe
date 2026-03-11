@@ -141,7 +141,7 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
             }`}
           >
             <div className="flex items-start">
-              <AlertTriangle size={18} className="text-red-600 dark:text-red-400 mr-2 flex-shrink-0 mt-0.5" />
+              <AlertTriangle size={18} className="text-red-600 dark:text-red-400 mr-2 shrink-0 mt-0.5" />
               <div className="flex-1">
                 <ul className="text-sm space-y-1">
                   {errors.map((error, _index) => (
@@ -168,7 +168,7 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
               type="date"
               value={payment.date}
               onChange={(e) => setPayment((prev) => ({ ...prev, date: e.target.value }))}
-              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+              className={`w-full px-3 py-2 border rounded-lg focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                 isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
               }`}
             />
@@ -191,7 +191,7 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
               min="0"
               max={!editingPayment ? balanceDue : undefined}
               step="0.01"
-              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+              className={`w-full px-3 py-2 border rounded-lg focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                 isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
               }`}
             />
@@ -220,7 +220,7 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
                   referenceNumber: "", // Clear reference when mode changes
                 }))
               }
-              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+              className={`w-full px-3 py-2 border rounded-lg focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                 isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
               }`}
             >
@@ -253,7 +253,7 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
               }
               placeholder={modeConfig.requiresRef ? `Enter ${modeConfig.refLabel || "reference number"}` : "Optional"}
               required={modeConfig.requiresRef}
-              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+              className={`w-full px-3 py-2 border rounded-lg focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                 isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
               }`}
             />
@@ -273,7 +273,7 @@ const AddPaymentModal = ({ isOpen, onClose, onSave, invoiceTotal, existingPaymen
               onChange={(e) => setPayment((prev) => ({ ...prev, notes: e.target.value }))}
               placeholder="Optional payment notes..."
               rows="3"
-              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+              className={`w-full px-3 py-2 border rounded-lg focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                 isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
               }`}
             />

@@ -73,7 +73,7 @@ export default function BasePriceRow({
                   darkMode
                     ? "bg-gray-700 border-gray-600 text-white focus:border-teal-500 focus:ring-teal-500"
                     : "bg-white border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-                } focus:outline-none focus:ring-1`}
+                } focus:outline-hidden focus:ring-1`}
               />
             </div>
             <button

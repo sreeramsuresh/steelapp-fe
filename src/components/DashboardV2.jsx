@@ -662,7 +662,7 @@ const DashboardV2 = () => {
 
   if (loading) {
     return (
-      <div className={`p-6 min-h-screen ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}>
+      <div className={`p-6 min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}>
         <div className="flex items-center justify-center min-h-96 gap-3">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600" />
           <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Loading dashboard...</span>
@@ -672,7 +672,7 @@ const DashboardV2 = () => {
   }
 
   return (
-    <div className={`p-4 md:p-6 lg:p-8 min-h-screen ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}>
+    <div className={`p-4 md:p-6 lg:p-8 min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}>
       {/* Header */}
       <div className={`mb-6 pb-4 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
         <div className="flex items-start justify-between">
@@ -732,7 +732,7 @@ const DashboardV2 = () => {
                       {formatCurrency(stats.totalRevenue)}
                     </h3>
                   </div>
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-600 to-teal-700 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-xl bg-linear-to-br from-teal-600 to-teal-700 flex items-center justify-center">
                     <DollarSign size={18} className="text-white" />
                   </div>
                 </div>
@@ -754,7 +754,7 @@ const DashboardV2 = () => {
                       {stats.totalCustomers}
                     </h3>
                   </div>
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-xl bg-linear-to-br from-green-500 to-green-600 flex items-center justify-center">
                     <Users size={18} className="text-white" />
                   </div>
                 </div>
@@ -772,7 +772,7 @@ const DashboardV2 = () => {
                       {stats.totalProducts}
                     </h3>
                   </div>
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-500 to-yellow-600 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-xl bg-linear-to-br from-yellow-500 to-yellow-600 flex items-center justify-center">
                     <Package size={18} className="text-white" />
                   </div>
                 </div>
@@ -790,7 +790,7 @@ const DashboardV2 = () => {
                       {stats.totalInvoices}
                     </h3>
                   </div>
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-xl bg-linear-to-br from-blue-500 to-blue-600 flex items-center justify-center">
                     <FileText size={18} className="text-white" />
                   </div>
                 </div>

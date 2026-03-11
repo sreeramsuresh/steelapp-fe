@@ -307,7 +307,7 @@ const SupplierBillList = () => {
 
         {/* VAT Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
+          <div className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-xs`}>
             <div className="flex items-center gap-3">
               <div className={`p-2 rounded-lg ${isDarkMode ? "bg-blue-900/30" : "bg-blue-100"}`}>
                 <FileText className={`h-5 w-5 ${isDarkMode ? "text-blue-400" : "text-blue-600"}`} />
@@ -320,7 +320,7 @@ const SupplierBillList = () => {
               </div>
             </div>
           </div>
-          <div className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
+          <div className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-xs`}>
             <div className="flex items-center gap-3">
               <div className={`p-2 rounded-lg ${isDarkMode ? "bg-green-900/30" : "bg-green-100"}`}>
                 <DollarSign className={`h-5 w-5 ${isDarkMode ? "text-green-400" : "text-green-600"}`} />
@@ -333,7 +333,7 @@ const SupplierBillList = () => {
               </div>
             </div>
           </div>
-          <div className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
+          <div className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-xs`}>
             <div className="flex items-center gap-3">
               <div className={`p-2 rounded-lg ${isDarkMode ? "bg-amber-900/30" : "bg-amber-100"}`}>
                 <Building2 className={`h-5 w-5 ${isDarkMode ? "text-amber-400" : "text-amber-600"}`} />
@@ -346,7 +346,7 @@ const SupplierBillList = () => {
               </div>
             </div>
           </div>
-          <div className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
+          <div className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-xs`}>
             <div className="flex items-center gap-3">
               <div className={`p-2 rounded-lg ${isDarkMode ? "bg-teal-900/30" : "bg-teal-100"}`}>
                 <DollarSign className={`h-5 w-5 ${isDarkMode ? "text-teal-400" : "text-teal-600"}`} />
@@ -362,7 +362,7 @@ const SupplierBillList = () => {
         </div>
 
         {/* Filters */}
-        <div className={`p-4 rounded-lg mb-6 ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
+        <div className={`p-4 rounded-lg mb-6 ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-xs`}>
           <div className="flex flex-wrap gap-4 items-center">
             {/* Search */}
             <div className="flex-1 min-w-[200px]">
@@ -380,7 +380,7 @@ const SupplierBillList = () => {
                     isDarkMode
                       ? "border-gray-600 bg-gray-700 text-white placeholder-gray-400"
                       : "border-gray-300 bg-white text-gray-900 placeholder-gray-500"
-                  } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                  } focus:outline-hidden focus:ring-2 focus:ring-teal-500`}
                 />
               </div>
             </div>
@@ -392,7 +392,7 @@ const SupplierBillList = () => {
               aria-label="Filter by status"
               className={`px-4 py-2 rounded-lg border ${
                 isDarkMode ? "border-gray-600 bg-gray-700 text-white" : "border-gray-300 bg-white text-gray-900"
-              } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+              } focus:outline-hidden focus:ring-2 focus:ring-teal-500`}
             >
               {STATUS_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>
@@ -456,7 +456,7 @@ const SupplierBillList = () => {
                     onChange={(e) => setVatCategoryFilter(e.target.value)}
                     className={`w-full px-3 py-2 rounded-lg border ${
                       isDarkMode ? "border-gray-600 bg-gray-700 text-white" : "border-gray-300 bg-white text-gray-900"
-                    } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                    } focus:outline-hidden focus:ring-2 focus:ring-teal-500`}
                   >
                     {VAT_CATEGORIES.map((opt) => (
                       <option key={opt.value} value={opt.value}>
@@ -480,7 +480,7 @@ const SupplierBillList = () => {
                     onChange={(e) => setVendorFilter(e.target.value)}
                     className={`w-full px-3 py-2 rounded-lg border ${
                       isDarkMode ? "border-gray-600 bg-gray-700 text-white" : "border-gray-300 bg-white text-gray-900"
-                    } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                    } focus:outline-hidden focus:ring-2 focus:ring-teal-500`}
                   >
                     <option value="">All Suppliers</option>
                     {vendors.map((vendor) => (
@@ -506,7 +506,7 @@ const SupplierBillList = () => {
                     onChange={(e) => setStartDate(e.target.value)}
                     className={`w-full px-3 py-2 rounded-lg border ${
                       isDarkMode ? "border-gray-600 bg-gray-700 text-white" : "border-gray-300 bg-white text-gray-900"
-                    } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                    } focus:outline-hidden focus:ring-2 focus:ring-teal-500`}
                   />
                 </div>
 
@@ -525,7 +525,7 @@ const SupplierBillList = () => {
                     onChange={(e) => setEndDate(e.target.value)}
                     className={`w-full px-3 py-2 rounded-lg border ${
                       isDarkMode ? "border-gray-600 bg-gray-700 text-white" : "border-gray-300 bg-white text-gray-900"
-                    } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                    } focus:outline-hidden focus:ring-2 focus:ring-teal-500`}
                   />
                 </div>
               </div>
@@ -552,7 +552,7 @@ const SupplierBillList = () => {
         </div>
 
         {/* Bills Table */}
-        <div className={`rounded-lg overflow-hidden ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-sm`}>
+        <div className={`rounded-lg overflow-hidden ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-xs`}>
           {bills.length === 0 ? (
             <div className="p-12 text-center">
               <FileText className={`h-16 w-16 mx-auto mb-4 ${isDarkMode ? "text-gray-600" : "text-gray-400"}`} />

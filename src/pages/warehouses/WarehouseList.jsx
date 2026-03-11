@@ -175,7 +175,7 @@ const WarehouseList = () => {
   });
 
   return (
-    <div className={`min-h-screen ${isDarkMode ? "bg-[#121418]" : "bg-gray-50"}`}>
+    <div className={`min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}>
       {/* Header */}
       <div
         className={`${isDarkMode ? "bg-[#1E2328]" : "bg-white"} border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"} px-6 py-4`}
@@ -244,9 +244,9 @@ const WarehouseList = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
               className={`w-full pl-10 pr-4 py-2 rounded-lg border ${
                 isDarkMode
-                  ? "bg-[#121418] border-gray-600 text-white placeholder-gray-500"
+                  ? "bg-gray-900 border-gray-600 text-white placeholder-gray-500"
                   : "bg-white border-gray-300 text-gray-900 placeholder-gray-400"
-              } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+              } focus:outline-hidden focus:ring-2 focus:ring-teal-500`}
             />
           </div>
 

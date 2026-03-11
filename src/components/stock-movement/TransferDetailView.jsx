@@ -120,7 +120,7 @@ const TransferDetailView = ({ transfer, onBack }) => {
             <p className={`font-medium ${valueClass}`}>{transfer.sourceWarehouseName || "Source Warehouse"}</p>
             <p className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>Source</p>
           </div>
-          <div className="flex-shrink-0 px-6">
+          <div className="shrink-0 px-6">
             <ArrowRight className={`w-8 h-8 ${isDarkMode ? "text-teal-400" : "text-teal-600"}`} />
           </div>
           <div className="flex-1 text-center">

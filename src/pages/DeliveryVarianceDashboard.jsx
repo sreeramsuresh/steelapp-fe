@@ -132,25 +132,25 @@ export default function DeliveryVarianceDashboard() {
       {/* KPIs Section */}
       {kpis && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <div className={`p-4 rounded-lg shadow ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+          <div className={`p-4 rounded-lg shadow-sm ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
             <div className={`text-sm font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
               On-Time Delivery
             </div>
             <div className="text-3xl font-bold text-green-600">{kpis.onTimeDeliveryPct || 0}%</div>
           </div>
-          <div className={`p-4 rounded-lg shadow ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+          <div className={`p-4 rounded-lg shadow-sm ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
             <div className={`text-sm font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
               Avg Variance
             </div>
             <div className="text-3xl font-bold text-blue-600">{kpis.avgVarianceDays || 0} days</div>
           </div>
-          <div className={`p-4 rounded-lg shadow ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+          <div className={`p-4 rounded-lg shadow-sm ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
             <div className={`text-sm font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
               Late Deliveries
             </div>
             <div className="text-3xl font-bold text-red-600">{kpis.lateDeliveryCount || 0}</div>
           </div>
-          <div className={`p-4 rounded-lg shadow ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+          <div className={`p-4 rounded-lg shadow-sm ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
             <div className={`text-sm font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
               Total Deliveries
             </div>
@@ -163,7 +163,7 @@ export default function DeliveryVarianceDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         {/* Trend Chart */}
         {trendChartData && (
-          <div className={`p-4 rounded-lg shadow ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+          <div className={`p-4 rounded-lg shadow-sm ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
             <h2 className={`text-xl font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
               Delivery Trend
             </h2>
@@ -188,7 +188,7 @@ export default function DeliveryVarianceDashboard() {
 
         {/* Breakdown Chart */}
         {breakdownChartData && (
-          <div className={`p-4 rounded-lg shadow ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+          <div className={`p-4 rounded-lg shadow-sm ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
             <h2 className={`text-xl font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
               Late Deliveries Breakdown
             </h2>
@@ -212,7 +212,7 @@ export default function DeliveryVarianceDashboard() {
 
       {/* Supplier Comparison */}
       {comparisonChartData && (
-        <div className={`p-4 rounded-lg shadow mb-6 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+        <div className={`p-4 rounded-lg shadow-sm mb-6 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
           <h2 className={`text-xl font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
             Top 10 Suppliers Performance
           </h2>
@@ -236,7 +236,7 @@ export default function DeliveryVarianceDashboard() {
 
       {/* Recommendations */}
       {recommendations && (
-        <div className={`p-4 rounded-lg shadow mb-6 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+        <div className={`p-4 rounded-lg shadow-sm mb-6 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
           <h2 className={`text-xl font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
             Recommendations
           </h2>
@@ -259,7 +259,7 @@ export default function DeliveryVarianceDashboard() {
 
       {/* Late Deliveries List */}
       {lateDeliveries && lateDeliveries.lateDeliveries?.length > 0 && (
-        <div className={`p-4 rounded-lg shadow ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+        <div className={`p-4 rounded-lg shadow-sm ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
           <h2 className={`text-xl font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
             Recent Late Deliveries
           </h2>

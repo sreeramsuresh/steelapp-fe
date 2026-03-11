@@ -70,7 +70,7 @@ export default function ExportPanel({ datasetId, onExportGenerated, onVerifyRege
   };
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-lg shadow border border-slate-200 dark:border-slate-700 p-6">
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-6">
       <div className="mb-6">
         <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">Export & Verification</h3>
         <p className="text-sm text-slate-600 dark:text-slate-400">

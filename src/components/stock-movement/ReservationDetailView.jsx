@@ -105,7 +105,7 @@ const ReservationDetailView = ({ reservation, onBack }) => {
               <p className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>{reservation.productSku}</p>
             )}
           </div>
-          <div className="flex-shrink-0 px-6">
+          <div className="shrink-0 px-6">
             <Bookmark className={`w-6 h-6 ${isDarkMode ? "text-blue-400" : "text-blue-600"}`} />
           </div>
           <div className="flex-1 text-center">

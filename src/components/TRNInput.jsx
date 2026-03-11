@@ -147,8 +147,8 @@ const TRNInput = ({
           disabled={disabled}
           placeholder={placeholder}
           maxLength={19} // Allow for formatted input with dashes
-          className={`w-full px-3 py-2 pr-10 text-sm border rounded-md shadow-sm
-            focus:outline-none focus:ring-2 focus:ring-teal-500
+          className={`w-full px-3 py-2 pr-10 text-sm border rounded-md shadow-xs
+            focus:outline-hidden focus:ring-2 focus:ring-teal-500
             transition-colors duration-200
             ${
               isDarkMode

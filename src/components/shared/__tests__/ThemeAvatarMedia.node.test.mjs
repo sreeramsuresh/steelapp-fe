@@ -543,7 +543,7 @@ describe('Theme, Avatar & Media Components', () => {
         src: 'image.jpg',
       };
 
-      ok(props.blurHash, 'Should support blur');
+      ok(props.blurHash, 'Should support blur-sm');
     });
 
     test('Test 5.9: Should handle onLoad callback', () => {
@@ -596,7 +596,7 @@ describe('Theme, Avatar & Media Components', () => {
 
     test('Test 6.2: Should show placeholder initially', () => {
       const props = {
-        placeholder: 'blur',
+        placeholder: 'blur-sm',
         placeholderSrc: 'placeholder.jpg',
       };
 
@@ -711,7 +711,7 @@ describe('Theme, Avatar & Media Components', () => {
     test('Test 7.3: Should support shimmer type', () => {
       const props = {
         type: 'shimmer',
-        className: 'bg-gradient-to-r animate-shimmer',
+        className: 'bg-linear-to-r animate-shimmer',
       };
 
       strictEqual(props.type, 'shimmer', 'Should be shimmer');

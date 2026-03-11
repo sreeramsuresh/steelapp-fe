@@ -466,7 +466,7 @@ const StockLevelsDashboard = () => {
   if (loading && stockLevels.length === 0) {
     return (
       <div
-        className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
+        className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}
       >
         <div className="flex justify-center items-center min-h-[400px]">
           <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-teal-600"></div>
@@ -477,9 +477,7 @@ const StockLevelsDashboard = () => {
   }
 
   return (
-    <div
-      className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
-    >
+    <div className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}>
       {/* ── Clickable KPI Cards ── */}
       {summary && (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mb-6 px-4 sm:px-0">
@@ -667,7 +665,7 @@ const StockLevelsDashboard = () => {
         <div className="mb-6 px-4 sm:px-0">
           <div className="flex gap-3 flex-wrap items-center">
             {/* Search */}
-            <div className="flex-grow min-w-[220px] relative">
+            <div className="grow min-w-[220px] relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <Search size={18} className={isDarkMode ? "text-gray-400" : "text-gray-500"} />
               </div>
@@ -679,7 +677,7 @@ const StockLevelsDashboard = () => {
                   setSearchTerm(e.target.value);
                   setPage(1);
                 }}
-                className={`w-full pl-10 pr-4 py-2.5 border rounded-lg text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                className={`w-full pl-10 pr-4 py-2.5 border rounded-lg text-sm transition-colors focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                   isDarkMode
                     ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
                     : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
@@ -694,7 +692,7 @@ const StockLevelsDashboard = () => {
                 setWarehouseFilter(e.target.value);
                 setPage(1);
               }}
-              className={`px-3 py-2.5 border rounded-lg text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+              className={`px-3 py-2.5 border rounded-lg text-sm transition-colors focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                 isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
               }`}
             >
@@ -710,7 +708,7 @@ const StockLevelsDashboard = () => {
             <select
               value={groupBy}
               onChange={(e) => setGroupBy(e.target.value)}
-              className={`px-3 py-2.5 border rounded-lg text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+              className={`px-3 py-2.5 border rounded-lg text-sm transition-colors focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                 isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
               }`}
             >

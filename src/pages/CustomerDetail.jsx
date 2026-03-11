@@ -132,7 +132,7 @@ export default function CustomerDetail() {
   // Loading state
   if (loading) {
     return (
-      <div className={`min-h-screen flex items-center justify-center ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}>
+      <div className={`min-h-screen flex items-center justify-center ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}>
         <div className="flex flex-col items-center gap-4">
           <FaSpinner className={`w-12 h-12 animate-spin ${isDarkMode ? "text-teal-400" : "text-teal-600"}`} />
           <p className={isDarkMode ? "text-gray-300" : "text-gray-700"}>Loading customer details...</p>
@@ -144,7 +144,7 @@ export default function CustomerDetail() {
   // Error state
   if (error) {
     return (
-      <div className={`min-h-screen flex items-center justify-center ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}>
+      <div className={`min-h-screen flex items-center justify-center ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}>
         <div className="flex flex-col items-center gap-4 max-w-md text-center">
           <div className={`text-5xl ${isDarkMode ? "text-red-400" : "text-red-600"}`}>⚠️</div>
           <h2 className={`text-xl font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>
@@ -154,7 +154,7 @@ export default function CustomerDetail() {
           <button
             type="button"
             onClick={() => navigate("/app/customers")}
-            className="mt-4 px-6 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2"
+            className="mt-4 px-6 py-2 bg-linear-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2"
           >
             <FaArrowLeft />
             Back to Customers
@@ -167,7 +167,7 @@ export default function CustomerDetail() {
   // Access denied state - user has no permissions for any tab
   if (!hasAnyTabAccess) {
     return (
-      <div className={`min-h-screen flex items-center justify-center ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}>
+      <div className={`min-h-screen flex items-center justify-center ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}>
         <div className="flex flex-col items-center gap-4 max-w-md text-center">
           <div className={`text-5xl ${isDarkMode ? "text-yellow-400" : "text-yellow-600"}`}>🔒</div>
           <h2 className={`text-xl font-semibold ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>Access Denied</h2>
@@ -177,7 +177,7 @@ export default function CustomerDetail() {
           <button
             type="button"
             onClick={() => navigate("/")}
-            className="mt-4 px-6 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2"
+            className="mt-4 px-6 py-2 bg-linear-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2"
           >
             <FaHome />
             Go to Home
@@ -190,14 +190,14 @@ export default function CustomerDetail() {
   // No customer data
   if (!customerData) {
     return (
-      <div className={`min-h-screen flex items-center justify-center ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}>
+      <div className={`min-h-screen flex items-center justify-center ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}>
         <p className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Customer not found</p>
       </div>
     );
   }
 
   return (
-    <div className={`min-h-screen ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}>
+    <div className={`min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}>
       {/* Breadcrumb Navigation */}
       <div
         className={`mb-6 p-4 ${
@@ -241,7 +241,7 @@ export default function CustomerDetail() {
       <div
         className={`mb-6 p-6 ${
           isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"
-        } border rounded-lg shadow-sm`}
+        } border rounded-lg shadow-xs`}
       >
         <div className="flex items-start justify-between">
           <div>
@@ -304,7 +304,7 @@ export default function CustomerDetail() {
       <div
         className={`p-6 ${
           isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"
-        } border rounded-lg shadow-sm min-h-[400px]`}
+        } border rounded-lg shadow-xs min-h-[400px]`}
       >
         <Suspense
           fallback={

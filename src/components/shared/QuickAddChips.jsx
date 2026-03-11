@@ -72,7 +72,7 @@ export default function QuickAddChips({
                         ? "border-gray-700 bg-gray-800 hover:border-teal-600 hover:bg-gray-750"
                         : "border-gray-200 bg-white hover:border-teal-500 hover:bg-teal-50"
                   }
-                  hover:-translate-y-px hover:shadow-sm
+                  hover:-translate-y-px hover:shadow-xs
                   ${onTogglePin ? "pr-7" : ""}
                 `}
               >

@@ -71,7 +71,7 @@ export default function AuditHubDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
       {/* Create Period Modal */}
       <CreatePeriodModal
         isOpen={creatingPeriod}
@@ -81,7 +81,7 @@ export default function AuditHubDashboard() {
       />
 
       {/* Header */}
-      <div className="bg-white dark:bg-slate-800 shadow-sm border-b border-slate-200 dark:border-slate-700">
+      <div className="bg-white dark:bg-slate-800 shadow-xs border-b border-slate-200 dark:border-slate-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center justify-between">
             <div>
@@ -118,7 +118,7 @@ export default function AuditHubDashboard() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6 border-l-4 border-blue-500">
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-6 border-l-4 border-blue-500">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Open Periods</p>
@@ -128,7 +128,7 @@ export default function AuditHubDashboard() {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6 border-l-4 border-amber-500">
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-6 border-l-4 border-amber-500">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-slate-600 dark:text-slate-400">In Review</p>
@@ -138,7 +138,7 @@ export default function AuditHubDashboard() {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6 border-l-4 border-green-500">
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-6 border-l-4 border-green-500">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Locked</p>
@@ -159,28 +159,28 @@ export default function AuditHubDashboard() {
           <h3 className="font-semibold text-slate-900 dark:text-white mb-3">Period Status Guide</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="flex gap-2 items-start">
-              <span className="w-2 h-2 rounded-full bg-gray-500 mt-1.5 flex-shrink-0"></span>
+              <span className="w-2 h-2 rounded-full bg-gray-500 mt-1.5 shrink-0"></span>
               <div>
                 <p className="text-sm font-medium text-slate-900 dark:text-white">Open</p>
                 <p className="text-xs text-slate-600 dark:text-slate-400">Period is currently active</p>
               </div>
             </div>
             <div className="flex gap-2 items-start">
-              <span className="w-2 h-2 rounded-full bg-amber-500 mt-1.5 flex-shrink-0"></span>
+              <span className="w-2 h-2 rounded-full bg-amber-500 mt-1.5 shrink-0"></span>
               <div>
                 <p className="text-sm font-medium text-slate-900 dark:text-white">In Review</p>
                 <p className="text-xs text-slate-600 dark:text-slate-400">Period is awaiting approval</p>
               </div>
             </div>
             <div className="flex gap-2 items-start">
-              <span className="w-2 h-2 rounded-full bg-green-500 mt-1.5 flex-shrink-0"></span>
+              <span className="w-2 h-2 rounded-full bg-green-500 mt-1.5 shrink-0"></span>
               <div>
                 <p className="text-sm font-medium text-slate-900 dark:text-white">Locked</p>
                 <p className="text-xs text-slate-600 dark:text-slate-400">Period is finalized and locked</p>
               </div>
             </div>
             <div className="flex gap-2 items-start">
-              <span className="w-2 h-2 rounded-full bg-blue-500 mt-1.5 flex-shrink-0"></span>
+              <span className="w-2 h-2 rounded-full bg-blue-500 mt-1.5 shrink-0"></span>
               <div>
                 <p className="text-sm font-medium text-slate-900 dark:text-white">Finalized</p>
                 <p className="text-xs text-slate-600 dark:text-slate-400">Period data is finalized</p>
@@ -199,7 +199,7 @@ export default function AuditHubDashboard() {
               <p className="mt-4 text-slate-600 dark:text-slate-400">Loading periods...</p>
             </div>
           ) : periods.length === 0 ? (
-            <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-12 text-center">
+            <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-12 text-center">
               <Calendar className="w-12 h-12 text-slate-400 dark:text-slate-600 mx-auto mb-4" />
               <p className="text-slate-600 dark:text-slate-400">No periods found</p>
               <button

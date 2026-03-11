@@ -138,7 +138,7 @@ const AllocationPanel = ({
               : "bg-amber-50 border-amber-200 text-amber-700"
           }`}
         >
-          <Lock size={16} className="flex-shrink-0" />
+          <Lock size={16} className="shrink-0" />
           <span className="text-sm">
             Batches locked — consumed by delivery note{" "}
             {deliveryNoteNumber && <span className="font-semibold">{deliveryNoteNumber}</span>}
@@ -244,7 +244,7 @@ const AllocationPanel = ({
               : "bg-amber-50 border-amber-200 text-amber-700"
           }`}
         >
-          <AlertTriangle size={20} className="flex-shrink-0 mt-0.5" />
+          <AlertTriangle size={20} className="shrink-0 mt-0.5" />
           <div className="flex-1 space-y-1">
             <p className="text-sm font-semibold">Insufficient Stock</p>
             <p className="text-sm">

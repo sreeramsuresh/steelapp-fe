@@ -227,25 +227,19 @@ const OrderBlockingLogic = ({ customer, isOpen, onClose, onApproveOverride, onCo
               <ul className={`text-sm space-y-1 mb-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
                 <li className="flex items-start gap-2">
                   <span
-                    className={`mt-1 w-1.5 h-1.5 rounded-full flex-shrink-0 ${
-                      isDarkMode ? "bg-teal-400" : "bg-teal-600"
-                    }`}
+                    className={`mt-1 w-1.5 h-1.5 rounded-full shrink-0 ${isDarkMode ? "bg-teal-400" : "bg-teal-600"}`}
                   />
                   Contacted the customer about payment
                 </li>
                 <li className="flex items-start gap-2">
                   <span
-                    className={`mt-1 w-1.5 h-1.5 rounded-full flex-shrink-0 ${
-                      isDarkMode ? "bg-teal-400" : "bg-teal-600"
-                    }`}
+                    className={`mt-1 w-1.5 h-1.5 rounded-full shrink-0 ${isDarkMode ? "bg-teal-400" : "bg-teal-600"}`}
                   />
                   Obtained manager/supervisor approval
                 </li>
                 <li className="flex items-start gap-2">
                   <span
-                    className={`mt-1 w-1.5 h-1.5 rounded-full flex-shrink-0 ${
-                      isDarkMode ? "bg-teal-400" : "bg-teal-600"
-                    }`}
+                    className={`mt-1 w-1.5 h-1.5 rounded-full shrink-0 ${isDarkMode ? "bg-teal-400" : "bg-teal-600"}`}
                   />
                   Documented the approval reason
                 </li>
@@ -265,7 +259,7 @@ const OrderBlockingLogic = ({ customer, isOpen, onClose, onApproveOverride, onCo
                 <button
                   type="button"
                   onClick={handleConfirmApproval}
-                  className="flex-1 px-3 py-2 rounded-md text-sm font-medium bg-gradient-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 transition-colors"
+                  className="flex-1 px-3 py-2 rounded-md text-sm font-medium bg-linear-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 transition-colors"
                 >
                   Confirm & Create Order
                 </button>

@@ -89,7 +89,7 @@ const POStockMovements = ({ purchaseOrderId, poNumber: _poNumber, defaultExpande
 
   return (
     <div
-      className={`mt-2 p-4 rounded-lg shadow border ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}
+      className={`mt-2 p-4 rounded-lg shadow-sm border ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}
     >
       <button
         type="button"
@@ -130,7 +130,7 @@ const POStockMovements = ({ purchaseOrderId, poNumber: _poNumber, defaultExpande
             <div
               className={`mt-2 p-3 rounded-lg flex items-start gap-2 border ${isDarkMode ? "bg-blue-900/20 border-blue-700 text-blue-300" : "bg-blue-50 border-blue-200 text-blue-700"}`}
             >
-              <Truck className="w-5 h-5 mt-0.5 flex-shrink-0" />
+              <Truck className="w-5 h-5 mt-0.5 shrink-0" />
               <div>
                 <p>No stock has been received for this purchase order yet.</p>
                 <p className="text-sm mt-1 opacity-75">

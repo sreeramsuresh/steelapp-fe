@@ -56,7 +56,9 @@ function ErrorBoundaryContent({ error, onReset, onGoBack, onReload }) {
 
   return (
     <div
-      className={`flex items-center justify-center min-h-[60vh] p-6 ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
+      className={`flex items-center justify-center min-h-[60vh] p-6 ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}
+      data-testid="error-boundary"
+      data-error={error ? error.toString() : "unknown"}
     >
       <div
         className={`w-full max-w-2xl rounded-lg border p-6 ${isDarkMode ? "bg-[#1a1f26] border-red-900/30" : "bg-white border-red-200"}`}
@@ -81,7 +83,7 @@ function ErrorBoundaryContent({ error, onReset, onGoBack, onReload }) {
           <div
             className={`mb-6 p-4 rounded-lg border ${isDarkMode ? "bg-gray-900/50 border-gray-700 text-gray-300" : "bg-gray-50 border-gray-200 text-gray-700"}`}
           >
-            <p className="font-mono text-sm break-words whitespace-pre-wrap">{error.toString()}</p>
+            <p className="font-mono text-sm wrap-break-word whitespace-pre-wrap">{error.toString()}</p>
           </div>
         )}
 

@@ -233,7 +233,7 @@ export default function NormalizedMarginReport() {
         <div className="px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="p-2 bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-lg">
+              <div className="p-2 bg-linear-to-br from-emerald-600 to-emerald-700 rounded-lg">
                 <TrendingUp className="h-6 w-6 text-white" />
               </div>
               <div>
@@ -828,7 +828,7 @@ function KPICard({ title, value, isDarkMode, color }) {
           <p className={`text-sm font-medium ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>{title}</p>
           <p className={`text-2xl font-bold mt-1 ${isDarkMode ? "text-white" : "text-gray-900"}`}>{value}</p>
         </div>
-        <div className={`p-3 rounded-lg bg-gradient-to-br ${color}`}>
+        <div className={`p-3 rounded-lg bg-linear-to-br ${color}`}>
           <TrendingUp className="h-6 w-6 text-white" />
         </div>
       </div>

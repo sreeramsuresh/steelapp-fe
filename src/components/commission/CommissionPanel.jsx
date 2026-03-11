@@ -252,7 +252,7 @@ const CommissionPanel = ({
             className={`p-3 rounded-lg border ${isDarkMode ? "bg-blue-900 border-blue-700 text-blue-100" : "bg-blue-50 border-blue-200 text-blue-900"}`}
           >
             <div className="flex gap-2">
-              <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
               <div className="text-sm">
                 <p className="font-semibold">Commission Workflow</p>
                 <ul className="list-disc list-inside mt-1 text-xs space-y-1">
@@ -291,7 +291,7 @@ const CommissionPanel = ({
                 min="0"
                 className={`w-full px-3 py-2 rounded border ${
                   isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300"
-                } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                } focus:outline-hidden focus:ring-2 focus:ring-blue-500`}
               />
               <p className={`${mutedColor} text-xs mt-1`}>Original: AED {(invoice.commissionAmount || 0).toFixed(2)}</p>
             </div>
@@ -309,7 +309,7 @@ const CommissionPanel = ({
                   isDarkMode
                     ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
                     : "bg-white border-gray-300 placeholder-gray-400"
-                } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                } focus:outline-hidden focus:ring-2 focus:ring-blue-500`}
                 rows="3"
               />
             </div>

@@ -1949,7 +1949,7 @@ const InvoiceForm = ({ onSave }) => {
                       onClick={handleIssueInvoice}
                       disabled={savingInvoice || updatingInvoice || isSaving}
                       title="Issue as Final Tax Invoice (locks invoice permanently)"
-                      className="bg-gradient-to-br from-green-600 to-green-700 text-white hover:from-green-500 hover:to-green-600"
+                      className="bg-linear-to-br from-green-600 to-green-700 text-white hover:from-green-500 hover:to-green-600"
                       data-testid="issue-final-invoice"
                     >
                       <Download className="h-4 w-4" />
@@ -1979,10 +1979,7 @@ const InvoiceForm = ({ onSave }) => {
                       : "bg-amber-50 border-amber-500 text-amber-800"
                   }`}
                 >
-                  <AlertTriangle
-                    className={`flex-shrink-0 ${isDarkMode ? "text-amber-400" : "text-amber-600"}`}
-                    size={24}
-                  />
+                  <AlertTriangle className={`shrink-0 ${isDarkMode ? "text-amber-400" : "text-amber-600"}`} size={24} />
                   <div className="flex-1">
                     <h4 className="font-bold text-lg">Final Tax Invoice - Locked</h4>
                     <p className="text-sm mt-1">
@@ -2030,10 +2027,7 @@ const InvoiceForm = ({ onSave }) => {
                   }`}
                 >
                   <div className="flex items-start gap-3">
-                    <AlertTriangle
-                      className={`flex-shrink-0 ${isDarkMode ? "text-red-400" : "text-red-600"}`}
-                      size={24}
-                    />
+                    <AlertTriangle className={`shrink-0 ${isDarkMode ? "text-red-400" : "text-red-600"}`} size={24} />
                     <div className="flex-1">
                       <h4 className="font-bold text-lg mb-2">Please fix the following errors:</h4>
                       <ul className="space-y-1 text-sm">
@@ -3066,7 +3060,7 @@ const InvoiceForm = ({ onSave }) => {
             }`}
           >
             <div className="flex items-start mb-4">
-              <AlertTriangle className="text-yellow-500 mr-3 flex-shrink-0" size={24} />
+              <AlertTriangle className="text-yellow-500 mr-3 shrink-0" size={24} />
               <div>
                 <h3 id="save-confirm-title" className="text-lg font-semibold mb-2">
                   Confirm Final Tax Invoice Creation
@@ -3121,7 +3115,7 @@ const InvoiceForm = ({ onSave }) => {
 
           return (
             <div
-              className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs"
               onClick={canContinueEditing ? handleSuccessModalClose : undefined}
               onKeyDown={(e) => e.key === "Escape" && handleSuccessModalClose()}
               role="dialog"
@@ -3137,9 +3131,9 @@ const InvoiceForm = ({ onSave }) => {
                 onKeyDown={(e) => e.stopPropagation()}
               >
                 {/* Success Header with Gradient */}
-                <div className="bg-gradient-to-r from-emerald-500 to-teal-600 px-6 py-5">
+                <div className="bg-linear-to-r from-emerald-500 to-teal-600 px-6 py-5">
                   <div className="flex items-center gap-4">
-                    <div className="flex-shrink-0 bg-white/20 rounded-full p-3">
+                    <div className="shrink-0 bg-white/20 rounded-full p-3">
                       <svg
                         aria-label="icon"
                         className="w-8 h-8 text-white"
@@ -3188,7 +3182,7 @@ const InvoiceForm = ({ onSave }) => {
                   <button
                     type="button"
                     onClick={handleSuccessDownloadPDF}
-                    className="w-full flex items-center gap-3 px-4 py-3.5 bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-500 hover:to-teal-600 text-white rounded-xl font-medium transition-all shadow-lg shadow-teal-500/25 hover:shadow-teal-500/40"
+                    className="w-full flex items-center gap-3 px-4 py-3.5 bg-linear-to-r from-teal-600 to-teal-700 hover:from-teal-500 hover:to-teal-600 text-white rounded-xl font-medium transition-all shadow-lg shadow-teal-500/25 hover:shadow-teal-500/40"
                   >
                     <div className="p-2 bg-white/20 rounded-lg">
                       <Download size={20} />
@@ -3204,7 +3198,7 @@ const InvoiceForm = ({ onSave }) => {
                     <button
                       type="button"
                       onClick={handleSuccessRecordPayment}
-                      className="w-full flex items-center gap-3 px-4 py-3.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white rounded-xl font-medium transition-all shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40"
+                      className="w-full flex items-center gap-3 px-4 py-3.5 bg-linear-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white rounded-xl font-medium transition-all shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40"
                     >
                       <div className="p-2 bg-white/20 rounded-lg">
                         <Banknote size={20} />

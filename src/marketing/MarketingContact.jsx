@@ -33,7 +33,7 @@ const Contact = () => {
     <MarketingLayout>
       <div className="min-h-screen bg-white">
         {/* Hero Section */}
-        <section className="relative bg-gradient-to-r from-slate-900 via-gray-900 to-slate-800 text-white py-20">
+        <section className="relative bg-linear-to-r from-slate-900 via-gray-900 to-slate-800 text-white py-20">
           <div className="absolute inset-0 bg-black opacity-20"></div>
           <div
             className="absolute inset-0 bg-cover bg-center opacity-30"
@@ -82,7 +82,7 @@ const Contact = () => {
                 {/* Phone Numbers */}
                 <div className="space-y-4">
                   <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center">
+                    <div className="w-12 h-12 bg-linear-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center">
                       <span className="text-white text-xl">📞</span>
                     </div>
                     <div>
@@ -90,7 +90,7 @@ const Contact = () => {
                     </div>
                   </div>
                   <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center">
+                    <div className="w-12 h-12 bg-linear-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center">
                       <span className="text-white text-xl">📞</span>
                     </div>
                     <div>
@@ -98,7 +98,7 @@ const Contact = () => {
                     </div>
                   </div>
                   <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center">
+                    <div className="w-12 h-12 bg-linear-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center">
                       <span className="text-white text-xl">📞</span>
                     </div>
                     <div>
@@ -109,7 +109,7 @@ const Contact = () => {
 
                 {/* Email */}
                 <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
+                  <div className="w-12 h-12 bg-linear-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
                     <span className="text-white text-xl">✉️</span>
                   </div>
                   <div>
@@ -119,7 +119,7 @@ const Contact = () => {
 
                 {/* Address */}
                 <div className="flex items-start space-x-4">
-                  <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="w-12 h-12 bg-linear-to-r from-purple-500 to-pink-600 rounded-full flex items-center justify-center shrink-0">
                     <span className="text-white text-xl">📍</span>
                   </div>
                   <div>
@@ -138,7 +138,7 @@ const Contact = () => {
                     alt="Ultimate Steels Facility"
                     className="w-full h-96 object-cover hover:scale-105 transition-transform duration-700"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                  <div className="absolute inset-0 bg-linear-to-t from-black/50 to-transparent"></div>
                 </div>
               </div>
             </div>
@@ -146,7 +146,7 @@ const Contact = () => {
             {/* Get in Touch Section */}
             <div className="text-center mb-16">
               <h3 className="text-3xl font-bold text-gray-900 mb-4">Get in Touch</h3>
-              <div className="w-24 h-1 bg-gradient-to-r from-blue-600 to-indigo-600 mx-auto"></div>
+              <div className="w-24 h-1 bg-linear-to-r from-blue-600 to-indigo-600 mx-auto"></div>
             </div>
           </div>
         </section>
@@ -154,7 +154,7 @@ const Contact = () => {
         {/* Serving Ajman & Beyond Section */}
         <section
           id="section-serving"
-          className={`py-20 bg-gradient-to-br from-gray-50 to-slate-100 transition-all duration-1000 ${
+          className={`py-20 bg-linear-to-br from-gray-50 to-slate-100 transition-all duration-1000 ${
             isVisible["section-serving"] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"
           }`}
         >
@@ -163,7 +163,7 @@ const Contact = () => {
               {/* Content */}
               <div className="space-y-6">
                 <h2 className="text-4xl font-bold text-gray-900 mb-6">Serving Ajman & Beyond</h2>
-                <div className="w-24 h-1 bg-gradient-to-r from-emerald-500 to-teal-500 mb-6"></div>
+                <div className="w-24 h-1 bg-linear-to-r from-emerald-500 to-teal-500 mb-6"></div>
 
                 <p className="text-xl text-gray-700 leading-relaxed">
                   While based in Ajman, Ultimate Steels proudly serves clients across the UAE, including Dubai, Abu
@@ -216,14 +216,14 @@ const Contact = () => {
                   alt="Steel Manufacturing"
                   className="w-full h-96 object-cover rounded-2xl shadow-2xl hover:scale-105 transition-transform duration-500"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent rounded-2xl"></div>
+                <div className="absolute inset-0 bg-linear-to-t from-black/30 to-transparent rounded-2xl"></div>
               </div>
             </div>
           </div>
         </section>
 
         {/* Call to Action */}
-        <section className="py-20 bg-gradient-to-r from-slate-900 via-gray-900 to-slate-800 text-white">
+        <section className="py-20 bg-linear-to-r from-slate-900 via-gray-900 to-slate-800 text-white">
           <div className="max-w-7xl mx-auto px-6 text-center">
             <h2 className="text-4xl font-bold mb-6">Ready to Start Your Project?</h2>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-10 leading-relaxed">
@@ -234,7 +234,7 @@ const Contact = () => {
             <div className="flex flex-col sm:flex-row gap-6 justify-center">
               <a
                 href="mailto:info@ultimatesteels.com?subject=Quote Request"
-                className="px-10 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-lg rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg inline-block"
+                className="px-10 py-4 bg-linear-to-r from-blue-600 to-indigo-600 text-white font-bold text-lg rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg inline-block"
               >
                 Request Quote
               </a>
@@ -246,7 +246,7 @@ const Contact = () => {
               </a>
               <a
                 href="tel:+971000000000"
-                className="px-10 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold text-lg rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 shadow-lg inline-block"
+                className="px-10 py-4 bg-linear-to-r from-green-600 to-emerald-600 text-white font-bold text-lg rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 shadow-lg inline-block"
               >
                 Call Now
               </a>

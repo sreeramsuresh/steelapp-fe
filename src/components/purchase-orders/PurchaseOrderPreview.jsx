@@ -285,7 +285,7 @@ const PurchaseOrderPreview = ({ purchaseOrder, company, onClose }) => {
             className={`p-4 border-t ${isDarkMode ? "border-gray-700 bg-yellow-900/20" : "border-gray-200 bg-yellow-50"}`}
           >
             <div className="flex items-start gap-2">
-              <AlertTriangle className="text-yellow-500 flex-shrink-0 mt-0.5" size={18} />
+              <AlertTriangle className="text-yellow-500 shrink-0 mt-0.5" size={18} />
               <div className="flex-1">
                 <p className={`text-sm font-medium ${isDarkMode ? "text-yellow-300" : "text-yellow-800"}`}>
                   Incomplete record - Cannot download until resolved:

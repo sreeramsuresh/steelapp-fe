@@ -141,7 +141,7 @@ export const CardSkeleton = ({ showImage = false, lines = 3, isDarkMode = false,
  */
 export const PageLoader = ({ message = "Loading...", isDarkMode = false }) => (
   <output
-    className={`fixed inset-0 z-50 flex items-center justify-center ${isDarkMode ? "bg-gray-900/80" : "bg-white/80"} backdrop-blur-sm`}
+    className={`fixed inset-0 z-50 flex items-center justify-center ${isDarkMode ? "bg-gray-900/80" : "bg-white/80"} backdrop-blur-xs`}
     aria-live="polite"
   >
     <div className="text-center">

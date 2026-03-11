@@ -228,8 +228,8 @@ const BatchAllocator = ({
               disabled={loading || batches.length === 0}
               className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all duration-300 ${
                 isDarkMode
-                  ? "bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-500 hover:to-teal-600 text-white disabled:opacity-50"
-                  : "bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-400 hover:to-teal-500 text-white disabled:opacity-50"
+                  ? "bg-linear-to-r from-teal-600 to-teal-700 hover:from-teal-500 hover:to-teal-600 text-white disabled:opacity-50"
+                  : "bg-linear-to-r from-teal-500 to-teal-600 hover:from-teal-400 hover:to-teal-500 text-white disabled:opacity-50"
               }`}
             >
               <Sparkles className="w-5 h-5" />
@@ -414,7 +414,7 @@ const BatchAllocator = ({
               disabled={!isFullyAllocated}
               className={`px-6 py-2 rounded-lg font-medium transition-all duration-300 ${
                 isFullyAllocated
-                  ? "bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-500 hover:to-teal-600 text-white"
+                  ? "bg-linear-to-r from-teal-600 to-teal-700 hover:from-teal-500 hover:to-teal-600 text-white"
                   : "bg-gray-400 text-gray-200 cursor-not-allowed"
               }`}
             >

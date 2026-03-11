@@ -36,14 +36,14 @@ export default function LineItemCard({
       className={`
         relative border rounded-[10px] transition-all duration-200 animate-line-item-slide-in
         ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}
-        ${isActive ? (isDarkMode ? "border-teal-500 shadow-[0_0_0_3px_rgba(13,148,136,0.15)]" : "border-teal-500 shadow-[0_0_0_3px_rgba(13,148,136,0.1)]") : isDarkMode ? "hover:border-gray-600 hover:shadow-sm" : "hover:border-gray-300 hover:shadow-sm"}
+        ${isActive ? (isDarkMode ? "border-teal-500 shadow-[0_0_0_3px_rgba(13,148,136,0.15)]" : "border-teal-500 shadow-[0_0_0_3px_rgba(13,148,136,0.1)]") : isDarkMode ? "hover:border-gray-600 hover:shadow-xs" : "hover:border-gray-300 hover:shadow-xs"}
         ${className}
       `}
       style={{ padding: "16px 18px 14px" }}
     >
       {/* Row Number Badge */}
       <div
-        className="absolute flex items-center justify-center rounded-full bg-teal-600 text-white text-[11px] font-bold font-mono shadow-sm"
+        className="absolute flex items-center justify-center rounded-full bg-teal-600 text-white text-[11px] font-bold font-mono shadow-xs"
         style={{ left: -10, top: 18, width: 22, height: 22 }}
       >
         {index + 1}
@@ -75,7 +75,7 @@ export default function LineItemCard({
       <div className="flex items-center justify-end gap-3 mt-2.5">
         {/* Amount Display */}
         {amountDisplay && (
-          <div className="text-right flex-shrink-0 min-w-[120px]">
+          <div className="text-right shrink-0 min-w-[120px]">
             <div
               className={`font-mono text-base font-semibold tracking-tight ${amountDisplay === "0.00" || amountDisplay?.includes("0.00") ? (isDarkMode ? "text-gray-500" : "text-gray-400") : isDarkMode ? "text-white" : "text-gray-900"}`}
             >
@@ -94,7 +94,7 @@ export default function LineItemCard({
           type="button"
           onClick={onDelete}
           disabled={disabled}
-          className={`flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-md transition-colors ${
+          className={`shrink-0 w-8 h-8 flex items-center justify-center rounded-md transition-colors ${
             disabled
               ? isDarkMode
                 ? "text-gray-600 cursor-not-allowed"

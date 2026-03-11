@@ -115,7 +115,7 @@ const Input = ({ placeholder, value, onChange, startIcon, className = "" }) => {
 const TextField = ({ label, value, onChange, placeholder, error, helperText, type = "text", multiline, rows }) => {
   const { isDarkMode } = useTheme();
   const inputId = label ? `tf-${label.toLowerCase().replace(/\s+/g, "-")}` : undefined;
-  const inputClass = `w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+  const inputClass = `w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
     error
       ? "border-red-500"
       : isDarkMode
@@ -723,7 +723,7 @@ const UserManagementTab = () => {
   return (
     <div className="flex flex-col lg:flex-row gap-6 lg:min-h-[600px]">
       {/* Left Column */}
-      <div className="lg:w-3/5 flex-shrink-0">
+      <div className="lg:w-3/5 shrink-0">
         <SettingsPaper>
           <div className="p-6">
             <div className="flex justify-between items-center mb-6">
@@ -1204,7 +1204,7 @@ const UserManagementTab = () => {
           <div
             className={`w-full max-w-2xl rounded-2xl ${isDarkMode ? "bg-[#1E2328]" : "bg-white"} shadow-2xl max-h-[90vh] flex flex-col`}
           >
-            <div className={`p-6 border-b flex-shrink-0 ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}>
+            <div className={`p-6 border-b shrink-0 ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}>
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-3">
                   <Shield className={isDarkMode ? "text-teal-400" : "text-teal-600"} size={24} />
@@ -1335,7 +1335,7 @@ const UserManagementTab = () => {
 
       {/* Create/Edit Role Dialog */}
       {showRoleDialog && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60] p-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-60 p-4">
           <div className={`w-full max-w-md rounded-2xl ${isDarkMode ? "bg-[#1E2328]" : "bg-white"} shadow-2xl`}>
             <div className={`p-6 border-b ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}>
               <div className="flex justify-between items-center">
@@ -1639,7 +1639,7 @@ const UserManagementTab = () => {
                         )}
                       </div>
                       {selectedUserRoles.includes(role.id) && (
-                        <CheckCircle size={20} className="text-teal-500 flex-shrink-0 ml-2" />
+                        <CheckCircle size={20} className="text-teal-500 shrink-0 ml-2" />
                       )}
                     </label>
                   ))}
@@ -1764,7 +1764,7 @@ const UserManagementTab = () => {
                           )}
                         </div>
                         {selectedUserRoles.includes(role.id) && (
-                          <CheckCircle size={20} className="text-teal-500 flex-shrink-0 ml-2" />
+                          <CheckCircle size={20} className="text-teal-500 shrink-0 ml-2" />
                         )}
                       </div>
                     </button>
@@ -1806,7 +1806,7 @@ const UserManagementTab = () => {
           <div
             className={`w-full max-w-2xl max-h-[90vh] flex flex-col rounded-2xl ${isDarkMode ? "bg-[#1E2328]" : "bg-white"} shadow-2xl`}
           >
-            <div className={`p-6 border-b flex-shrink-0 ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}>
+            <div className={`p-6 border-b shrink-0 ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}>
               <div className="flex justify-between items-center">
                 <div>
                   <h3 className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
@@ -1830,7 +1830,7 @@ const UserManagementTab = () => {
                 className={`mb-4 p-4 rounded-lg border-l-4 ${isDarkMode ? "bg-yellow-900/20 border-yellow-500 text-yellow-300" : "bg-yellow-50 border-yellow-500 text-yellow-800"}`}
               >
                 <div className="flex items-start">
-                  <Shield size={20} className="mt-0.5 mr-3 flex-shrink-0" />
+                  <Shield size={20} className="mt-0.5 mr-3 shrink-0" />
                   <div className="text-sm">
                     <p className="font-semibold mb-1">Director Override</p>
                     <p>Grant one or more permissions to users temporarily.</p>
@@ -1861,7 +1861,7 @@ const UserManagementTab = () => {
                     value={permissionSearch}
                     onChange={(e) => setPermissionSearch(e.target.value)}
                     placeholder="Search by permission name or description..."
-                    className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 ${isDarkMode ? "bg-gray-800 border-gray-600 text-white placeholder-gray-500" : "bg-white border-gray-300 text-gray-900 placeholder-gray-400"}`}
+                    className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${isDarkMode ? "bg-gray-800 border-gray-600 text-white placeholder-gray-500" : "bg-white border-gray-300 text-gray-900 placeholder-gray-400"}`}
                   />
                 </div>
                 <div>
@@ -2002,7 +2002,7 @@ const UserManagementTab = () => {
                     type="datetime-local"
                     value={customPermission.expires_at || ""}
                     onChange={(e) => setCustomPermission({ ...customPermission, expires_at: e.target.value })}
-                    className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 ${isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+                    className={`w-full px-3 py-2 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
                   />
                   <p className={`text-xs mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                     Leave blank for permanent access
@@ -2011,7 +2011,7 @@ const UserManagementTab = () => {
               </div>
             </div>
             <div
-              className={`p-6 border-t flex-shrink-0 ${isDarkMode ? "border-[#37474F]" : "border-gray-200"} flex gap-3 justify-end`}
+              className={`p-6 border-t shrink-0 ${isDarkMode ? "border-[#37474F]" : "border-gray-200"} flex gap-3 justify-end`}
             >
               <Button variant="outline" onClick={() => setCustomPermissionModal({ open: false, userId: null })}>
                 Cancel
@@ -2188,7 +2188,7 @@ const UserManagementTab = () => {
                                       key={perm.id || `perm-${permIdx}`}
                                       className={`flex items-center text-sm leading-tight ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
                                     >
-                                      <PermIcon size={13} className="mr-1.5 text-green-500 flex-shrink-0" />
+                                      <PermIcon size={13} className="mr-1.5 text-green-500 shrink-0" />
                                       <span className="truncate" title={perm.description}>
                                         {perm.description || perm.permissionKey}
                                       </span>
@@ -2298,7 +2298,7 @@ const UserManagementTab = () => {
       {passwordChangeModal.open && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className={`w-full max-w-md rounded-2xl ${isDarkMode ? "bg-[#1E2328]" : "bg-white"} shadow-2xl`}>
-            <div className={`p-6 border-b flex-shrink-0 ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}>
+            <div className={`p-6 border-b shrink-0 ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}>
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-3">
                   <Key className={isDarkMode ? "text-teal-400" : "text-teal-600"} size={24} />
@@ -2345,7 +2345,7 @@ const UserManagementTab = () => {
                   type="password"
                   value={passwordChangeModal.currentPassword}
                   onChange={(e) => setPasswordChangeModal((prev) => ({ ...prev, currentPassword: e.target.value }))}
-                  className={`w-full px-4 py-2 rounded-lg border transition-colors ${isDarkMode ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-teal-400" : "bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-teal-600"} focus:outline-none`}
+                  className={`w-full px-4 py-2 rounded-lg border transition-colors ${isDarkMode ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-teal-400" : "bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-teal-600"} focus:outline-hidden`}
                   placeholder="Enter current password"
                   disabled={passwordChangeModal.loading}
                 />
@@ -2362,7 +2362,7 @@ const UserManagementTab = () => {
                   type="password"
                   value={passwordChangeModal.newPassword}
                   onChange={(e) => setPasswordChangeModal((prev) => ({ ...prev, newPassword: e.target.value }))}
-                  className={`w-full px-4 py-2 rounded-lg border transition-colors ${isDarkMode ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-teal-400" : "bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-teal-600"} focus:outline-none`}
+                  className={`w-full px-4 py-2 rounded-lg border transition-colors ${isDarkMode ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-teal-400" : "bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-teal-600"} focus:outline-hidden`}
                   placeholder="Enter new password (min 8 chars)"
                   disabled={passwordChangeModal.loading}
                 />
@@ -2379,7 +2379,7 @@ const UserManagementTab = () => {
                   type="password"
                   value={passwordChangeModal.confirmPassword}
                   onChange={(e) => setPasswordChangeModal((prev) => ({ ...prev, confirmPassword: e.target.value }))}
-                  className={`w-full px-4 py-2 rounded-lg border transition-colors ${isDarkMode ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-teal-400" : "bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-teal-600"} focus:outline-none`}
+                  className={`w-full px-4 py-2 rounded-lg border transition-colors ${isDarkMode ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-teal-400" : "bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-teal-600"} focus:outline-hidden`}
                   placeholder="Confirm new password"
                   disabled={passwordChangeModal.loading}
                 />

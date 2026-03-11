@@ -55,7 +55,7 @@ describe('Miscellaneous Components', () => {
     });
 
     test('Test 1.2: Should support variant styles', () => {
-      const variants = ['default', 'secondary', 'destructive', 'outline', 'success', 'warning'];
+      const variants = ['default', 'secondary', 'destructive', 'outline-solid', 'success', 'warning'];
 
       variants.forEach((variant) => {
         const props = {
@@ -107,12 +107,12 @@ describe('Miscellaneous Components', () => {
       ok(props.dismissible, 'Should be dismissible');
     });
 
-    test('Test 1.7: Should apply focus ring', () => {
+    test('Test 1.7: Should apply focus ring-3', () => {
       const props = {
-        className: 'focus:outline-none focus:ring-2',
+        className: 'focus:outline-hidden focus:ring-2',
       };
 
-      ok(props.className.includes('focus:'), 'Should have focus ring');
+      ok(props.className.includes('focus:'), 'Should have focus ring-3');
     });
 
     test('Test 1.8: Should support custom className', () => {
@@ -671,7 +671,7 @@ describe('Miscellaneous Components', () => {
         tags: ['tag1'],
       };
 
-      strictEqual(props.variant, 'outline', 'Should have variant');
+      strictEqual(props.variant, 'outline-solid', 'Should have variant');
     });
 
     test('Test 6.7: Should limit visible tags', () => {

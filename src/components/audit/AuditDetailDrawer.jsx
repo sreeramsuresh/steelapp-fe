@@ -98,11 +98,11 @@ export default function AuditDetailDrawer({ log, isOpen, onClose }) {
   return (
     <>
       {/* biome-ignore lint/a11y/noStaticElementInteractions: modal overlay with role="presentation" */}
-      <div role="presentation" className="fixed inset-0 bg-black/40 z-[60]" onClick={onClose} onKeyDown={() => {}} />
+      <div role="presentation" className="fixed inset-0 bg-black/40 z-60" onClick={onClose} onKeyDown={() => {}} />
 
       {/* Drawer */}
       <div
-        className={`fixed right-0 top-0 h-full w-full max-w-lg z-[70] shadow-2xl transform transition-transform duration-300 ${
+        className={`fixed right-0 top-0 h-full w-full max-w-lg z-70 shadow-2xl transform transition-transform duration-300 ${
           isDarkMode ? "bg-gray-900 border-l border-gray-700" : "bg-white border-l border-gray-200"
         }`}
       >

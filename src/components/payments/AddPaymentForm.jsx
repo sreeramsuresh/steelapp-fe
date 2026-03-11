@@ -314,7 +314,7 @@ const AddPaymentForm = ({
           {showCreditWarning && (
             <div className="mb-3 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg">
               <div className="text-xs text-amber-800 flex items-start gap-2">
-                <AlertTriangle size={14} className="mt-0.5 flex-shrink-0" />
+                <AlertTriangle size={14} className="mt-0.5 shrink-0" />
                 <div>
                   <strong>Low Credit Warning:</strong> This payment will leave the customer with only{" "}
                   {formatCurrency(newAvailableCredit)} available credit (

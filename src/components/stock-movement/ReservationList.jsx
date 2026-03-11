@@ -277,7 +277,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
                 setSearchQuery(e.target.value);
                 setPage(0);
               }}
-              className={`w-full pl-10 pr-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-teal-500 placeholder-gray-400 ${isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+              className={`w-full pl-10 pr-4 py-2 rounded-lg border focus:outline-hidden focus:ring-2 focus:ring-teal-500 placeholder-gray-400 ${isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
             />
           </div>
 
@@ -287,7 +287,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
               setStatusFilter(e.target.value);
               setPage(0);
             }}
-            className={`px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-teal-500 min-w-[130px] ${isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+            className={`px-3 py-2 rounded-lg border focus:outline-hidden focus:ring-2 focus:ring-teal-500 min-w-[130px] ${isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
           >
             <option value="">All Status</option>
             {Object.values(RESERVATION_STATUSES).map((status) => (
@@ -303,7 +303,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
               setWarehouseFilter(e.target.value);
               setPage(0);
             }}
-            className={`px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-teal-500 min-w-[160px] ${isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+            className={`px-3 py-2 rounded-lg border focus:outline-hidden focus:ring-2 focus:ring-teal-500 min-w-[160px] ${isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
           >
             <option value="">All Warehouses</option>
             {warehouses.map((wh) => (
@@ -319,14 +319,14 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
               setIncludeExpired(e.target.value === "yes");
               setPage(0);
             }}
-            className={`px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-teal-500 min-w-[130px] ${isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+            className={`px-3 py-2 rounded-lg border focus:outline-hidden focus:ring-2 focus:ring-teal-500 min-w-[130px] ${isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
           >
             <option value="no">Hide Expired</option>
             <option value="yes">Show Expired</option>
           </select>
 
           {/* Spacer */}
-          <div className="flex-grow" />
+          <div className="grow" />
 
           {/* Action Buttons */}
           <button
@@ -513,7 +513,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
             <select
               value={rowsPerPage}
               onChange={handleChangeRowsPerPage}
-              className={`px-2 py-1 rounded border text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 ${isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+              className={`px-2 py-1 rounded border text-sm focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
             >
               <option value={10}>10</option>
               <option value={20}>20</option>
@@ -597,7 +597,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
                   min={0}
                   max={fulfillDialog.reservation?.quantityRemaining}
                   step={0.01}
-                  className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-teal-500 ${isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+                  className={`w-full px-3 py-2 rounded-lg border focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
                 />
                 <p className="mt-1 text-xs text-gray-500">
                   Max: {fulfillDialog.reservation?.quantityRemaining || 0} {fulfillDialog.reservation?.unit || "KG"}
@@ -668,7 +668,7 @@ const ReservationList = ({ onCreateNew, onViewReservation }) => {
                   onChange={(e) => setCancelReason(e.target.value)}
                   rows={2}
                   placeholder="Enter reason for cancellation..."
-                  className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-teal-500 placeholder-gray-400 ${isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+                  className={`w-full px-3 py-2 rounded-lg border focus:outline-hidden focus:ring-2 focus:ring-teal-500 placeholder-gray-400 ${isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
                 />
               </div>
             </div>

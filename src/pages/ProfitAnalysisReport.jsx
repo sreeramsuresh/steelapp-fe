@@ -119,7 +119,7 @@ export default function ProfitAnalysisReport() {
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-6">Profit Analysis Report</h1>
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-6">
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
           <div>
             <label htmlFor="profit-start-date" className="block text-sm font-medium mb-2">
@@ -130,7 +130,7 @@ export default function ProfitAnalysisReport() {
               type="date"
               value={dateRange.startDate}
               onChange={(e) => setDateRange({ ...dateRange, startDate: e.target.value })}
-              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 dark:bg-gray-700 dark:text-white"
+              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 dark:bg-gray-700 dark:text-white"
             />
           </div>
           <div>
@@ -142,7 +142,7 @@ export default function ProfitAnalysisReport() {
               type="date"
               value={dateRange.endDate}
               onChange={(e) => setDateRange({ ...dateRange, endDate: e.target.value })}
-              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 dark:bg-gray-700 dark:text-white"
+              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 dark:bg-gray-700 dark:text-white"
             />
           </div>
           <div className="flex gap-2 pt-6 sm:pt-0">
@@ -169,7 +169,7 @@ export default function ProfitAnalysisReport() {
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
               <div className="flex items-center gap-4">
                 <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
                   <DollarSign className="w-6 h-6 text-blue-600 dark:text-blue-400" />
@@ -181,7 +181,7 @@ export default function ProfitAnalysisReport() {
               </div>
             </div>
 
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
               <div className="flex items-center gap-4">
                 <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
                   <TrendingUp className="w-6 h-6 text-green-600 dark:text-green-400" />
@@ -193,7 +193,7 @@ export default function ProfitAnalysisReport() {
               </div>
             </div>
 
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
               <div className="flex items-center gap-4">
                 <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
                   <ShoppingCart className="w-6 h-6 text-purple-600 dark:text-purple-400" />
@@ -205,7 +205,7 @@ export default function ProfitAnalysisReport() {
               </div>
             </div>
 
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Items Sold</p>
                 <p className="text-xl font-bold">{summary.totalQuantity.toLocaleString()}</p>
@@ -213,7 +213,7 @@ export default function ProfitAnalysisReport() {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>

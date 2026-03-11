@@ -2,23 +2,74 @@
 // Tests: invoice list page with search, filter, sort, pagination, status tabs
 // Route: /app/invoices
 
+/**
+ * Navigate to the invoice list and wait for the component to fully mount.
+ *
+ * InvoiceList is a React.lazy() component (~99KB chunk). The page goes through:
+ *   1. App.jsx auth init: GET /api/auth/me (resolves user state)
+ *   2. ProtectedRoute: blocks render until user != null
+ *   3. Suspense: loads InvoiceList chunk
+ *   4. InvoiceList render: fires useEffect -> GET /api/invoices
+ *
+ * Under 4-shard Docker contention, the chunk load can fail, causing
+ * ErrorBoundary to render "Oops! Something went wrong" instead of
+ * InvoiceList. This helper handles that by waiting for either outcome
+ * and retrying on ErrorBoundary.
+ */
+function visitInvoiceList() {
+  cy.intercept("GET", "/api/auth/me").as("authMe");
+  cy.intercept("GET", "/api/invoices*").as("getInvoices");
+
+  cy.visit("/app/invoices");
+
+  // Wait for auth to resolve — this unblocks ProtectedRoute
+  cy.wait("@authMe", { timeout: 30000 });
+
+  // Wait for app-ready (auth init complete, loading=false)
+  cy.get('[data-testid="app-ready"]', { timeout: 15000 }).should("exist");
+
+  // Wait for EITHER invoice-list OR ErrorBoundary to appear.
+  // We cannot use .then() here because it runs once — we need .should()
+  // which retries. But .should() can only assert, not branch.
+  // So we use a polling approach with Cypress retry on the combined condition.
+  cy.get("body", { timeout: 40000 }).should(($body) => {
+    const hasInvoiceList = $body.find('[data-testid="invoice-list"]').length > 0;
+    const hasErrorBoundary = $body.text().includes("Something went wrong");
+    expect(
+      hasInvoiceList || hasErrorBoundary,
+      "Page should show either invoice-list or error boundary (not stuck on spinner)"
+    ).to.be.true;
+  });
+
+  // Now check which outcome we got and handle accordingly
+  cy.get("body").then(($body) => {
+    if ($body.find('[data-testid="invoice-list"]').length > 0) {
+      // Success: InvoiceList rendered. Wait for data fetch.
+      cy.wait("@getInvoices", { timeout: 20000 });
+    } else {
+      // ErrorBoundary rendered due to chunk-load failure.
+      // Retry: chunks are cached after first attempt.
+      cy.log("RETRY: ErrorBoundary detected, reloading page (chunks now cached)");
+      cy.intercept("GET", "/api/auth/me").as("authMeRetry");
+      cy.intercept("GET", "/api/invoices*").as("getInvoicesRetry");
+      cy.reload();
+      cy.wait("@authMeRetry", { timeout: 30000 });
+      cy.get('[data-testid="app-ready"]', { timeout: 15000 }).should("exist");
+      cy.get('[data-testid="invoice-list"]', { timeout: 30000 }).should("be.visible");
+      cy.wait("@getInvoicesRetry", { timeout: 20000 });
+    }
+  });
+}
+
 describe("Invoice Workflows - E2E Tests", () => {
   beforeEach(() => {
     cy.login();
-    cy.visit("/app/invoices");
-    cy.get("body", { timeout: 15000 }).should("be.visible");
-    // Wait for page to settle -- error boundary or invoice content
-    cy.get("body").should(($body) => {
-      const text = $body.text().toLowerCase();
-      const hasContent = text.includes("invoice") || text.includes("something went wrong") || text.length > 50;
-      expect(hasContent, "Page should have loaded content").to.be.true;
-    });
+    visitInvoiceList();
   });
 
   it("should load the invoices page with heading", () => {
     cy.url().should("include", "/app/invoices");
-    // InvoiceList has data-testid="invoice-list" when it loads successfully
-    cy.get('[data-testid="invoice-list"], body', { timeout: 15000 }).should("be.visible");
+    cy.get('[data-testid="invoice-list"]', { timeout: 15000 }).should("be.visible");
   });
 
   it("should render invoice table or content with expected layout", () => {
@@ -65,7 +116,6 @@ describe("Invoice Workflows - E2E Tests", () => {
   it("should display stats cards or summary numbers", () => {
     cy.get("body", { timeout: 15000 }).should(($body) => {
       const text = $body.text();
-      // Stats cards typically show totals, counts, or amounts
       const hasNumbers = /\d+/.test(text);
       const hasCards =
         $body.find("[class*='card'], [class*='stat'], [class*='summary'], [class*='Card'], [class*='metric']").length > 0;
@@ -89,11 +139,7 @@ describe("Invoice Workflows - E2E Tests", () => {
   });
 
   it("should have a create invoice button or link", () => {
-    // InvoiceList.jsx wraps content in data-testid="invoice-list"
-    cy.get('[data-testid="invoice-list"]', { timeout: 15000 }).should("be.visible");
-    // Create Invoice button: Link to="/app/invoices/new" with data-testid="create-invoice-button"
-    // Gated by invoices.create permission — E2E admin has PERMISSION_CHECK_DISABLED=true
-    cy.get('[data-testid="create-invoice-button"]', { timeout: 5000 }).should("be.visible");
+    cy.get('[data-testid="create-invoice-button"]').should("be.visible");
     cy.get('[data-testid="create-invoice-button"]').should("have.attr", "href", "/app/invoices/new");
   });
 
@@ -132,7 +178,7 @@ describe("Invoice Workflows - E2E Tests", () => {
       const hasPagination =
         $body.find("[class*='pagination'], [class*='Pagination'], nav[aria-label*='pagination'], button:contains('Next'), button:contains('Previous'), [class*='page']").length > 0 ||
         !!$body.text().match(/page\s+\d|showing\s+\d|of\s+\d/i) ||
-        $body.find("button").length > 2; // Has multiple buttons (likely pagination)
+        $body.find("button").length > 2;
       expect(hasPagination, "Pagination controls or page indicators should exist").to.be.true;
     });
   });

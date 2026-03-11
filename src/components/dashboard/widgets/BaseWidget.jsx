@@ -69,7 +69,7 @@ const BaseWidget = ({
         <div className="flex items-start gap-3">
           {Icon && (
             <div
-              className={`w-10 h-10 rounded-xl bg-gradient-to-br ${iconColor} flex items-center justify-center shadow-lg flex-shrink-0`}
+              className={`w-10 h-10 rounded-xl bg-linear-to-br ${iconColor} flex items-center justify-center shadow-lg shrink-0`}
             >
               <Icon size={20} className="text-white" />
             </div>
@@ -238,7 +238,7 @@ export const WidgetEmptyState = ({
         <button
           type="button"
           onClick={handleAction}
-          className="text-sm px-4 py-2 rounded-lg bg-gradient-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 transition-all"
+          className="text-sm px-4 py-2 rounded-lg bg-linear-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 transition-all"
         >
           {actionLabel}
         </button>
@@ -325,9 +325,7 @@ export const WidgetListItem = ({
           </span>
         )}
         {Icon && (
-          <div
-            className={`w-9 h-9 rounded-xl bg-gradient-to-br ${iconColor} flex items-center justify-center shadow-lg`}
-          >
+          <div className={`w-9 h-9 rounded-xl bg-linear-to-br ${iconColor} flex items-center justify-center shadow-lg`}>
             <Icon size={16} className="text-white" />
           </div>
         )}

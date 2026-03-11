@@ -215,7 +215,7 @@ const DeliveryNoteDetails = () => {
 
   if (loading) {
     return (
-      <div className={`p-6 ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}>
+      <div className={`p-6 ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}>
         <div className="flex justify-center items-center min-h-[400px]">
           <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-teal-600"></div>
           <span className={`ml-4 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>Loading delivery note...</span>
@@ -226,7 +226,7 @@ const DeliveryNoteDetails = () => {
 
   if (!deliveryNote) {
     return (
-      <div className={`p-6 ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}>
+      <div className={`p-6 ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}>
         <div
           className={`text-center p-12 rounded-2xl border ${
             isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-[#E0E0E0]"
@@ -258,7 +258,7 @@ const DeliveryNoteDetails = () => {
   };
 
   return (
-    <div className={`p-6 ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}>
+    <div className={`p-6 ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center">
@@ -304,7 +304,7 @@ const DeliveryNoteDetails = () => {
           <button
             type="button"
             onClick={handleDownloadPDF}
-            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
+            className="flex items-center gap-2 px-4 py-2 bg-linear-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-xs hover:shadow-md"
           >
             <Download size={18} />
             Download PDF
@@ -819,7 +819,7 @@ const DeliveryNoteDetails = () => {
                       min={0}
                       max={partialDialog.item.remainingQuantity}
                       step={0.01}
-                      className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                      className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                         isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                       }`}
                     />
@@ -845,7 +845,7 @@ const DeliveryNoteDetails = () => {
               <button
                 type="button"
                 onClick={handlePartialDelivery}
-                className="px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300"
+                className="px-4 py-2 bg-linear-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300"
               >
                 Update Delivery
               </button>

@@ -592,7 +592,7 @@ const DebitNoteForm = () => {
                         placeholder="Search supplier bill by number or vendor name..."
                         value={supplierBillSearch}
                         onChange={(e) => setSupplierBillSearch(e.target.value)}
-                        className={`w-full pl-9 pr-9 py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus}`}
+                        className={`w-full pl-9 pr-9 py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-hidden ${inputFocus}`}
                       />
                       {supplierBillSearching && (
                         <Loader2
@@ -712,7 +712,7 @@ const DebitNoteForm = () => {
                           debitNoteNumber: e.target.value,
                         }))
                       }
-                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus} ${!isEditable ? "opacity-60 cursor-not-allowed" : ""}`}
+                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-hidden ${inputFocus} ${!isEditable ? "opacity-60 cursor-not-allowed" : ""}`}
                     />
                   </div>
 
@@ -733,7 +733,7 @@ const DebitNoteForm = () => {
                           debitNoteDate: e.target.value,
                         }))
                       }
-                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus} ${!isEditable ? "opacity-60 cursor-not-allowed" : ""}`}
+                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-hidden ${inputFocus} ${!isEditable ? "opacity-60 cursor-not-allowed" : ""}`}
                     />
                   </div>
 
@@ -807,7 +807,7 @@ const DebitNoteForm = () => {
                         }))
                       }
                       placeholder="Describe the reason for this debit note..."
-                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} ${!isEditable ? "opacity-60 cursor-not-allowed" : ""}`}
+                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-hidden ${inputFocus} ${!isEditable ? "opacity-60 cursor-not-allowed" : ""}`}
                     />
                   </div>
                 </div>
@@ -869,7 +869,7 @@ const DebitNoteForm = () => {
                                 disabled={!isEditable}
                                 onChange={(e) => handleItemChange(index, "description", e.target.value)}
                                 placeholder="Item description"
-                                className={`w-full py-1.5 px-2.5 rounded-md border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} ${!isEditable ? "opacity-60 cursor-not-allowed" : ""}`}
+                                className={`w-full py-1.5 px-2.5 rounded-md border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-hidden ${inputFocus} ${!isEditable ? "opacity-60 cursor-not-allowed" : ""}`}
                               />
                             </div>
                             <div className="w-24">
@@ -887,7 +887,7 @@ const DebitNoteForm = () => {
                                 value={item.quantity}
                                 disabled={!isEditable}
                                 onChange={(e) => handleItemChange(index, "quantity", parseFloat(e.target.value) || 0)}
-                                className={`w-full py-1.5 px-2.5 rounded-md border text-sm text-right ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus} ${!isEditable ? "opacity-60 cursor-not-allowed" : ""}`}
+                                className={`w-full py-1.5 px-2.5 rounded-md border text-sm text-right ${inputBg} ${inputBorder} ${textPrimary} outline-hidden ${inputFocus} ${!isEditable ? "opacity-60 cursor-not-allowed" : ""}`}
                               />
                             </div>
                           </div>
@@ -908,7 +908,7 @@ const DebitNoteForm = () => {
                               value={item.unitPrice}
                               disabled={!isEditable}
                               onChange={(e) => handleItemChange(index, "unitPrice", parseFloat(e.target.value) || 0)}
-                              className={`w-full py-1.5 px-2.5 rounded-md border text-sm text-right ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus} ${!isEditable ? "opacity-60 cursor-not-allowed" : ""}`}
+                              className={`w-full py-1.5 px-2.5 rounded-md border text-sm text-right ${inputBg} ${inputBorder} ${textPrimary} outline-hidden ${inputFocus} ${!isEditable ? "opacity-60 cursor-not-allowed" : ""}`}
                             />
                           </div>
                         }
@@ -971,7 +971,7 @@ const DebitNoteForm = () => {
                           }))
                         }
                         placeholder="Payment ref #"
-                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus}`}
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-hidden ${inputFocus}`}
                       />
                     </div>
 
@@ -989,7 +989,7 @@ const DebitNoteForm = () => {
                             settlementDate: e.target.value,
                           }))
                         }
-                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus}`}
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-hidden ${inputFocus}`}
                       />
                     </div>
                   </div>
@@ -1046,7 +1046,7 @@ const DebitNoteForm = () => {
                             exchangeRate: parseFloat(e.target.value) || 1.0,
                           }))
                         }
-                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus}`}
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-hidden ${inputFocus}`}
                       />
                     </div>
 
@@ -1102,7 +1102,7 @@ const DebitNoteForm = () => {
                         }
                         rows={2}
                         placeholder="https://example.com/doc1.pdf, https://example.com/doc2.pdf"
-                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus}`}
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-hidden ${inputFocus}`}
                       />
                     </div>
 
@@ -1255,7 +1255,7 @@ const DebitNoteForm = () => {
                             ? "Explain what was changed and why..."
                             : "Version 1 - no modification reason required"
                         }
-                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} ${
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-hidden ${inputFocus} ${
                           debitNote.version === 1 ? "opacity-60 cursor-not-allowed" : ""
                         }`}
                       />
@@ -1287,7 +1287,7 @@ const DebitNoteForm = () => {
                     }
                     rows={3}
                     placeholder="Internal notes about this debit note..."
-                    className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus}`}
+                    className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-hidden ${inputFocus}`}
                   />
                 </div>
               </details>

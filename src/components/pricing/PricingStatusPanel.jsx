@@ -125,7 +125,7 @@ export default function PricingStatusPanel({ productId, sellingPrice, isDarkMode
 
   return (
     <div className={`flex items-start gap-3 p-3 rounded-lg border ${config.bgColor} ${config.borderColor}`}>
-      <Icon className={`w-5 h-5 mt-0.5 flex-shrink-0 ${config.iconColor}`} />
+      <Icon className={`w-5 h-5 mt-0.5 shrink-0 ${config.iconColor}`} />
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
           <p className={`text-sm font-medium ${darkMode ? "text-gray-100" : "text-gray-900"}`}>{config.label}</p>

@@ -644,7 +644,7 @@ const ExportOrderDetails = () => {
   // ========================================
   if (loading) {
     return (
-      <div className={`p-6 min-h-screen ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}>
+      <div className={`p-6 min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}>
         <SkeletonHeader isDarkMode={isDarkMode} />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
@@ -667,7 +667,7 @@ const ExportOrderDetails = () => {
   // ========================================
   if (error && !order) {
     return (
-      <div className={`p-6 min-h-screen ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}>
+      <div className={`p-6 min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}>
         <div
           className={`text-center p-12 rounded-2xl border ${
             isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-[#E0E0E0]"
@@ -710,7 +710,7 @@ const ExportOrderDetails = () => {
   // ========================================
   if (!order || !orderData) {
     return (
-      <div className={`p-6 min-h-screen ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}>
+      <div className={`p-6 min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}>
         <div
           className={`text-center p-12 rounded-2xl border ${
             isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-[#E0E0E0]"
@@ -751,7 +751,7 @@ const ExportOrderDetails = () => {
   // RENDER: MAIN CONTENT
   // ========================================
   return (
-    <div className={`p-6 min-h-screen print:p-0 print:bg-white ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}>
+    <div className={`p-6 min-h-screen print:p-0 print:bg-white ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}>
       {/* ========================================
           HEADER WITH ACTIONS
           ======================================== */}
@@ -1008,7 +1008,7 @@ const ExportOrderDetails = () => {
                 <div className="md:col-span-2">
                   <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Address</p>
                   <p className={`font-medium flex items-start gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                    <MapPin size={16} className="mt-0.5 flex-shrink-0" />
+                    <MapPin size={16} className="mt-0.5 shrink-0" />
                     <span className="whitespace-pre-line">{orderData.customerAddress}</span>
                   </p>
                 </div>
@@ -1158,7 +1158,7 @@ const ExportOrderDetails = () => {
                 <div className="md:col-span-2">
                   <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Destination Address</p>
                   <p className={`font-medium flex items-start gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                    <MapPin size={14} className="mt-0.5 flex-shrink-0" />
+                    <MapPin size={14} className="mt-0.5 shrink-0" />
                     <span className="whitespace-pre-line">{orderData.destinationAddress}</span>
                   </p>
                 </div>
@@ -1376,7 +1376,7 @@ const ExportOrderDetails = () => {
                         isDarkMode ? "bg-green-900/30 border border-green-700" : "bg-green-100 border border-green-300"
                       }`}
                     >
-                      <CheckCircle size={18} className="text-green-600 mt-0.5 flex-shrink-0" />
+                      <CheckCircle size={18} className="text-green-600 mt-0.5 shrink-0" />
                       <div>
                         <p className={`font-medium ${isDarkMode ? "text-green-300" : "text-green-800"}`}>
                           Zero-Rated Export Supply
@@ -2114,7 +2114,7 @@ const ExportOrderDetails = () => {
                       return (
                         <div key={entry.id || entry.name || `entry-${index}`} className="flex gap-3">
                           <div
-                            className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
+                            className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
                               isDarkMode ? entryConfig.bgDark : entryConfig.bgLight
                             }`}
                           >
@@ -2148,7 +2148,7 @@ const ExportOrderDetails = () => {
                   {orderData.createdAt && (
                     <div className="flex gap-3">
                       <div
-                        className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
+                        className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
                           isDarkMode ? "bg-gray-800" : "bg-gray-100"
                         }`}
                       >
@@ -2389,7 +2389,7 @@ const ExportOrderDetails = () => {
                 return (
                   <div key={entry.id || entry.name || `entry-${index}`} className="flex gap-3 items-start">
                     <div
-                      className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
+                      className={`shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
                         isDarkMode ? entryConfig.bgDark : entryConfig.bgLight
                       }`}
                     >
@@ -2408,7 +2408,7 @@ const ExportOrderDetails = () => {
               {orderData.statusHistory.length === 0 && orderData.createdAt && (
                 <div className="flex gap-3 items-start">
                   <div
-                    className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
+                    className={`shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
                       isDarkMode ? "bg-gray-800" : "bg-gray-100"
                     }`}
                   >
@@ -2502,7 +2502,7 @@ const ExportOrderDetails = () => {
                 onChange={(e) => setStatusUpdateNotes(e.target.value)}
                 placeholder="Add any notes about this status change..."
                 rows={3}
-                className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                className={`w-full px-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                   isDarkMode
                     ? "bg-gray-800 border-gray-600 text-white placeholder-gray-500"
                     : "bg-white border-gray-300 text-gray-900 placeholder-gray-400"

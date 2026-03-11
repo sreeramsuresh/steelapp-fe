@@ -19,13 +19,13 @@ const Button = ({
   const { isDarkMode } = useTheme();
 
   const baseClasses =
-    "inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 relative overflow-hidden";
+    "inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-300 focus:outline-hidden focus:ring-2 focus:ring-offset-2 relative overflow-hidden";
 
   const getVariantClasses = () => {
     if (variant === "primary") {
-      return `bg-gradient-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 hover:-translate-y-0.5 focus:ring-teal-500 ${
+      return `bg-linear-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 hover:-translate-y-0.5 focus:ring-teal-500 ${
         isDarkMode ? "disabled:bg-gray-600 focus:ring-offset-gray-800" : "disabled:bg-gray-400 focus:ring-offset-white"
-      } disabled:hover:translate-y-0 shadow-sm hover:shadow-md before:absolute before:top-0 before:-left-full before:w-full before:h-full before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:transition-all before:duration-500 hover:before:left-full`;
+      } disabled:hover:translate-y-0 shadow-xs hover:shadow-md before:absolute before:top-0 before:-left-full before:w-full before:h-full before:bg-linear-to-r before:from-transparent before:via-white/10 before:to-transparent before:transition-all before:duration-500 hover:before:left-full`;
     } else {
       // outline
       return `border ${
@@ -50,7 +50,7 @@ const Button = ({
       onClick={onClick}
       {...props}
     >
-      {startIcon && <span className="flex-shrink-0">{startIcon}</span>}
+      {startIcon && <span className="shrink-0">{startIcon}</span>}
       {children}
     </button>
   );
@@ -564,7 +564,7 @@ const Login = ({ onLoginSuccess }) => {
 
   return (
     <div
-      className={`min-h-screen w-screen fixed top-0 left-0 right-0 bottom-0 flex items-center justify-center p-0 m-0 ${isDarkMode ? "bg-[#121418]" : "bg-gray-100"}`}
+      className={`min-h-screen w-screen fixed top-0 left-0 right-0 bottom-0 flex items-center justify-center p-0 m-0 ${isDarkMode ? "bg-gray-900" : "bg-gray-100"}`}
     >
       <div
         className={`w-full max-w-md min-w-80 mx-4 rounded-2xl border shadow-xl p-6 ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"}`}
@@ -572,7 +572,7 @@ const Login = ({ onLoginSuccess }) => {
         {/* Header */}
         <div className="text-center mb-6">
           <h1
-            className={`text-3xl font-bold mb-2 bg-gradient-to-br from-teal-600 to-teal-700 bg-clip-text text-transparent`}
+            className={`text-3xl font-bold mb-2 bg-linear-to-br from-teal-600 to-teal-700 bg-clip-text text-transparent`}
           >
             ULTIMATE STEELS
           </h1>
@@ -614,7 +614,7 @@ const Login = ({ onLoginSuccess }) => {
                     value={formData.email}
                     onChange={handleInputChange}
                     required
-                    className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                    className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-all duration-300 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                       isDarkMode
                         ? "bg-[#1E2328] border-gray-600 text-white placeholder-gray-500 autofill:shadow-[inset_0_0_0_1000px_#1E2328] autofill:[-webkit-text-fill-color:white]"
                         : "bg-white border-gray-300 text-gray-900 placeholder-gray-500 autofill:shadow-[inset_0_0_0_1000px_white] autofill:[-webkit-text-fill-color:black]"
@@ -651,7 +651,7 @@ const Login = ({ onLoginSuccess }) => {
                     value={formData.password}
                     onChange={handleInputChange}
                     required
-                    className={`w-full pl-10 pr-12 py-3 border rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                    className={`w-full pl-10 pr-12 py-3 border rounded-lg transition-all duration-300 focus:outline-hidden focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
                       isDarkMode
                         ? "bg-[#1E2328] border-gray-600 text-white placeholder-gray-500 autofill:shadow-[inset_0_0_0_1000px_#1E2328] autofill:[-webkit-text-fill-color:white]"
                         : "bg-white border-gray-300 text-gray-900 placeholder-gray-500 autofill:shadow-[inset_0_0_0_1000px_white] autofill:[-webkit-text-fill-color:black]"
@@ -697,7 +697,7 @@ const Login = ({ onLoginSuccess }) => {
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <Lock size={16} className="flex-shrink-0" />
+                    <Lock size={16} className="shrink-0" />
                     <span className="text-sm">
                       Account locked. Try again in {lockoutMinutes} minute{lockoutMinutes !== 1 ? "s" : ""}.
                     </span>
@@ -718,7 +718,7 @@ const Login = ({ onLoginSuccess }) => {
                         onChange={handleLockoutOtpChange}
                         disabled={lockoutOtpLoading}
                         placeholder="Enter 6-digit code"
-                        className={`w-full px-3 py-2 text-center text-lg tracking-widest border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                        className={`w-full px-3 py-2 text-center text-lg tracking-widest border rounded-lg focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                           isDarkMode
                             ? "bg-[#1E2328] border-gray-600 text-white placeholder-gray-500"
                             : "bg-white border-gray-300 text-gray-900 placeholder-gray-400"
@@ -788,7 +788,7 @@ const Login = ({ onLoginSuccess }) => {
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <X size={16} className="flex-shrink-0" />
+                    <X size={16} className="shrink-0" />
                     <span className="text-sm">{error}</span>
                   </div>
                 </div>

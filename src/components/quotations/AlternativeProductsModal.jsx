@@ -115,7 +115,7 @@ export default function AlternativeProductsModal({ isOpen, onClose, alternatives
 
             {validationError && (
               <div className="flex items-center gap-2 p-3 mb-4 bg-orange-50 border border-orange-200 rounded-lg">
-                <AlertCircle className="h-5 w-5 text-orange-600 flex-shrink-0" />
+                <AlertCircle className="h-5 w-5 text-orange-600 shrink-0" />
                 <p className="text-sm text-orange-800">{validationError}</p>
               </div>
             )}

@@ -441,7 +441,7 @@ const PriceCalculator = () => {
                 id="product-type"
                 value={selectedProduct}
                 onChange={(e) => setSelectedProduct(e.target.value)}
-                className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                   isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                 }`}
               >
@@ -463,7 +463,7 @@ const PriceCalculator = () => {
                 id="grade"
                 value={selectedGrade}
                 onChange={(e) => setSelectedGrade(e.target.value)}
-                className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                   isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                 }`}
               >
@@ -506,7 +506,7 @@ const PriceCalculator = () => {
                     })
                   }
                   placeholder="Enter diameter"
-                  className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                  className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                     isDarkMode
                       ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
                       : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
@@ -533,7 +533,7 @@ const PriceCalculator = () => {
                     })
                   }
                   placeholder="Enter length"
-                  className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                  className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                     isDarkMode
                       ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
                       : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
@@ -560,7 +560,7 @@ const PriceCalculator = () => {
                     })
                   }
                   placeholder="Enter width"
-                  className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                  className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                     isDarkMode
                       ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
                       : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
@@ -587,7 +587,7 @@ const PriceCalculator = () => {
                     })
                   }
                   placeholder="Enter thickness"
-                  className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                  className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                     isDarkMode
                       ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
                       : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
@@ -614,7 +614,7 @@ const PriceCalculator = () => {
                   })
                 }
                 placeholder="Enter quantity"
-                className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                   isDarkMode
                     ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
                     : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
@@ -627,7 +627,7 @@ const PriceCalculator = () => {
 
       {/* Results */}
       <div>
-        <div className="bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-xl p-6 shadow-lg">
+        <div className="bg-linear-to-br from-teal-600 to-teal-700 text-white rounded-xl p-6 shadow-lg">
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-lg font-semibold">Calculation Results</h3>
             <span className="text-sm opacity-80">Base Price: AED {calculatePrice.basePrice}/kg</span>
@@ -720,7 +720,7 @@ const PriceCalculator = () => {
         <button
           type="button"
           onClick={() => setShowRulesModal(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300"
+          className="flex items-center gap-2 px-4 py-2 bg-linear-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300"
         >
           <Plus size={20} />
           Add Rule
@@ -813,7 +813,7 @@ const PriceCalculator = () => {
         <button
           type="button"
           onClick={() => setShowDiscountModal(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300"
+          className="flex items-center gap-2 px-4 py-2 bg-linear-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300"
         >
           <Plus size={20} />
           Add Discount
@@ -888,7 +888,7 @@ const PriceCalculator = () => {
   );
 
   return (
-    <div className={`p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}>
+    <div className={`p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}>
       <div
         className={`border rounded-xl overflow-hidden shadow-lg ${
           isDarkMode ? "border-[#37474F] bg-[#1E2328]" : "border-gray-200 bg-white"
@@ -1011,7 +1011,7 @@ const PriceCalculator = () => {
                       value={newRule.name}
                       onChange={(e) => setNewRule({ ...newRule, name: e.target.value })}
                       placeholder="Enter rule name"
-                      className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                      className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                         isDarkMode
                           ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
                           : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
@@ -1029,7 +1029,7 @@ const PriceCalculator = () => {
                       id="rule-condition"
                       value={newRule.condition}
                       onChange={(e) => setNewRule({ ...newRule, condition: e.target.value })}
-                      className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                      className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                         isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                       }`}
                     >
@@ -1050,7 +1050,7 @@ const PriceCalculator = () => {
                       id="rule-operator"
                       value={newRule.operator}
                       onChange={(e) => setNewRule({ ...newRule, operator: e.target.value })}
-                      className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                      className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                         isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                       }`}
                     >
@@ -1071,7 +1071,7 @@ const PriceCalculator = () => {
                         id="rule-value"
                         value={newRule.value}
                         onChange={(e) => setNewRule({ ...newRule, value: e.target.value })}
-                        className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                        className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                           isDarkMode
                             ? "bg-gray-800 border-gray-600 text-white"
                             : "bg-white border-gray-300 text-gray-900"
@@ -1098,7 +1098,7 @@ const PriceCalculator = () => {
                           })
                         }
                         placeholder="Enter value"
-                        className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                        className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                           isDarkMode
                             ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
                             : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
@@ -1122,7 +1122,7 @@ const PriceCalculator = () => {
                           adjustmentType: e.target.value,
                         })
                       }
-                      className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                      className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                         isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                       }`}
                     >
@@ -1148,7 +1148,7 @@ const PriceCalculator = () => {
                         })
                       }
                       placeholder={newRule.adjustmentType === "percentage" ? "Enter percentage" : "Enter amount"}
-                      className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                      className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                         isDarkMode
                           ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
                           : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
@@ -1174,7 +1174,7 @@ const PriceCalculator = () => {
                 <button
                   type="button"
                   onClick={handleAddRule}
-                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300"
+                  className="flex items-center gap-2 px-4 py-2 bg-linear-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300"
                 >
                   <Save size={20} />
                   Add Rule
@@ -1224,7 +1224,7 @@ const PriceCalculator = () => {
                     value={newDiscount.name}
                     onChange={(e) => setNewDiscount({ ...newDiscount, name: e.target.value })}
                     placeholder="Enter discount name (e.g., 10+ tonnes)"
-                    className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                    className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                       isDarkMode
                         ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
                         : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
@@ -1249,7 +1249,7 @@ const PriceCalculator = () => {
                       })
                     }
                     placeholder="Enter minimum quantity"
-                    className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                    className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                       isDarkMode
                         ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
                         : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
@@ -1276,7 +1276,7 @@ const PriceCalculator = () => {
                       })
                     }
                     placeholder="Enter discount percentage"
-                    className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                    className={`w-full px-3 py-3 border rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                       isDarkMode
                         ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
                         : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
@@ -1301,7 +1301,7 @@ const PriceCalculator = () => {
                 <button
                   type="button"
                   onClick={handleAddDiscount}
-                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300"
+                  className="flex items-center gap-2 px-4 py-2 bg-linear-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300"
                 >
                   <Save size={20} />
                   Add Discount

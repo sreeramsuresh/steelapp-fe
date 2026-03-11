@@ -92,7 +92,7 @@ export default function CustomerARAgingDetail({ customerId }) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className={`p-3 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600`}>
+          <div className={`p-3 rounded-lg bg-linear-to-br from-blue-500 to-blue-600`}>
             <Clock size={24} className="text-white" />
           </div>
           <div>

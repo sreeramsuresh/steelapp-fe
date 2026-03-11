@@ -65,7 +65,7 @@ export default function POTypeSelection() {
                 key={t.key}
                 type="button"
                 onClick={() => setSelected(t.key)}
-                className={`relative text-left p-6 rounded-xl border-2 transition-all focus:outline-none ${
+                className={`relative text-left p-6 rounded-xl border-2 transition-all focus:outline-hidden ${
                   isSelected ? t.selectedBorder : `${t.border} ${isDarkMode ? "opacity-70" : "opacity-60"}`
                 } ${isDarkMode ? "bg-gray-800" : "bg-white"}`}
               >

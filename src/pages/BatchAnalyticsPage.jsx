@@ -890,7 +890,7 @@ const BatchAnalyticsPage = () => {
   const ActiveComponent = tabs.find((tab) => tab.id === activeTab)?.component;
 
   return (
-    <div className={`min-h-screen ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}>
+    <div className={`min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}>
       {/* Header */}
       <div
         className={`${isDarkMode ? "bg-[#1E2328]" : "bg-white"} border-b ${

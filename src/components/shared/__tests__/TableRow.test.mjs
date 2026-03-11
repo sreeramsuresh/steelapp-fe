@@ -104,7 +104,7 @@ test('TableRow - Hover and focus states', async (t) => {
 
   await t.test('highlights row on focus', () => {
     const outline = 'ring-2 ring-blue-500';
-    assert.ok(outline.includes('ring'));
+    assert.ok(outline.includes('ring-3'));
   });
 
   await t.test('shows action buttons on hover', () => {

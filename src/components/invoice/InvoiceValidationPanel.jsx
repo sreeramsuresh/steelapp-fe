@@ -53,7 +53,7 @@ export default function InvoiceValidationPanel({
                 isDarkMode ? "bg-red-900/20 border border-red-700" : "bg-red-50 border border-red-300"
               }`}
             >
-              <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+              <AlertTriangle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
               <div>
                 <p className={`font-semibold ${isDarkMode ? "text-red-100" : "text-red-900"}`}>
                   Cannot Finalize - Fix These Issues First
@@ -79,7 +79,7 @@ export default function InvoiceValidationPanel({
                 isDarkMode ? "bg-yellow-900/20 border border-yellow-700" : "bg-yellow-50 border border-yellow-300"
               }`}
             >
-              <Info className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" />
+              <Info className="w-5 h-5 text-yellow-500 shrink-0 mt-0.5" />
               <div className="flex-1">
                 <p className={`font-semibold ${isDarkMode ? "text-yellow-100" : "text-yellow-900"}`}>
                   Review These Warnings
@@ -120,7 +120,7 @@ export default function InvoiceValidationPanel({
               isDarkMode ? "bg-green-900/20 border border-green-700" : "bg-green-50 border border-green-300"
             }`}
           >
-            <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+            <CheckCircle className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
             <div>
               <p className={`font-semibold ${isDarkMode ? "text-green-100" : "text-green-900"}`}>Ready to Finalize</p>
               <p className={`text-sm mt-1 ${isDarkMode ? "text-green-200/80" : "text-green-700"}`}>

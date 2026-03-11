@@ -387,7 +387,7 @@ const WarehouseDetail = () => {
 
   if (loading) {
     return (
-      <div className={`min-h-screen flex items-center justify-center ${isDarkMode ? "bg-[#121418]" : "bg-gray-50"}`}>
+      <div className={`min-h-screen flex items-center justify-center ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}>
         <RefreshCw className={`w-8 h-8 animate-spin ${isDarkMode ? "text-gray-500" : "text-gray-400"}`} />
       </div>
     );
@@ -395,7 +395,7 @@ const WarehouseDetail = () => {
 
   if (!warehouse) {
     return (
-      <div className={`min-h-screen flex items-center justify-center ${isDarkMode ? "bg-[#121418]" : "bg-gray-50"}`}>
+      <div className={`min-h-screen flex items-center justify-center ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}>
         <div className="text-center">
           <AlertTriangle className={`w-12 h-12 mx-auto mb-4 ${isDarkMode ? "text-gray-600" : "text-gray-400"}`} />
           <h2 className={`text-lg font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>Warehouse not found</h2>
@@ -408,7 +408,7 @@ const WarehouseDetail = () => {
   }
 
   return (
-    <div className={`min-h-screen ${isDarkMode ? "bg-[#121418]" : "bg-gray-50"}`}>
+    <div className={`min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}>
       {/* Header */}
       <div
         className={`${isDarkMode ? "bg-[#1E2328]" : "bg-white"} border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
@@ -516,7 +516,7 @@ const WarehouseDetail = () => {
               isDarkMode ? "bg-amber-900/20 border-amber-700" : "bg-amber-50 border-amber-300"
             }`}
           >
-            <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+            <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
             <div>
               <p className={`text-sm font-medium ${isDarkMode ? "text-amber-100" : "text-amber-900"}`}>
                 This warehouse is inactive
@@ -780,7 +780,7 @@ const WarehouseDetail = () => {
               <div className="flex gap-4 items-start">
                 {/* LEFT: Batch list — 60% */}
                 <div
-                  className={`flex-[3] min-w-0 rounded-lg border ${isDarkMode ? "bg-[#1E2328] border-gray-700" : "bg-white border-gray-200"}`}
+                  className={`flex-3 min-w-0 rounded-lg border ${isDarkMode ? "bg-[#1E2328] border-gray-700" : "bg-white border-gray-200"}`}
                 >
                   {/* Card header */}
                   <div
@@ -934,7 +934,7 @@ const WarehouseDetail = () => {
 
                 {/* RIGHT: Bin Map — 40% */}
                 <div
-                  className={`flex-[2] shrink-0 rounded-lg border ${isDarkMode ? "bg-[#1E2328] border-gray-700" : "bg-white border-gray-200"}`}
+                  className={`flex-2 shrink-0 rounded-lg border ${isDarkMode ? "bg-[#1E2328] border-gray-700" : "bg-white border-gray-200"}`}
                 >
                   <div className={`px-4 py-3 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
                     <h3 className={`font-semibold text-sm ${isDarkMode ? "text-white" : "text-gray-900"}`}>Bin Map</h3>
@@ -1278,7 +1278,7 @@ const WarehouseDetail = () => {
 
               {/* Help card */}
               <div
-                className={`w-64 flex-shrink-0 rounded-lg border p-4 ${isDarkMode ? "bg-[#1E2328] border-gray-700" : "bg-white border-gray-200"}`}
+                className={`w-64 shrink-0 rounded-lg border p-4 ${isDarkMode ? "bg-[#1E2328] border-gray-700" : "bg-white border-gray-200"}`}
               >
                 <h4
                   className={`text-xs font-semibold mb-3 flex items-center gap-1.5 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
@@ -1747,7 +1747,7 @@ const WarehouseDetail = () => {
                                         value={binCapInput}
                                         onChange={(e) => setBinCapInput(e.target.value)}
                                         onKeyDown={(e) => e.key === "Enter" && handleSaveBinCap(selLoc.id)}
-                                        className={`w-24 px-2 py-1 text-xs font-mono rounded border ${isDarkMode ? "bg-gray-800 border-gray-600 text-white focus:border-teal-500" : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"} outline-none`}
+                                        className={`w-24 px-2 py-1 text-xs font-mono rounded border ${isDarkMode ? "bg-gray-800 border-gray-600 text-white focus:border-teal-500" : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"} outline-hidden`}
                                       />
                                       <span className={`text-[11px] ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
                                         kg
@@ -1787,7 +1787,7 @@ const WarehouseDetail = () => {
                                   </div>
                                   {totalMax > 0 && (
                                     <div
-                                      className={`w-28 h-1.5 rounded-full overflow-hidden flex-shrink-0 ${isDarkMode ? "bg-gray-700" : "bg-gray-300"}`}
+                                      className={`w-28 h-1.5 rounded-full overflow-hidden shrink-0 ${isDarkMode ? "bg-gray-700" : "bg-gray-300"}`}
                                     >
                                       <div
                                         className={`h-full rounded-full transition-all ${barColor}`}

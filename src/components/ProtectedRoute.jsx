@@ -25,7 +25,7 @@ const ProtectedRoute = ({
   // If authenticated but no user object, show loading state instead of redirect
   if (!user) {
     return (
-      <div className={`flex items-center justify-center min-h-[60vh] ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}>
+      <div className={`flex items-center justify-center min-h-[60vh] ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}>
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
         <span className={`ml-3 ${isDarkMode ? "text-white" : "text-gray-900"}`}>Loading...</span>
       </div>
@@ -44,7 +44,7 @@ const ProtectedRoute = ({
   if ((requiredRole || requiredRoles) && !hasRequiredRole) {
     return (
       <div
-        className={`flex flex-col items-center justify-center min-h-[60vh] p-8 text-center ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
+        className={`flex flex-col items-center justify-center min-h-[60vh] p-8 text-center ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}
       >
         <Lock size={64} className="text-red-500 mb-4" />
         <h1 className={`text-3xl font-bold mb-2 text-red-500`}>Access Denied</h1>
@@ -83,7 +83,7 @@ const ProtectedRoute = ({
     if (!authService.hasPermission(resource, action)) {
       return (
         <div
-          className={`flex flex-col items-center justify-center min-h-[60vh] p-8 text-center ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
+          className={`flex flex-col items-center justify-center min-h-[60vh] p-8 text-center ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}
         >
           <Lock size={64} className="text-orange-500 mb-4" />
           <h1 className={`text-3xl font-bold mb-2 text-orange-500`}>Insufficient Permissions</h1>

@@ -364,7 +364,7 @@ export default function PermissionsMatrix() {
 
   const borderColor = isDarkMode ? "border-gray-700" : "border-gray-200";
   const bgMain = isDarkMode ? "bg-[#1a1d21]" : "bg-white";
-  const bgHeader = isDarkMode ? "bg-[#1e2328]" : "bg-gray-50";
+  const bgHeader = isDarkMode ? "bg-gray-800" : "bg-gray-50";
   const textPrimary = isDarkMode ? "text-gray-100" : "text-gray-900";
   const textSecondary = isDarkMode ? "text-gray-400" : "text-gray-600";
 
@@ -373,7 +373,7 @@ export default function PermissionsMatrix() {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-teal-600 to-teal-700 flex items-center justify-center text-white">
+          <div className="w-10 h-10 rounded-lg bg-linear-to-br from-teal-600 to-teal-700 flex items-center justify-center text-white">
             <TableProperties size={20} />
           </div>
           <div>
@@ -395,7 +395,7 @@ export default function PermissionsMatrix() {
             placeholder="Search users..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className={`w-full pl-9 pr-3 py-2 text-sm rounded-md border ${borderColor} ${isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"} focus:outline-none focus:ring-1 focus:ring-teal-500`}
+            className={`w-full pl-9 pr-3 py-2 text-sm rounded-md border ${borderColor} ${isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"} focus:outline-hidden focus:ring-1 focus:ring-teal-500`}
           />
         </div>
         <label className={`flex items-center gap-2 text-sm ${textSecondary} cursor-pointer`}>
@@ -742,7 +742,7 @@ export default function PermissionsMatrix() {
                   maxLength={500}
                   rows={2}
                   placeholder="e.g. Temporary access for month-end cleanup"
-                  className={`w-full px-3 py-2 text-sm rounded-md border ${borderColor} ${isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"} focus:outline-none focus:ring-1 focus:ring-teal-500`}
+                  className={`w-full px-3 py-2 text-sm rounded-md border ${borderColor} ${isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"} focus:outline-hidden focus:ring-1 focus:ring-teal-500`}
                 />
                 <p className={`text-xs mt-1 ${textSecondary}`}>{dialogReason.length}/500</p>
               </div>

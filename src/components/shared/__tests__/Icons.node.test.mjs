@@ -456,7 +456,7 @@ describe('Icon Components', () => {
       ok(onKeyDown.called, 'Should handle delete key');
     });
 
-    test('Test 4.10: Should show focus ring', () => {
+    test('Test 4.10: Should show focus ring-3', () => {
       const props = {
         className: 'focus:ring-2 focus:ring-red-500',
       };
@@ -636,7 +636,7 @@ describe('Icon Components', () => {
       ok(props.className.includes('nav'), 'Should work in nav');
     });
 
-    test('Test 6.6: Should support focus ring', () => {
+    test('Test 6.6: Should support focus ring-3', () => {
       const props = {
         className: 'focus:ring-2 focus:ring-blue-500',
       };

@@ -77,13 +77,13 @@ const AnalyticsLayout = () => {
   return (
     <div
       className={`relative min-h-screen max-h-screen overflow-hidden w-screen ${
-        isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"
+        isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"
       }`}
     >
       {/* Sidebar Overlay for mobile */}
       <button
         type="button"
-        className={`md:hidden ${sidebarOpen ? "block" : "hidden"} fixed inset-0 bg-black bg-opacity-50 z-[999]`}
+        className={`md:hidden ${sidebarOpen ? "block" : "hidden"} fixed inset-0 bg-black bg-opacity-50 z-999`}
         onClick={toggleSidebar}
         aria-label="Close sidebar"
       />
@@ -91,7 +91,7 @@ const AnalyticsLayout = () => {
       <AnalyticsSidebar isOpen={sidebarOpen} onToggle={toggleSidebar} />
 
       <div
-        className={`${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"} h-screen transition-all duration-300 ease-in-out z-[1] overflow-auto flex flex-col ${
+        className={`${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"} h-screen transition-all duration-300 ease-in-out z-1 overflow-auto flex flex-col ${
           sidebarOpen ? "md:ml-[260px] xl:ml-[280px]" : "md:ml-0"
         }`}
       >

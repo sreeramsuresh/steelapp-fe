@@ -209,7 +209,7 @@ const CustomerSegmentsWidget = ({ data: propData, onRefresh, onViewSegment, onVi
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center shadow-lg">
+          <div className="w-10 h-10 rounded-xl bg-linear-to-br from-indigo-500 to-indigo-600 flex items-center justify-center shadow-lg">
             <PieChart size={20} className="text-white" />
           </div>
           <div>
@@ -266,7 +266,7 @@ const CustomerSegmentsWidget = ({ data: propData, onRefresh, onViewSegment, onVi
               onClick={() => setActiveView(view.key)}
               className={`flex-1 flex items-center justify-center gap-1 py-2 px-2 rounded-md text-xs font-medium transition-all ${
                 activeView === view.key
-                  ? "bg-indigo-500 text-white shadow-sm"
+                  ? "bg-indigo-500 text-white shadow-xs"
                   : isDarkMode
                     ? "text-gray-400 hover:text-white hover:bg-gray-700"
                     : "text-gray-600 hover:text-gray-900 hover:bg-white"
@@ -282,8 +282,8 @@ const CustomerSegmentsWidget = ({ data: propData, onRefresh, onViewSegment, onVi
       {/* Pie Chart & Legend */}
       <div className="flex items-center gap-4 mb-4">
         {/* Pie Chart */}
-        <div className="relative w-24 h-24 flex-shrink-0">
-          <svg aria-label="icon" viewBox="0 0 100 100" className="w-full h-full transform -rotate-0">
+        <div className="relative w-24 h-24 shrink-0">
+          <svg aria-label="icon" viewBox="0 0 100 100" className="w-full h-full transform rotate-0">
             <title>Icon</title>
             {pieSlices.map((slice, idx) => (
               <path
@@ -318,7 +318,7 @@ const CustomerSegmentsWidget = ({ data: propData, onRefresh, onViewSegment, onVi
                 onViewSegment ? "cursor-pointer hover:bg-opacity-50" : ""
               } ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"}`}
             >
-              <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: segment.color }} />
+              <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: segment.color }} />
               <span className={`text-xs flex-1 truncate ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
                 {segment.name}
               </span>

@@ -353,7 +353,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
               isDarkMode ? "bg-red-900 bg-opacity-30 border border-red-700" : "bg-red-50 border border-red-200"
             }`}
           >
-            <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+            <AlertTriangle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
             <div className="flex-1">
               <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
             </div>
@@ -372,7 +372,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
                 isDarkMode ? "bg-amber-900/20 border border-amber-700" : "bg-amber-50 border border-amber-200"
               }`}
             >
-              <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+              <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
               <p className={`text-sm ${isDarkMode ? "text-amber-100" : "text-amber-900"}`}>
                 This warehouse is inactive. Reservations are allowed but not recommended.
               </p>
@@ -398,7 +398,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
                 disabled={loadingWarehouses}
                 className={`w-full px-3 py-2 rounded-lg border appearance-none ${
                   isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
-                } focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                } focus:outline-hidden focus:ring-2 focus:ring-blue-500 ${
                   loadingWarehouses ? "opacity-50 cursor-not-allowed" : ""
                 }`}
               >
@@ -441,7 +441,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
                     isDarkMode
                       ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
                       : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
-                  } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                  } focus:outline-hidden focus:ring-2 focus:ring-blue-500`}
                 />
                 <Package className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                 {loadingProducts && (
@@ -540,7 +540,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
                   onChange={(e) => setBatchId(e.target.value)}
                   className={`w-full px-3 py-2 rounded-lg border ${
                     isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
-                  } focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                  } focus:outline-hidden focus:ring-2 focus:ring-teal-500`}
                 >
                   <option value="">Select Batch</option>
                   {batches.map((batch, idx) => {
@@ -609,7 +609,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
                   : isDarkMode
                     ? "bg-gray-700 border-gray-600 text-white"
                     : "bg-white border-gray-300 text-gray-900"
-              } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              } focus:outline-hidden focus:ring-2 focus:ring-blue-500`}
             />
             {availableStock && (
               <p className="mt-1 text-sm text-gray-500">
@@ -632,7 +632,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
               onChange={(e) => setReservationReason(e.target.value)}
               className={`w-full px-3 py-2 rounded-lg border ${
                 isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
-              } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              } focus:outline-hidden focus:ring-2 focus:ring-blue-500`}
             >
               <option value="">Select reason...</option>
               <option value="SALES_ORDER">Reserved for customer order</option>
@@ -661,7 +661,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
                   isDarkMode
                     ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
                     : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
-                } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                } focus:outline-hidden focus:ring-2 focus:ring-blue-500`}
               />
             </div>
           )}
@@ -682,7 +682,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
               min={new Date().toISOString().split("T")[0]}
               className={`w-full px-3 py-2 rounded-lg border ${
                 isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
-              } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              } focus:outline-hidden focus:ring-2 focus:ring-blue-500`}
             />
             {expiryDate &&
               (() => {
@@ -745,7 +745,7 @@ const ReservationForm = ({ open, onClose, onSuccess }) => {
                 isDarkMode
                   ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
                   : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
-              } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              } focus:outline-hidden focus:ring-2 focus:ring-blue-500`}
             />
           </div>
         </div>

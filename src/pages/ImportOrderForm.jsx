@@ -63,11 +63,11 @@ const Button = ({
   const { isDarkMode } = useTheme();
 
   const baseClasses =
-    "inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2";
+    "inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-300 focus:outline-hidden focus:ring-2 focus:ring-offset-2";
 
   const getVariantClasses = () => {
     if (variant === "primary") {
-      return `bg-gradient-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 hover:-translate-y-0.5 focus:ring-teal-500 disabled:opacity-50 disabled:hover:translate-y-0 shadow-sm hover:shadow-md`;
+      return `bg-linear-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 hover:-translate-y-0.5 focus:ring-teal-500 disabled:opacity-50 disabled:hover:translate-y-0 shadow-xs hover:shadow-md`;
     } else if (variant === "secondary") {
       return `${
         isDarkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-200 hover:bg-gray-300"
@@ -120,7 +120,7 @@ const Input = ({ label, error, className = "", required = false, id, ...props })
       )}
       <input
         id={inputId}
-        className={`w-full px-2 py-1.5 text-sm border rounded-md shadow-sm focus:ring-1 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200 ${
+        className={`w-full px-2 py-1.5 text-sm border rounded-md shadow-xs focus:ring-1 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200 ${
           isDarkMode
             ? "border-gray-600 bg-gray-800 text-white placeholder-gray-500 disabled:bg-gray-700 disabled:text-gray-500"
             : "border-gray-300 bg-white text-gray-900 placeholder-gray-400 disabled:bg-gray-100 disabled:text-gray-400"
@@ -145,7 +145,7 @@ const Textarea = ({ label, error, className = "", id, ...props }) => {
       )}
       <textarea
         id={textareaId}
-        className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-300 resize-none ${
+        className={`w-full px-3 py-2 border rounded-lg shadow-xs focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-300 resize-none ${
           isDarkMode
             ? "border-gray-600 bg-gray-800 text-white placeholder-gray-500"
             : "border-gray-300 bg-white text-gray-900 placeholder-gray-400"
@@ -1207,7 +1207,7 @@ const ImportOrderForm = () => {
                 <button
                   type="button"
                   onClick={() => setSimpleMode((v) => !v)}
-                  className={`relative w-9 h-5 rounded-full transition-colors focus:outline-none ${
+                  className={`relative w-9 h-5 rounded-full transition-colors focus:outline-hidden ${
                     simpleMode ? (isDarkMode ? "bg-gray-600" : "bg-gray-300") : "bg-teal-500"
                   }`}
                   title={simpleMode ? "Switch to Full documentation mode" : "Switch to Simple mode"}
@@ -1280,7 +1280,7 @@ const ImportOrderForm = () => {
           className={`border-b ${isDarkMode ? "bg-amber-900/20 border-amber-700/40" : "bg-amber-50 border-amber-200"}`}
         >
           <div className="max-w-[1400px] mx-auto px-4 py-2 flex items-center gap-2">
-            <Info className={`h-3.5 w-3.5 flex-shrink-0 ${isDarkMode ? "text-amber-400" : "text-amber-600"}`} />
+            <Info className={`h-3.5 w-3.5 shrink-0 ${isDarkMode ? "text-amber-400" : "text-amber-600"}`} />
             <p className={`text-xs ${isDarkMode ? "text-amber-300" : "text-amber-700"}`}>
               <span className="font-semibold">Simple Mode</span> — customs, shipping, and trade documentation hidden.
               Switch to <span className="font-semibold">Full Docs</span> to add HS codes, duties, and port details.
@@ -1816,7 +1816,7 @@ const ImportOrderForm = () => {
                               </div>
                             )}
                             {/* Landed cost info badges */}
-                            <div className="flex items-center gap-2 flex-shrink-0">
+                            <div className="flex items-center gap-2 shrink-0">
                               {(item.landed_cost_total || 0) > 0 && (
                                 <span
                                   className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold ${isDarkMode ? "bg-teal-900/40 text-teal-400" : "bg-teal-50 text-teal-700"}`}
@@ -2013,7 +2013,7 @@ const ImportOrderForm = () => {
         tabIndex={-1}
       />
       <div
-        className={`fixed top-0 right-0 h-full w-[min(620px,92vw)] z-[31]
+        className={`fixed top-0 right-0 h-full w-[min(620px,92vw)] z-31
             ${isDarkMode ? "bg-gray-800 border-l border-gray-700" : "bg-white border-l border-gray-200"}
             overflow-auto transition-transform ${shippingDrawerOpen ? "translate-x-0" : "translate-x-full"}`}
       >
@@ -2022,7 +2022,7 @@ const ImportOrderForm = () => {
           <div
             className={`sticky top-0 flex justify-between items-start gap-2.5 mb-4 p-4 -m-4 mb-4
               ${isDarkMode ? "bg-gray-800 border-b border-gray-700" : "bg-white border-b border-gray-200"}
-              z-[1]`}
+              z-1`}
           >
             <div>
               <div className="text-sm font-extrabold flex items-center gap-2">
@@ -2227,9 +2227,7 @@ const ImportOrderForm = () => {
                   className={`mt-3 p-3 rounded-[14px] text-xs ${isDarkMode ? "bg-green-900/30 border border-green-700" : "bg-green-50 border border-green-200"}`}
                 >
                   <div className="flex items-start gap-2">
-                    <Info
-                      className={`h-4 w-4 mt-0.5 flex-shrink-0 ${isDarkMode ? "text-green-400" : "text-green-600"}`}
-                    />
+                    <Info className={`h-4 w-4 mt-0.5 shrink-0 ${isDarkMode ? "text-green-400" : "text-green-600"}`} />
                     <div>
                       <p className={`font-semibold mb-1 ${isDarkMode ? "text-green-300" : "text-green-800"}`}>
                         Zero-Rated VAT Treatment
@@ -2274,7 +2272,7 @@ const ImportOrderForm = () => {
         tabIndex={-1}
       />
       <div
-        className={`fixed top-0 right-0 h-full w-[min(620px,92vw)] z-[31]
+        className={`fixed top-0 right-0 h-full w-[min(620px,92vw)] z-31
             ${isDarkMode ? "bg-gray-800 border-l border-gray-700" : "bg-white border-l border-gray-200"}
             overflow-auto transition-transform ${costDrawerOpen ? "translate-x-0" : "translate-x-full"}`}
       >
@@ -2283,7 +2281,7 @@ const ImportOrderForm = () => {
           <div
             className={`sticky top-0 flex justify-between items-start gap-2.5 mb-4 p-4 -m-4 mb-4
               ${isDarkMode ? "bg-gray-800 border-b border-gray-700" : "bg-white border-b border-gray-200"}
-              z-[1]`}
+              z-1`}
           >
             <div>
               <div className="text-sm font-extrabold flex items-center gap-2">
@@ -2413,7 +2411,7 @@ const ImportOrderForm = () => {
                 className={`p-3 rounded-[14px] text-xs ${isDarkMode ? "bg-blue-900/30 border border-blue-700" : "bg-blue-50 border border-blue-200"}`}
               >
                 <div className="flex items-start gap-2">
-                  <Info className={`h-4 w-4 mt-0.5 flex-shrink-0 ${isDarkMode ? "text-blue-400" : "text-blue-600"}`} />
+                  <Info className={`h-4 w-4 mt-0.5 shrink-0 ${isDarkMode ? "text-blue-400" : "text-blue-600"}`} />
                   <div>
                     <p className={`font-semibold mb-1 ${isDarkMode ? "text-blue-300" : "text-blue-800"}`}>
                       UAE VAT (Reverse Charge)
@@ -2457,7 +2455,7 @@ const ImportOrderForm = () => {
         tabIndex={-1}
       />
       <div
-        className={`fixed top-0 right-0 h-full w-[min(520px,92vw)] z-[31]
+        className={`fixed top-0 right-0 h-full w-[min(520px,92vw)] z-31
             ${isDarkMode ? "bg-gray-800 border-l border-gray-700" : "bg-white border-l border-gray-200"}
             overflow-auto transition-transform ${notesDrawerOpen ? "translate-x-0" : "translate-x-full"}`}
       >
@@ -2466,7 +2464,7 @@ const ImportOrderForm = () => {
           <div
             className={`sticky top-0 flex justify-between items-start gap-2.5 mb-4 p-4 -m-4 mb-4
               ${isDarkMode ? "bg-gray-800 border-b border-gray-700" : "bg-white border-b border-gray-200"}
-              z-[1]`}
+              z-1`}
           >
             <div>
               <div className="text-sm font-extrabold flex items-center gap-2">

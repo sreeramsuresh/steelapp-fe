@@ -36,7 +36,7 @@ const NotesDrawer = ({
         <div className="p-4">
           {/* Sticky Header */}
           <div
-            className={`sticky top-0 flex justify-between items-start gap-2.5 mb-3 p-4 -m-4 mb-3 z-[1] ${isDarkMode ? "bg-gray-800 border-b border-gray-700" : "bg-white border-b border-gray-200"}`}
+            className={`sticky top-0 flex justify-between items-start gap-2.5 mb-3 p-4 -m-4 mb-3 z-1 ${isDarkMode ? "bg-gray-800 border-b border-gray-700" : "bg-white border-b border-gray-200"}`}
           >
             <div>
               <div className="text-sm font-extrabold">Notes & Terms</div>

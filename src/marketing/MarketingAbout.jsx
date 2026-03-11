@@ -88,9 +88,9 @@ const About = () => {
 
   return (
     <MarketingLayout>
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100">
         {/* Hero Section */}
-        <div className="relative bg-gradient-to-r from-slate-900 via-gray-900 to-slate-800 text-white overflow-hidden">
+        <div className="relative bg-linear-to-r from-slate-900 via-gray-900 to-slate-800 text-white overflow-hidden">
           <div className="absolute inset-0 bg-black opacity-50"></div>
           <div
             className="absolute inset-0 bg-cover bg-center"
@@ -100,7 +100,7 @@ const About = () => {
           ></div>
           <div className="relative max-w-7xl mx-auto px-6 py-24">
             <h1 className="text-6xl font-bold mb-6 animate-fade-in">About Us</h1>
-            <div className="w-32 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mb-8"></div>
+            <div className="w-32 h-1 bg-linear-to-r from-blue-500 to-purple-500 mb-8"></div>
             <p className="text-2xl text-gray-200 max-w-3xl leading-relaxed mb-6">
               Your premier supplier of high-quality steel building materials in Ajman and across the UAE
             </p>
@@ -119,7 +119,7 @@ const About = () => {
             <div className="grid lg:grid-cols-2 gap-12 items-center">
               <div className="space-y-6">
                 <h2 className="text-4xl font-bold text-gray-900 mb-6">Who We Are</h2>
-                <div className="w-24 h-1 bg-gradient-to-r from-blue-600 to-indigo-600 mb-8"></div>
+                <div className="w-24 h-1 bg-linear-to-r from-blue-600 to-indigo-600 mb-8"></div>
 
                 <p className="text-lg text-gray-700 leading-relaxed">
                   Welcome to <span className="font-bold text-blue-600">Ultimate Steels</span>, your premier supplier of
@@ -159,9 +159,9 @@ const About = () => {
                     alt="Steel construction"
                     className="w-full h-96 object-cover"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                  <div className="absolute inset-0 bg-linear-to-t from-black/50 to-transparent"></div>
                 </div>
-                <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white text-3xl shadow-xl">
+                <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-linear-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white text-3xl shadow-xl">
                   🏗️
                 </div>
               </div>
@@ -172,7 +172,7 @@ const About = () => {
           <section className="mb-20">
             <div className="text-center mb-12">
               <h2 className="text-4xl font-bold text-gray-900 mb-4">Our Products & Services</h2>
-              <div className="w-24 h-1 bg-gradient-to-r from-green-600 to-teal-600 mx-auto mb-6"></div>
+              <div className="w-24 h-1 bg-linear-to-r from-green-600 to-teal-600 mx-auto mb-6"></div>
               <p className="text-lg text-gray-600 max-w-3xl mx-auto">
                 We offer a wide range of steel building materials, ensuring strength, flexibility, and longevity for
                 projects of all sizes.
@@ -184,9 +184,9 @@ const About = () => {
                 {products.map((product, index) => (
                   <div
                     key={product}
-                    className="group flex items-center space-x-4 p-4 rounded-xl hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-300 cursor-pointer border border-transparent hover:border-blue-200"
+                    className="group flex items-center space-x-4 p-4 rounded-xl hover:bg-linear-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-300 cursor-pointer border border-transparent hover:border-blue-200"
                   >
-                    <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-lg group-hover:scale-110 transition-transform duration-300">
+                    <div className="w-12 h-12 bg-linear-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-lg group-hover:scale-110 transition-transform duration-300">
                       {index + 1}
                     </div>
                     <div className="flex-1">
@@ -198,7 +198,7 @@ const About = () => {
                 ))}
               </div>
 
-              <div className="mt-8 p-6 bg-gradient-to-r from-slate-50 to-gray-50 rounded-xl">
+              <div className="mt-8 p-6 bg-linear-to-r from-slate-50 to-gray-50 rounded-xl">
                 <p className="text-gray-700 text-center">
                   <span className="font-bold">Expert Team:</span> Our team of experts ensures that every product is
                   sourced and manufactured with the highest level of precision, meeting the demands of modern
@@ -212,7 +212,7 @@ const About = () => {
           <section className="mb-20">
             <div className="text-center mb-12">
               <h2 className="text-4xl font-bold text-gray-900 mb-4">Why Choose Us?</h2>
-              <div className="w-24 h-1 bg-gradient-to-r from-purple-600 to-pink-600 mx-auto mb-6"></div>
+              <div className="w-24 h-1 bg-linear-to-r from-purple-600 to-pink-600 mx-auto mb-6"></div>
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -222,7 +222,7 @@ const About = () => {
                   className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2"
                 >
                   <div
-                    className={`w-16 h-16 bg-gradient-to-r ${item.color} rounded-2xl flex items-center justify-center text-2xl text-white mb-6 group-hover:scale-110 transition-transform duration-300`}
+                    className={`w-16 h-16 bg-linear-to-r ${item.color} rounded-2xl flex items-center justify-center text-2xl text-white mb-6 group-hover:scale-110 transition-transform duration-300`}
                   >
                     {item.icon}
                   </div>
@@ -239,7 +239,7 @@ const About = () => {
           <section className="mb-20">
             <div className="text-center mb-12">
               <h2 className="text-4xl font-bold text-gray-900 mb-4">Our Facilities & Work</h2>
-              <div className="w-24 h-1 bg-gradient-to-r from-orange-500 to-red-500 mx-auto mb-6"></div>
+              <div className="w-24 h-1 bg-linear-to-r from-orange-500 to-red-500 mx-auto mb-6"></div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -253,7 +253,7 @@ const About = () => {
                     alt={image.alt}
                     className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="absolute inset-0 bg-linear-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <div className="absolute bottom-4 left-4 text-white">
                       <h3 className="text-lg font-bold">{image.title}</h3>
                     </div>
@@ -265,10 +265,10 @@ const About = () => {
 
           {/* Serving UAE Section */}
           <section className="mb-20">
-            <div className="bg-gradient-to-r from-slate-900 via-gray-900 to-slate-800 rounded-2xl p-12 text-white">
+            <div className="bg-linear-to-r from-slate-900 via-gray-900 to-slate-800 rounded-2xl p-12 text-white">
               <div className="text-center mb-12">
                 <h2 className="text-4xl font-bold mb-4">Serving UAE & Beyond</h2>
-                <div className="w-24 h-1 bg-gradient-to-r from-emerald-500 to-teal-500 mx-auto mb-6"></div>
+                <div className="w-24 h-1 bg-linear-to-r from-emerald-500 to-teal-500 mx-auto mb-6"></div>
                 <p className="text-xl text-gray-300 max-w-4xl mx-auto leading-relaxed">
                   While based in Ajman, Ultimate Steels proudly serves clients across the UAE, including Dubai, Abu
                   Dhabi, Sharjah, and other emirates. Our mission is to provide top-tier steel solutions that contribute
@@ -304,7 +304,7 @@ const About = () => {
                   onClick={() => {
                     window.location.href = "/marketing/contact";
                   }}
-                  className="px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg mr-4"
+                  className="px-8 py-4 bg-linear-to-r from-blue-600 to-indigo-600 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg mr-4"
                 >
                   Get a Quote
                 </button>

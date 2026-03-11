@@ -89,7 +89,7 @@ const InventoryHealthWidget = ({ data, onNavigate }) => {
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-linear-to-br from-emerald-500 to-emerald-600 flex items-center justify-center">
               <Activity size={16} className="text-white" />
             </div>
             <div>
@@ -154,7 +154,7 @@ const InventoryHealthWidget = ({ data, onNavigate }) => {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-linear-to-br from-emerald-500 to-emerald-600 flex items-center justify-center">
             <Activity size={16} className="text-white" />
           </div>
           <div>
@@ -171,13 +171,13 @@ const InventoryHealthWidget = ({ data, onNavigate }) => {
 
       {/* Key Metrics */}
       <div className="grid grid-cols-2 gap-3 mb-4">
-        <div className={`p-3 rounded-lg ${isDarkMode ? "bg-[#121418]" : "bg-gray-50"}`}>
+        <div className={`p-3 rounded-lg ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}>
           <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Total Value</p>
           <p className={`text-lg font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
             {formatCurrency(healthData.totalValue)}
           </p>
         </div>
-        <div className={`p-3 rounded-lg ${isDarkMode ? "bg-[#121418]" : "bg-gray-50"}`}>
+        <div className={`p-3 rounded-lg ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}>
           <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Days of Stock</p>
           <p className={`text-lg font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
             {healthData.totalItems > 0 && healthData.daysOfStock !== undefined
@@ -193,7 +193,7 @@ const InventoryHealthWidget = ({ data, onNavigate }) => {
           <p className={`text-xs font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
             Stock by Category
           </p>
-          <div className={`h-4 rounded-full overflow-hidden flex ${isDarkMode ? "bg-[#121418]" : "bg-gray-100"}`}>
+          <div className={`h-4 rounded-full overflow-hidden flex ${isDarkMode ? "bg-gray-900" : "bg-gray-100"}`}>
             {safeEntries(healthData.breakdown).map(([category, categoryData]) => (
               <div
                 key={category}
@@ -220,7 +220,7 @@ const InventoryHealthWidget = ({ data, onNavigate }) => {
 
       {/* Alerts Summary */}
       {healthData.alerts && (
-        <div className={`p-3 rounded-lg ${isDarkMode ? "bg-[#121418]" : "bg-gray-50"}`}>
+        <div className={`p-3 rounded-lg ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}>
           <p className={`text-xs font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>Active Alerts</p>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1">

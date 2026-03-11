@@ -88,7 +88,7 @@ const GenerateStatementModal = ({ isOpen, onClose, customer, onGenerated }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50">
+    <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black bg-opacity-50">
       <div
         className={`relative w-full max-w-lg mx-4 rounded-xl shadow-2xl ${isDarkMode ? "bg-[#1E2328]" : "bg-white"}`}
       >
@@ -134,7 +134,7 @@ const GenerateStatementModal = ({ isOpen, onClose, customer, onGenerated }) => {
                 isDarkMode ? "bg-red-900/20 border-red-700 text-red-300" : "bg-red-50 border-red-200 text-red-800"
               }`}
             >
-              <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+              <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
               <span className="text-sm">{error}</span>
             </div>
           )}
@@ -184,7 +184,7 @@ const GenerateStatementModal = ({ isOpen, onClose, customer, onGenerated }) => {
                   value={formData.start_date}
                   onChange={handleChange}
                   required
-                  className={`w-full px-4 py-2.5 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                  className={`w-full px-4 py-2.5 border rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                     isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                   }`}
                 />
@@ -211,7 +211,7 @@ const GenerateStatementModal = ({ isOpen, onClose, customer, onGenerated }) => {
                   value={formData.end_date}
                   onChange={handleChange}
                   required
-                  className={`w-full px-4 py-2.5 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                  className={`w-full px-4 py-2.5 border rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${
                     isDarkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                   }`}
                 />
@@ -230,7 +230,7 @@ const GenerateStatementModal = ({ isOpen, onClose, customer, onGenerated }) => {
               isDarkMode ? "border-teal-700 bg-teal-900/20" : "border-teal-200 bg-teal-50"
             }`}
           >
-            <FileText className={`h-5 w-5 flex-shrink-0 mt-0.5 ${isDarkMode ? "text-teal-400" : "text-teal-600"}`} />
+            <FileText className={`h-5 w-5 shrink-0 mt-0.5 ${isDarkMode ? "text-teal-400" : "text-teal-600"}`} />
             <div className="flex-1">
               <div className={`text-sm font-medium ${isDarkMode ? "text-teal-300" : "text-teal-900"}`}>
                 Statement will be saved automatically

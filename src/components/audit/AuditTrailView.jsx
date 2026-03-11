@@ -36,7 +36,7 @@ export default function AuditTrailView({ datasetId: _datasetId, signOffs = [] })
   const sortedSignOffs = [...signOffs].sort((a, b) => new Date(a.signed_at) - new Date(b.signed_at));
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-6">
       <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-6">Audit Trail</h2>
 
       {sortedSignOffs.length === 0 ? (

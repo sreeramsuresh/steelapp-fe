@@ -18,7 +18,7 @@ export default function ERPListPageLayout({ icon, title, subtitle, actions, chil
     <div className={`p-2 sm:p-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-teal-600 to-teal-700 flex items-center justify-center text-white">
+          <div className="w-10 h-10 rounded-lg bg-linear-to-br from-teal-600 to-teal-700 flex items-center justify-center text-white">
             {icon}
           </div>
           <div>

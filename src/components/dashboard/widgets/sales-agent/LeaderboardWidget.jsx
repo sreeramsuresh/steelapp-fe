@@ -203,7 +203,7 @@ const LeaderboardWidget = ({ data: propData, onRefresh, onViewAgent, isLoading =
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center shadow-lg">
+          <div className="w-10 h-10 rounded-xl bg-linear-to-br from-yellow-400 to-yellow-600 flex items-center justify-center shadow-lg">
             <Trophy size={20} className="text-white" />
           </div>
           <div>
@@ -258,8 +258,8 @@ const LeaderboardWidget = ({ data: propData, onRefresh, onViewAgent, isLoading =
               className={`group p-3 rounded-lg transition-all duration-200 w-full text-left ${onViewAgent ? "cursor-pointer" : ""} ${
                 rank === 1
                   ? isDarkMode
-                    ? "bg-gradient-to-r from-yellow-900/20 to-transparent border border-yellow-700/30"
-                    : "bg-gradient-to-r from-yellow-50 to-transparent border border-yellow-200"
+                    ? "bg-linear-to-r from-yellow-900/20 to-transparent border border-yellow-700/30"
+                    : "bg-linear-to-r from-yellow-50 to-transparent border border-yellow-200"
                   : isDarkMode
                     ? "bg-[#2E3B4E] hover:bg-[#374151]"
                     : "bg-gray-50 hover:bg-gray-100"
@@ -267,10 +267,10 @@ const LeaderboardWidget = ({ data: propData, onRefresh, onViewAgent, isLoading =
             >
               <div className="flex items-center gap-3">
                 {/* Rank */}
-                <div className="w-8 flex-shrink-0">
+                <div className="w-8 shrink-0">
                   {medal ? (
                     <div
-                      className={`w-8 h-8 rounded-full bg-gradient-to-br ${medal.color} ${medal.shadow} shadow-lg flex items-center justify-center`}
+                      className={`w-8 h-8 rounded-full bg-linear-to-br ${medal.color} ${medal.shadow} shadow-lg flex items-center justify-center`}
                     >
                       <span className="text-xs font-bold text-white">{rank}</span>
                     </div>
@@ -292,12 +292,12 @@ const LeaderboardWidget = ({ data: propData, onRefresh, onViewAgent, isLoading =
                   <div
                     className={`w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-sm ${
                       rank === 1
-                        ? "bg-gradient-to-br from-yellow-400 to-yellow-600"
+                        ? "bg-linear-to-br from-yellow-400 to-yellow-600"
                         : rank === 2
-                          ? "bg-gradient-to-br from-gray-400 to-gray-500"
+                          ? "bg-linear-to-br from-gray-400 to-gray-500"
                           : rank === 3
-                            ? "bg-gradient-to-br from-amber-500 to-amber-700"
-                            : "bg-gradient-to-br from-teal-500 to-teal-600"
+                            ? "bg-linear-to-br from-amber-500 to-amber-700"
+                            : "bg-linear-to-br from-teal-500 to-teal-600"
                     }`}
                   >
                     {agent.avatar}

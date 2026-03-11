@@ -205,7 +205,7 @@ export function ContainerList() {
 
   return (
     <div
-      className={`min-h-screen ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"} p-4`}
+      className={`min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"} p-4`}
       data-testid="container-list-page"
     >
       {/* Header */}
@@ -240,7 +240,7 @@ export function ContainerList() {
             <button
               type="button"
               onClick={handleAddContainer}
-              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-sm hover:shadow-md"
+              className="flex items-center gap-2 px-4 py-2 bg-linear-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-xs hover:shadow-md"
               data-testid="add-container-button"
             >
               <Plus className="h-4 w-4" />
@@ -265,7 +265,7 @@ export function ContainerList() {
                 placeholder="Search by container number..."
                 value={filters.search}
                 onChange={handleSearch}
-                className={`w-full pl-10 pr-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-teal-500 ${isDarkMode ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400" : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"}`}
+                className={`w-full pl-10 pr-4 py-2 rounded-lg border focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${isDarkMode ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400" : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"}`}
                 aria-label="Search containers"
               />
             </div>

@@ -140,7 +140,7 @@ export default function CustomerOverviewTab({ customer }) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Section 1: Customer Master Data */}
-      <div className={`${cardBg} border ${borderColor} rounded-lg p-6 shadow-sm`}>
+      <div className={`${cardBg} border ${borderColor} rounded-lg p-6 shadow-xs`}>
         <h2 className={`text-xl font-semibold mb-4 ${primaryText} flex items-center gap-2`}>
           <CreditCard className="w-5 h-5" />
           Customer Information
@@ -209,7 +209,7 @@ export default function CustomerOverviewTab({ customer }) {
 
           {customer.address && (
             <div className={`flex items-start gap-2 ${secondaryText}`}>
-              <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
+              <MapPin className="w-4 h-4 mt-0.5 shrink-0" />
               <span className="text-sm">
                 {[
                   customer.address.street,
@@ -253,7 +253,7 @@ export default function CustomerOverviewTab({ customer }) {
       </div>
 
       {/* Section 2: Credit Summary */}
-      <div className={`${cardBg} border ${borderColor} rounded-lg p-6 shadow-sm`}>
+      <div className={`${cardBg} border ${borderColor} rounded-lg p-6 shadow-xs`}>
         <h2 className={`text-xl font-semibold mb-4 ${primaryText} flex items-center gap-2`}>
           <TrendingUp className="w-5 h-5" />
           Credit Summary
@@ -340,7 +340,7 @@ export default function CustomerOverviewTab({ customer }) {
       </div>
 
       {/* Section 3: AR Summary */}
-      <div className={`${cardBg} border ${borderColor} rounded-lg p-6 shadow-sm`}>
+      <div className={`${cardBg} border ${borderColor} rounded-lg p-6 shadow-xs`}>
         <h2 className={`text-xl font-semibold mb-4 ${primaryText} flex items-center gap-2`}>
           <FileText className="w-5 h-5" />
           AR Summary

@@ -152,7 +152,7 @@ const ImportExportOverview = () => {
       to={link}
       className={`${
         isDarkMode ? "bg-gray-800 hover:bg-gray-750" : "bg-white hover:bg-gray-50"
-      } p-4 rounded-lg shadow-sm transition-colors border ${
+      } p-4 rounded-lg shadow-xs transition-colors border ${
         isDarkMode ? "border-gray-700" : "border-gray-200"
       } hover:shadow-md`}
     >
@@ -176,7 +176,7 @@ const ImportExportOverview = () => {
       to={link}
       className={`${
         isDarkMode ? "bg-gray-800 hover:bg-gray-750" : "bg-white hover:bg-gray-50"
-      } p-4 rounded-lg shadow-sm transition-colors border ${
+      } p-4 rounded-lg shadow-xs transition-colors border ${
         isDarkMode ? "border-gray-700" : "border-gray-200"
       } hover:shadow-md`}
     >
@@ -249,7 +249,7 @@ const ImportExportOverview = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Activity */}
         <div
-          className={`${isDarkMode ? "bg-gray-800" : "bg-white"} rounded-lg p-4 shadow-sm border ${
+          className={`${isDarkMode ? "bg-gray-800" : "bg-white"} rounded-lg p-4 shadow-xs border ${
             isDarkMode ? "border-gray-700" : "border-gray-200"
           }`}
         >
@@ -287,7 +287,7 @@ const ImportExportOverview = () => {
 
         {/* Quick Actions */}
         <div
-          className={`${isDarkMode ? "bg-gray-800" : "bg-white"} rounded-lg p-4 shadow-sm border ${
+          className={`${isDarkMode ? "bg-gray-800" : "bg-white"} rounded-lg p-4 shadow-xs border ${
             isDarkMode ? "border-gray-700" : "border-gray-200"
           }`}
         >

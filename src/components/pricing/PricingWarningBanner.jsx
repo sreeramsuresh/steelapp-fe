@@ -16,7 +16,7 @@ export default function PricingWarningBanner({ isDarkMode: overrideDarkMode }) {
         isDarkMode ? "bg-yellow-900/20 border-yellow-700" : "bg-yellow-50 border-yellow-300"
       }`}
     >
-      <AlertTriangle className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" />
+      <AlertTriangle className="w-5 h-5 text-yellow-500 shrink-0 mt-0.5" />
       <div>
         <p className={`text-sm font-medium ${isDarkMode ? "text-yellow-100" : "text-yellow-900"}`}>
           Product has no base price

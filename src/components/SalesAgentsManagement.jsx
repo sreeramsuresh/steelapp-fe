@@ -114,7 +114,7 @@ const SalesAgentsManagement = () => {
             isDarkMode
               ? "bg-gray-800 border-gray-700 text-white placeholder-gray-400"
               : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
-          } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+          } focus:outline-hidden focus:ring-2 focus:ring-blue-500`}
         />
       </div>
 
@@ -283,7 +283,7 @@ const SalesAgentsManagement = () => {
                   }
                   className={`w-full px-3 py-2 rounded-lg border ${
                     isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
-                  } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                  } focus:outline-hidden focus:ring-2 focus:ring-blue-500`}
                   placeholder="1.00"
                 />
               </div>
@@ -303,7 +303,7 @@ const SalesAgentsManagement = () => {
                   onChange={(e) => setEditForm({ ...editForm, employee_code: e.target.value })}
                   className={`w-full px-3 py-2 rounded-lg border ${
                     isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
-                  } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                  } focus:outline-hidden focus:ring-2 focus:ring-blue-500`}
                   placeholder="SA001"
                 />
               </div>
@@ -323,7 +323,7 @@ const SalesAgentsManagement = () => {
                   onChange={(e) => setEditForm({ ...editForm, hire_date: e.target.value })}
                   className={`w-full px-3 py-2 rounded-lg border ${
                     isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
-                  } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                  } focus:outline-hidden focus:ring-2 focus:ring-blue-500`}
                 />
               </div>
 
@@ -342,7 +342,7 @@ const SalesAgentsManagement = () => {
                   onChange={(e) => setEditForm({ ...editForm, department: e.target.value })}
                   className={`w-full px-3 py-2 rounded-lg border ${
                     isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
-                  } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                  } focus:outline-hidden focus:ring-2 focus:ring-blue-500`}
                   placeholder="Sales"
                 />
               </div>

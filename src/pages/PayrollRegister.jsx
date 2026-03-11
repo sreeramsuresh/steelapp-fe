@@ -98,19 +98,19 @@ const PayrollRegister = () => {
         <div className="space-y-6">
           {/* Summary cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="bg-white rounded-lg shadow p-4">
+            <div className="bg-white rounded-lg shadow-sm p-4">
               <p className="text-sm text-gray-500">Total Gross</p>
               <p className="text-2xl font-bold text-gray-900">{totalGross.toLocaleString()}</p>
             </div>
-            <div className="bg-white rounded-lg shadow p-4">
+            <div className="bg-white rounded-lg shadow-sm p-4">
               <p className="text-sm text-gray-500">Total Deductions</p>
               <p className="text-2xl font-bold text-gray-900">{totalDeductions.toLocaleString()}</p>
             </div>
-            <div className="bg-white rounded-lg shadow p-4">
+            <div className="bg-white rounded-lg shadow-sm p-4">
               <p className="text-sm text-gray-500">Total Net</p>
               <p className="text-2xl font-bold text-teal-700">{totalNet.toLocaleString()}</p>
             </div>
-            <div className="bg-white rounded-lg shadow p-4">
+            <div className="bg-white rounded-lg shadow-sm p-4">
               <p className="text-sm text-gray-500">Employee Count</p>
               <p className="text-2xl font-bold text-gray-900">{totalEmployees}</p>
             </div>
@@ -118,7 +118,7 @@ const PayrollRegister = () => {
 
           {/* Department Breakdown Table */}
           {deptData.length > 0 && (
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white rounded-lg shadow-sm p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Department-wise Breakdown</h2>
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
@@ -144,7 +144,7 @@ const PayrollRegister = () => {
           )}
 
           {/* Monthly Trend Chart */}
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white rounded-lg shadow-sm p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Monthly Trend</h2>
             {monthlyData.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
@@ -172,7 +172,7 @@ const PayrollRegister = () => {
           </div>
 
           {/* Payroll Runs table */}
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white rounded-lg shadow-sm p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Payroll Runs</h2>
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">

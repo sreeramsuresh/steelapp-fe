@@ -81,7 +81,7 @@ const GradeAnalysisWidget = ({ data, onNavigate, onGradeClick }) => {
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-linear-to-br from-amber-500 to-amber-600 flex items-center justify-center">
               <Award size={16} className="text-white" />
             </div>
             <div>
@@ -155,7 +155,7 @@ const GradeAnalysisWidget = ({ data, onNavigate, onGradeClick }) => {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-linear-to-br from-amber-500 to-amber-600 flex items-center justify-center">
             <Award size={16} className="text-white" />
           </div>
           <div>
@@ -169,7 +169,7 @@ const GradeAnalysisWidget = ({ data, onNavigate, onGradeClick }) => {
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value)}
           className={`text-xs font-medium px-2 py-1 rounded-lg border cursor-pointer ${
-            isDarkMode ? "bg-[#121418] border-[#37474F] text-white" : "bg-gray-50 border-gray-200 text-gray-700"
+            isDarkMode ? "bg-gray-900 border-[#37474F] text-white" : "bg-gray-50 border-gray-200 text-gray-700"
           }`}
         >
           <option value="revenue">By Revenue</option>
@@ -193,7 +193,7 @@ const GradeAnalysisWidget = ({ data, onNavigate, onGradeClick }) => {
             <div className="flex items-start justify-between mb-2">
               <div className="flex items-center gap-3">
                 <div
-                  className={`w-10 h-10 rounded-lg bg-gradient-to-br ${getGradeColor(grade.grade)} flex items-center justify-center`}
+                  className={`w-10 h-10 rounded-lg bg-linear-to-br ${getGradeColor(grade.grade)} flex items-center justify-center`}
                 >
                   <span className="text-xs font-bold text-white">{index + 1}</span>
                 </div>
@@ -248,9 +248,9 @@ const GradeAnalysisWidget = ({ data, onNavigate, onGradeClick }) => {
             </div>
 
             {/* Revenue Bar */}
-            <div className={`mt-2 h-1 rounded-full overflow-hidden ${isDarkMode ? "bg-[#121418]" : "bg-gray-100"}`}>
+            <div className={`mt-2 h-1 rounded-full overflow-hidden ${isDarkMode ? "bg-gray-900" : "bg-gray-100"}`}>
               <div
-                className={`h-full rounded-full bg-gradient-to-r ${getGradeColor(grade.grade)} transition-all duration-500`}
+                className={`h-full rounded-full bg-linear-to-r ${getGradeColor(grade.grade)} transition-all duration-500`}
                 style={{ width: `${(grade.revenue / maxRevenue) * 100}%` }}
               />
             </div>

@@ -128,7 +128,7 @@ const AnalyticsDashboard = () => {
   ];
 
   return (
-    <div className={`min-h-screen ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}>
+    <div className={`min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}>
       {/* Header */}
       <div
         className={`${isDarkMode ? "bg-[#1E2328]" : "bg-white"} border-b ${
@@ -137,7 +137,7 @@ const AnalyticsDashboard = () => {
       >
         <div className="px-6 py-6">
           <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-700 flex items-center justify-center text-white shadow-lg">
+            <div className="w-12 h-12 rounded-xl bg-linear-to-br from-indigo-600 to-purple-700 flex items-center justify-center text-white shadow-lg">
               <BarChart3 size={24} />
             </div>
             <div>
@@ -173,7 +173,7 @@ const AnalyticsDashboard = () => {
                     >
                       <div className="flex items-start gap-4">
                         <div
-                          className={`w-11 h-11 rounded-lg bg-gradient-to-br ${item.color} flex items-center justify-center text-white flex-shrink-0 shadow-sm`}
+                          className={`w-11 h-11 rounded-lg bg-linear-to-br ${item.color} flex items-center justify-center text-white shrink-0 shadow-xs`}
                         >
                           <Icon size={20} />
                         </div>

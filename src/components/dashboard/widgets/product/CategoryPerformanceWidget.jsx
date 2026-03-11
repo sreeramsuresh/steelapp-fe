@@ -31,7 +31,7 @@ const CategoryPerformanceWidget = ({ data, onNavigate: _onNavigate, onCategoryCl
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-linear-to-br from-indigo-500 to-indigo-600 flex items-center justify-center">
               <Layers size={16} className="text-white" />
             </div>
             <div>
@@ -98,7 +98,7 @@ const CategoryPerformanceWidget = ({ data, onNavigate: _onNavigate, onCategoryCl
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-linear-to-br from-indigo-500 to-indigo-600 flex items-center justify-center">
             <Layers size={16} className="text-white" />
           </div>
           <div>
@@ -117,7 +117,7 @@ const CategoryPerformanceWidget = ({ data, onNavigate: _onNavigate, onCategoryCl
             value={period}
             onChange={(e) => setPeriod(e.target.value)}
             className={`appearance-none text-xs font-medium px-3 py-1.5 pr-7 rounded-lg border cursor-pointer ${
-              isDarkMode ? "bg-[#121418] border-[#37474F] text-white" : "bg-gray-50 border-gray-200 text-gray-700"
+              isDarkMode ? "bg-gray-900 border-[#37474F] text-white" : "bg-gray-50 border-gray-200 text-gray-700"
             }`}
           >
             {["This Month", "Last Month", "This Quarter", "This Year"].map((p) => (
@@ -137,7 +137,7 @@ const CategoryPerformanceWidget = ({ data, onNavigate: _onNavigate, onCategoryCl
 
       {/* Stacked Bar Chart */}
       <div className="mb-4">
-        <div className={`h-8 rounded-lg overflow-hidden flex ${isDarkMode ? "bg-[#121418]" : "bg-gray-100"}`}>
+        <div className={`h-8 rounded-lg overflow-hidden flex ${isDarkMode ? "bg-gray-900" : "bg-gray-100"}`}>
           {categories.map((cat, _index) => {
             const width = (cat.revenue / totalRevenue) * 100;
             return (
@@ -188,7 +188,7 @@ const CategoryPerformanceWidget = ({ data, onNavigate: _onNavigate, onCategoryCl
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div
-                  className={`w-8 h-8 rounded-lg bg-gradient-to-br ${getCategoryBgClass(category.name)} flex items-center justify-center`}
+                  className={`w-8 h-8 rounded-lg bg-linear-to-br ${getCategoryBgClass(category.name)} flex items-center justify-center`}
                 >
                   <span className="text-xs font-bold text-white">{category.name.charAt(0)}</span>
                 </div>
@@ -227,9 +227,9 @@ const CategoryPerformanceWidget = ({ data, onNavigate: _onNavigate, onCategoryCl
             </div>
 
             {/* Revenue Bar */}
-            <div className={`mt-2 h-1.5 rounded-full overflow-hidden ${isDarkMode ? "bg-[#121418]" : "bg-gray-100"}`}>
+            <div className={`mt-2 h-1.5 rounded-full overflow-hidden ${isDarkMode ? "bg-gray-900" : "bg-gray-100"}`}>
               <div
-                className={`h-full rounded-full bg-gradient-to-r ${getCategoryBgClass(category.name)} transition-all duration-500`}
+                className={`h-full rounded-full bg-linear-to-r ${getCategoryBgClass(category.name)} transition-all duration-500`}
                 style={{ width: `${(category.revenue / maxRevenue) * 100}%` }}
               />
             </div>

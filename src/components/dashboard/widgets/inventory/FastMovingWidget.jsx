@@ -64,7 +64,7 @@ const FastMovingWidget = ({ data, onNavigate, onProductClick }) => {
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-linear-to-br from-green-500 to-green-600 flex items-center justify-center">
               <Zap size={16} className="text-white" />
             </div>
             <div>
@@ -128,7 +128,7 @@ const FastMovingWidget = ({ data, onNavigate, onProductClick }) => {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-linear-to-br from-green-500 to-green-600 flex items-center justify-center">
             <Zap size={16} className="text-white" />
           </div>
           <div>
@@ -204,7 +204,7 @@ const FastMovingWidget = ({ data, onNavigate, onProductClick }) => {
                     {product.currentStock.toFixed(1)} MT
                   </span>
                   <div
-                    className={`w-16 h-1.5 rounded-full overflow-hidden ${isDarkMode ? "bg-[#121418]" : "bg-gray-100"}`}
+                    className={`w-16 h-1.5 rounded-full overflow-hidden ${isDarkMode ? "bg-gray-900" : "bg-gray-100"}`}
                   >
                     <div
                       className={`h-full rounded-full ${

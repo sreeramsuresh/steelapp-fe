@@ -231,7 +231,7 @@ const ReconciliationDashboard = () => {
             value={selectedWarehouseId}
             onChange={(e) => setSelectedWarehouseId(e.target.value)}
             disabled={loadingWarehouses}
-            className={`px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-teal-500 min-w-[250px] disabled:opacity-50 disabled:cursor-not-allowed ${isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+            className={`px-3 py-2 rounded-lg border focus:outline-hidden focus:ring-2 focus:ring-teal-500 min-w-[250px] disabled:opacity-50 disabled:cursor-not-allowed ${isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
           >
             <option value="">Select Warehouse</option>
             {warehouses.map((wh) => (
@@ -467,7 +467,7 @@ const ReconciliationDashboard = () => {
                 setSelectedWarehouseId(e.target.value);
                 setAuditPage(0);
               }}
-              className={`px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-teal-500 min-w-[200px] ${isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+              className={`px-3 py-2 rounded-lg border focus:outline-hidden focus:ring-2 focus:ring-teal-500 min-w-[200px] ${isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
             >
               <option value="">All Warehouses</option>
               {warehouses.map((wh) => (
@@ -489,7 +489,7 @@ const ReconciliationDashboard = () => {
                   setAuditStartDate(e.target.value);
                   setAuditPage(0);
                 }}
-                className={`px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-teal-500 ${isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+                className={`px-3 py-2 rounded-lg border focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
               />
             </div>
 
@@ -505,7 +505,7 @@ const ReconciliationDashboard = () => {
                   setAuditEndDate(e.target.value);
                   setAuditPage(0);
                 }}
-                className={`px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-teal-500 ${isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+                className={`px-3 py-2 rounded-lg border focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
               />
             </div>
 
@@ -643,7 +643,7 @@ const ReconciliationDashboard = () => {
               <select
                 value={auditRowsPerPage}
                 onChange={handleAuditRowsPerPageChange}
-                className={`px-2 py-1 rounded border text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 ${isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+                className={`px-2 py-1 rounded border text-sm focus:outline-hidden focus:ring-2 focus:ring-teal-500 ${isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"}`}
               >
                 <option value={25}>25</option>
                 <option value={50}>50</option>

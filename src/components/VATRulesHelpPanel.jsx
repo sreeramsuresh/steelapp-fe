@@ -89,7 +89,7 @@ const InfoBox = ({ type = "info", title, children, icon: Icon }) => {
   return (
     <div className={`p-3 rounded-lg border ${styles[type]}`}>
       <div className="flex items-start gap-2">
-        {Icon && <Icon className={`h-4 w-4 mt-0.5 flex-shrink-0 ${iconColors[type]}`} />}
+        {Icon && <Icon className={`h-4 w-4 mt-0.5 shrink-0 ${iconColors[type]}`} />}
         <div className="text-sm flex-1">
           {title && <strong className="block mb-1">{title}</strong>}
           {children}
@@ -1274,39 +1274,39 @@ const VATRulesHelpPanel = ({ onClose }) => {
               <div className={`p-3 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}>
                 <ul className="text-sm space-y-1">
                   <li className="flex items-start gap-2">
-                    <CheckSquare className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                    <CheckSquare className="h-4 w-4 mt-0.5 shrink-0" />
                     <span>Invoice has unique sequential number</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckSquare className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                    <CheckSquare className="h-4 w-4 mt-0.5 shrink-0" />
                     <span>Your company name, address, and TRN displayed</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckSquare className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                    <CheckSquare className="h-4 w-4 mt-0.5 shrink-0" />
                     <span>Customer name, address, and TRN (if registered)</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckSquare className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                    <CheckSquare className="h-4 w-4 mt-0.5 shrink-0" />
                     <span>Date of invoice issuance</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckSquare className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                    <CheckSquare className="h-4 w-4 mt-0.5 shrink-0" />
                     <span>Clear description of goods/services</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckSquare className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                    <CheckSquare className="h-4 w-4 mt-0.5 shrink-0" />
                     <span>Quantity, unit price, and total amount</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckSquare className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                    <CheckSquare className="h-4 w-4 mt-0.5 shrink-0" />
                     <span>Correct VAT rate applied (5%, 0%, or exempt)</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckSquare className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                    <CheckSquare className="h-4 w-4 mt-0.5 shrink-0" />
                     <span>VAT amount calculated and displayed</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckSquare className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                    <CheckSquare className="h-4 w-4 mt-0.5 shrink-0" />
                     <span>Total amount including VAT</span>
                   </li>
                 </ul>
@@ -1320,31 +1320,31 @@ const VATRulesHelpPanel = ({ onClose }) => {
               <div className={`p-3 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}>
                 <ul className="text-sm space-y-1">
                   <li className="flex items-start gap-2">
-                    <CheckSquare className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                    <CheckSquare className="h-4 w-4 mt-0.5 shrink-0" />
                     <span>Customer is outside UAE and GCC</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckSquare className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                    <CheckSquare className="h-4 w-4 mt-0.5 shrink-0" />
                     <span>Goods physically exported (not just sold to exporter)</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckSquare className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                    <CheckSquare className="h-4 w-4 mt-0.5 shrink-0" />
                     <span>Export customs declaration obtained</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckSquare className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                    <CheckSquare className="h-4 w-4 mt-0.5 shrink-0" />
                     <span>Bill of Lading or Airway Bill obtained</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckSquare className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                    <CheckSquare className="h-4 w-4 mt-0.5 shrink-0" />
                     <span>Export completed within 90 days of invoice (or 12 months if approved)</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckSquare className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                    <CheckSquare className="h-4 w-4 mt-0.5 shrink-0" />
                     <span>Invoice states &quot;Zero-Rated Export&quot;</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckSquare className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                    <CheckSquare className="h-4 w-4 mt-0.5 shrink-0" />
                     <span>All documents filed and retained for 5 years</span>
                   </li>
                 </ul>
@@ -1358,23 +1358,23 @@ const VATRulesHelpPanel = ({ onClose }) => {
               <div className={`p-3 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}>
                 <ul className="text-sm space-y-1">
                   <li className="flex items-start gap-2">
-                    <CheckSquare className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                    <CheckSquare className="h-4 w-4 mt-0.5 shrink-0" />
                     <span>Verify customer is in a designated zone (check FTA list)</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckSquare className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                    <CheckSquare className="h-4 w-4 mt-0.5 shrink-0" />
                     <span>Customer is a &quot;Qualified Person&quot; (hold certificate)</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckSquare className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                    <CheckSquare className="h-4 w-4 mt-0.5 shrink-0" />
                     <span>Goods delivered to zone address (proof required)</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckSquare className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                    <CheckSquare className="h-4 w-4 mt-0.5 shrink-0" />
                     <span>Invoice references zone certificate number</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckSquare className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                    <CheckSquare className="h-4 w-4 mt-0.5 shrink-0" />
                     <span>Invoice states &quot;Zero-Rated Supply to Designated Zone&quot;</span>
                   </li>
                 </ul>

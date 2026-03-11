@@ -28,14 +28,14 @@ const ApiStatusBanner = () => {
     <div
       role="alert"
       aria-live="polite"
-      className={`fixed top-0 left-0 right-0 z-[9999] px-4 py-3 shadow-lg transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-9999 px-4 py-3 shadow-lg transition-all duration-300 ${
         isDarkMode ? "bg-amber-900/90 border-b border-amber-700" : "bg-amber-50 border-b border-amber-200"
       }`}
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
         {/* Warning Icon and Message */}
         <div className="flex items-center gap-3 flex-1">
-          <div className={`flex-shrink-0 p-1.5 rounded-full ${isDarkMode ? "bg-amber-800" : "bg-amber-100"}`}>
+          <div className={`shrink-0 p-1.5 rounded-full ${isDarkMode ? "bg-amber-800" : "bg-amber-100"}`}>
             <AlertTriangle size={20} className={isDarkMode ? "text-amber-300" : "text-amber-600"} />
           </div>
 
@@ -51,7 +51,7 @@ const ApiStatusBanner = () => {
         </div>
 
         {/* Actions */}
-        <div className="flex items-center gap-2 flex-shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           {/* Retry Button */}
           <button
             type="button"

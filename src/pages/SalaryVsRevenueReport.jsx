@@ -78,7 +78,7 @@ export default function SalaryVsRevenueReport() {
       ) : (
         <div className="space-y-6">
           {/* Cost Trend */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
             <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Payroll Cost Trend (12 Months)</h3>
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
@@ -126,7 +126,7 @@ export default function SalaryVsRevenueReport() {
           </div>
 
           {/* Department Summary */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
             <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
               Department Summary — {monthNames[filters.month]} {filters.year}
             </h3>

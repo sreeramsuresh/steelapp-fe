@@ -306,7 +306,7 @@ const QCInspectionModal = ({ isOpen, onClose, creditNote, onSuccess }) => {
                   value={qcNotes}
                   onChange={(e) => setQcNotes(e.target.value)}
                   rows={2}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-hidden focus:ring-2 focus:ring-purple-500 ${
                     isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
                   }`}
                   placeholder="General inspection notes..."

@@ -107,7 +107,7 @@ const InvoiceCreditNotesSection = ({ invoiceId, invoiceStatus, isDarkMode }) => 
     <div
       className={`rounded-lg border ${
         isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
-      } shadow-sm`}
+      } shadow-xs`}
     >
       {/* Header */}
       <div

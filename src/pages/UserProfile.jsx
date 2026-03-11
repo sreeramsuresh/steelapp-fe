@@ -259,7 +259,7 @@ export default function UserProfile() {
                     isDarkMode
                       ? "bg-gray-700 border-gray-600 text-white focus:border-teal-400"
                       : "bg-gray-50 border-gray-300 text-gray-900 focus:border-teal-600"
-                  } focus:outline-none`}
+                  } focus:outline-hidden`}
                 />
               </div>
 
@@ -279,7 +279,7 @@ export default function UserProfile() {
                     isDarkMode
                       ? "bg-gray-700 border-gray-600 text-white focus:border-teal-400"
                       : "bg-gray-50 border-gray-300 text-gray-900 focus:border-teal-600"
-                  } focus:outline-none`}
+                  } focus:outline-hidden`}
                 />
               </div>
 
@@ -361,7 +361,7 @@ export default function UserProfile() {
                     isDarkMode
                       ? "bg-gray-700 border-gray-600 text-white focus:border-teal-400"
                       : "bg-gray-50 border-gray-300 text-gray-900 focus:border-teal-600"
-                  } focus:outline-none`}
+                  } focus:outline-hidden`}
                   placeholder="Enter current password"
                   disabled={loading}
                 />
@@ -388,7 +388,7 @@ export default function UserProfile() {
                     isDarkMode
                       ? "bg-gray-700 border-gray-600 text-white focus:border-teal-400"
                       : "bg-gray-50 border-gray-300 text-gray-900 focus:border-teal-600"
-                  } focus:outline-none`}
+                  } focus:outline-hidden`}
                   placeholder="Enter new password (min 8 chars)"
                   disabled={loading}
                 />
@@ -415,7 +415,7 @@ export default function UserProfile() {
                     isDarkMode
                       ? "bg-gray-700 border-gray-600 text-white focus:border-teal-400"
                       : "bg-gray-50 border-gray-300 text-gray-900 focus:border-teal-600"
-                  } focus:outline-none`}
+                  } focus:outline-hidden`}
                   placeholder="Confirm new password"
                   disabled={loading}
                 />
@@ -534,7 +534,7 @@ export default function UserProfile() {
                               isDarkMode
                                 ? "bg-gray-700 border-gray-600 text-white focus:border-teal-400"
                                 : "bg-gray-50 border-gray-300 text-gray-900 focus:border-teal-600"
-                            } focus:outline-none`}
+                            } focus:outline-hidden`}
                           />
                           <div className="flex gap-2">
                             <button
@@ -594,7 +594,7 @@ export default function UserProfile() {
                           isDarkMode
                             ? "bg-gray-700 border-gray-600 text-white focus:border-teal-400"
                             : "bg-gray-50 border-gray-300 text-gray-900 focus:border-teal-600"
-                        } focus:outline-none`}
+                        } focus:outline-hidden`}
                       />
                       <div className="flex gap-2">
                         <button

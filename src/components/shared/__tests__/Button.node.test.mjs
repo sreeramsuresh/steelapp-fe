@@ -495,13 +495,13 @@ describe('Button Component', () => {
       ok(props.focusClassName, 'Should have focus styles');
     });
 
-    test('Test 7.4: Should apply blur styling', () => {
+    test('Test 7.4: Should apply blur-sm styling', () => {
       const props = {
         onBlur: sandbox.stub(),
         blurClassName: 'ring-0',
       };
 
-      ok(props.blurClassName, 'Should have blur styles');
+      ok(props.blurClassName, 'Should have blur-sm styles');
     });
 
     test('Test 7.5: Should support programmatic focus', () => {

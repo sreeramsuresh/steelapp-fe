@@ -705,7 +705,7 @@ const CustomerForm = () => {
                       onChange={handleInputChange}
                       disabled={!isEditMode}
                       placeholder="e.g., ABC Trading Company"
-                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-80 disabled:cursor-default`}
+                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-hidden ${inputFocus} disabled:opacity-80 disabled:cursor-default`}
                       data-testid="customer-name"
                     />
                     {(zodErrors.name || errors.name) && (
@@ -726,7 +726,7 @@ const CustomerForm = () => {
                       onChange={handleInputChange}
                       disabled={!isEditMode}
                       placeholder="Legal company name"
-                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-80 disabled:cursor-default`}
+                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-hidden ${inputFocus} disabled:opacity-80 disabled:cursor-default`}
                       data-testid="customer-company"
                     />
                   </div>
@@ -744,7 +744,7 @@ const CustomerForm = () => {
                       onChange={handleInputChange}
                       disabled={!isEditMode}
                       placeholder="customer@example.com"
-                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-80 disabled:cursor-default`}
+                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-hidden ${inputFocus} disabled:opacity-80 disabled:cursor-default`}
                       data-testid="customer-email"
                     />
                     {zodErrors.email && <p className="text-red-500 text-sm mt-1">{zodErrors.email}</p>}
@@ -788,7 +788,7 @@ const CustomerForm = () => {
                       onChange={handleInputChange}
                       disabled={!isEditMode}
                       placeholder="Unique code"
-                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-80 disabled:cursor-default`}
+                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-hidden ${inputFocus} disabled:opacity-80 disabled:cursor-default`}
                     />
                   </div>
 
@@ -805,7 +805,7 @@ const CustomerForm = () => {
                         setFormData((prev) => ({ ...prev, paymentTermsDays: parseInt(e.target.value, 10) }))
                       }
                       disabled={!isEditMode}
-                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus} disabled:opacity-80 disabled:cursor-default`}
+                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-hidden ${inputFocus} disabled:opacity-80 disabled:cursor-default`}
                     >
                       <option value={0}>Immediate</option>
                       <option value={7}>Net 7 days</option>
@@ -827,7 +827,7 @@ const CustomerForm = () => {
                       value={formData.defaultPaymentMethod}
                       onChange={handleInputChange}
                       disabled={!isEditMode}
-                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus} disabled:opacity-80 disabled:cursor-default`}
+                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-hidden ${inputFocus} disabled:opacity-80 disabled:cursor-default`}
                     >
                       <option value="">-- None --</option>
                       <option value="cash">Cash</option>
@@ -869,7 +869,7 @@ const CustomerForm = () => {
                       onChange={handleInputChange}
                       disabled={!isEditMode}
                       placeholder="123456789012345"
-                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-80 disabled:cursor-default`}
+                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-hidden ${inputFocus} disabled:opacity-80 disabled:cursor-default`}
                       data-testid="customer-vat-number"
                     />
                   </div>
@@ -911,7 +911,7 @@ const CustomerForm = () => {
                         onChange={handleInputChange}
                         disabled={!isEditMode}
                         placeholder="Street address"
-                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-80 disabled:cursor-default`}
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-hidden ${inputFocus} disabled:opacity-80 disabled:cursor-default`}
                       />
                     </div>
 
@@ -928,7 +928,7 @@ const CustomerForm = () => {
                         onChange={handleInputChange}
                         disabled={!isEditMode}
                         placeholder="City"
-                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-80 disabled:cursor-default`}
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-hidden ${inputFocus} disabled:opacity-80 disabled:cursor-default`}
                         data-testid="customer-city"
                       />
                     </div>
@@ -946,7 +946,7 @@ const CustomerForm = () => {
                         onChange={handleInputChange}
                         disabled={!isEditMode}
                         placeholder="State or province"
-                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-80 disabled:cursor-default`}
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-hidden ${inputFocus} disabled:opacity-80 disabled:cursor-default`}
                       />
                     </div>
 
@@ -963,7 +963,7 @@ const CustomerForm = () => {
                         onChange={handleInputChange}
                         disabled={!isEditMode}
                         placeholder="Postal code"
-                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-80 disabled:cursor-default`}
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-hidden ${inputFocus} disabled:opacity-80 disabled:cursor-default`}
                       />
                     </div>
 
@@ -983,7 +983,7 @@ const CustomerForm = () => {
                         disabled={!isEditMode}
                         placeholder="e.g., AE (UAE), IN (India), CN (China)"
                         maxLength={2}
-                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-none ${inputFocus} disabled:opacity-80 disabled:cursor-default ${errors.country ? "border-red-500" : ""}`}
+                        className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-hidden ${inputFocus} disabled:opacity-80 disabled:cursor-default ${errors.country ? "border-red-500" : ""}`}
                       />
                       {errors.country && <p className="text-red-500 text-sm mt-1">{errors.country}</p>}
                       {!errors.country && formData.country && (
@@ -1023,7 +1023,7 @@ const CustomerForm = () => {
                           step="100"
                           min="0"
                           placeholder="0"
-                          className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus}`}
+                          className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-hidden ${inputFocus}`}
                         />
                       </div>
 
@@ -1040,7 +1040,7 @@ const CustomerForm = () => {
                           step="0.01"
                           min="0"
                           placeholder="0.00"
-                          className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus}`}
+                          className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-hidden ${inputFocus}`}
                         />
                       </div>
 
@@ -1058,7 +1058,7 @@ const CustomerForm = () => {
                           min="0"
                           max="100"
                           placeholder="0.00"
-                          className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-none ${inputFocus}`}
+                          className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} outline-hidden ${inputFocus}`}
                         />
                       </div>
                     </div>

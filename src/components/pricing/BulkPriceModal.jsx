@@ -116,7 +116,7 @@ export default function BulkPriceModal({ isOpen, onClose, selectedCount, isDarkM
               isDarkMode
                 ? "bg-gray-700 border-gray-600 text-white placeholder-gray-500 focus:border-teal-500 focus:ring-teal-500"
                 : "bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500"
-            } focus:outline-none focus:ring-1 disabled:opacity-50`}
+            } focus:outline-hidden focus:ring-1 disabled:opacity-50`}
           />
           <p className={`text-xs mt-2 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
             {operation === "multiply" ? "Prices will increase" : "Prices will decrease"} by {percentage || 0}%
@@ -129,7 +129,7 @@ export default function BulkPriceModal({ isOpen, onClose, selectedCount, isDarkM
             isDarkMode ? "bg-yellow-900/20 border border-yellow-700" : "bg-yellow-50 border border-yellow-300"
           }`}
         >
-          <AlertCircle className="w-4 h-4 text-yellow-500 flex-shrink-0 mt-0.5" />
+          <AlertCircle className="w-4 h-4 text-yellow-500 shrink-0 mt-0.5" />
           <div className="text-xs">
             <p className={`font-medium ${isDarkMode ? "text-yellow-100" : "text-yellow-900"}`}>
               Action cannot be undone

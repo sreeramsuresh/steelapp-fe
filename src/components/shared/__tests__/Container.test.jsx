@@ -163,7 +163,7 @@ describe("Container", () => {
 
   it("should preserve order of classes", () => {
     const { container } = render(
-      <Container size="md" padding="p-6" className="shadow rounded">
+      <Container size="md" padding="p-6" className="shadow-sm rounded">
         Content
       </Container>
     );

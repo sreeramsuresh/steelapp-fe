@@ -363,7 +363,7 @@ const ExportOrderList = () => {
       </div>
 
       {/* Filters */}
-      <div className={`${isDarkMode ? "bg-gray-800" : "bg-white"} rounded-lg p-4 mb-6 shadow-sm`}>
+      <div className={`${isDarkMode ? "bg-gray-800" : "bg-white"} rounded-lg p-4 mb-6 shadow-xs`}>
         <form onSubmit={handleSearch}>
           {/* Basic Filters */}
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
@@ -546,7 +546,7 @@ const ExportOrderList = () => {
       )}
 
       {/* Orders Table */}
-      <div className={`${isDarkMode ? "bg-gray-800" : "bg-white"} rounded-lg shadow-sm overflow-hidden`}>
+      <div className={`${isDarkMode ? "bg-gray-800" : "bg-white"} rounded-lg shadow-xs overflow-hidden`}>
         {loading ? (
           <div className="p-8 text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600 mx-auto"></div>

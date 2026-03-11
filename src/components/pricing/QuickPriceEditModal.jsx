@@ -108,7 +108,7 @@ export default function QuickPriceEditModal({
                 isDarkMode
                   ? "bg-gray-700 border-gray-600 text-white placeholder-gray-500 focus:border-teal-500 focus:ring-teal-500"
                   : "bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500"
-              } focus:outline-none focus:ring-1 disabled:opacity-50 disabled:cursor-not-allowed`}
+              } focus:outline-hidden focus:ring-1 disabled:opacity-50 disabled:cursor-not-allowed`}
             />
           </div>
           {currentPrice && Number(newPrice) !== Number(currentPrice) && (

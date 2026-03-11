@@ -118,7 +118,7 @@ const FeedbackWidget = () => {
   };
 
   return (
-    <div ref={popoverRef} className="fixed bottom-6 right-6 z-[50]">
+    <div ref={popoverRef} className="fixed bottom-6 right-6 z-50">
       {/* Popover */}
       {isOpen && (
         <div
@@ -162,7 +162,7 @@ const FeedbackWidget = () => {
             onKeyDown={handleKeyDown}
             placeholder="Describe the issue you're experiencing. Submit right away so console & network logs are captured fresh..."
             rows={4}
-            className={`w-full resize-none rounded-lg border p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/50 ${
+            className={`w-full resize-none rounded-lg border p-2.5 text-sm focus:outline-hidden focus:ring-2 focus:ring-teal-500/50 ${
               isDarkMode
                 ? "bg-[#2A2F35] border-[#37474F] text-gray-200 placeholder-gray-500"
                 : "bg-white border-gray-300 text-gray-800 placeholder-gray-400"

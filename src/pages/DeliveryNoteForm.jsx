@@ -44,7 +44,7 @@ const CARD_CLASSES = (isDarkMode) =>
   `${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"} border rounded-2xl p-4`;
 
 const INPUT_CLASSES = (isDarkMode) =>
-  `w-full ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"} border rounded-xl py-2.5 px-3 text-[13px] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20`;
+  `w-full ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"} border rounded-xl py-2.5 px-3 text-[13px] outline-hidden focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20`;
 
 const LABEL_CLASSES = (isDarkMode) => `block text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"} mb-1.5`;
 
@@ -879,7 +879,7 @@ const DeliveryNoteForm = () => {
                         <div className="grid grid-cols-12 gap-3 items-center">
                           <div className="col-span-5">
                             <div className="flex items-start gap-2">
-                              <Package size={16} className="text-teal-500 mt-0.5 flex-shrink-0" />
+                              <Package size={16} className="text-teal-500 mt-0.5 shrink-0" />
                               <div className="flex-1 min-w-0">
                                 <p
                                   className={`text-[13px] font-medium truncate ${isDarkMode ? "text-white" : "text-gray-900"}`}
@@ -932,7 +932,7 @@ const DeliveryNoteForm = () => {
                               min={0}
                               max={item.orderedQuantity}
                               step={0.01}
-                              className={`w-full px-2 py-1.5 border rounded-[10px] text-right text-[13px] font-mono ${isDarkMode ? "bg-gray-800 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"} focus:border-teal-500 focus:ring-1 focus:ring-teal-500/20 outline-none`}
+                              className={`w-full px-2 py-1.5 border rounded-[10px] text-right text-[13px] font-mono ${isDarkMode ? "bg-gray-800 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"} focus:border-teal-500 focus:ring-1 focus:ring-teal-500/20 outline-hidden`}
                             />
                           </div>
 
@@ -985,7 +985,7 @@ const DeliveryNoteForm = () => {
                                     min={0}
                                     step={0.01}
                                     placeholder="Enter"
-                                    className={`w-full px-2 py-1.5 border rounded-[10px] text-right text-[13px] font-mono ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"} focus:border-teal-500 outline-none`}
+                                    className={`w-full px-2 py-1.5 border rounded-[10px] text-right text-[13px] font-mono ${isDarkMode ? "bg-gray-900 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"} focus:border-teal-500 outline-hidden`}
                                   />
                                 </div>
                                 <div>
@@ -1108,10 +1108,7 @@ const DeliveryNoteForm = () => {
                 className={`p-4 rounded-2xl border-2 ${isDarkMode ? "bg-red-900/20 border-red-600 text-red-200" : "bg-red-50 border-red-500 text-red-800"}`}
               >
                 <div className="flex items-start gap-3">
-                  <AlertTriangle
-                    className={`flex-shrink-0 ${isDarkMode ? "text-red-400" : "text-red-600"}`}
-                    size={20}
-                  />
+                  <AlertTriangle className={`shrink-0 ${isDarkMode ? "text-red-400" : "text-red-600"}`} size={20} />
                   <div className="flex-1">
                     <div className="font-bold text-sm mb-2">Please fix the following errors:</div>
                     <ul className="list-disc list-inside space-y-1 text-xs">
@@ -1264,13 +1261,13 @@ const DeliveryNoteForm = () => {
         aria-label="Close delivery address drawer"
       />
       <div
-        className={`fixed top-0 right-0 h-full w-[min(520px,92vw)] z-[31] ${isDarkMode ? "bg-gray-800 border-l border-gray-700" : "bg-white border-l border-gray-200"} overflow-auto transition-transform ${showDeliveryAddressDrawer ? "translate-x-0" : "translate-x-full"}`}
+        className={`fixed top-0 right-0 h-full w-[min(520px,92vw)] z-31 ${isDarkMode ? "bg-gray-800 border-l border-gray-700" : "bg-white border-l border-gray-200"} overflow-auto transition-transform ${showDeliveryAddressDrawer ? "translate-x-0" : "translate-x-full"}`}
         data-testid="delivery-address-drawer"
       >
         <div className="p-4">
           {/* Drawer Header */}
           <div
-            className={`sticky top-0 flex justify-between items-start gap-2.5 mb-3 p-4 -m-4 mb-3 ${isDarkMode ? "bg-gray-800 border-b border-gray-700" : "bg-white border-b border-gray-200"} z-[1]`}
+            className={`sticky top-0 flex justify-between items-start gap-2.5 mb-3 p-4 -m-4 mb-3 ${isDarkMode ? "bg-gray-800 border-b border-gray-700" : "bg-white border-b border-gray-200"} z-1`}
           >
             <div>
               <div className="text-sm font-extrabold">Delivery Address</div>
@@ -1365,13 +1362,13 @@ const DeliveryNoteForm = () => {
         aria-label="Close transport details drawer"
       />
       <div
-        className={`fixed top-0 right-0 h-full w-[min(520px,92vw)] z-[31] ${isDarkMode ? "bg-gray-800 border-l border-gray-700" : "bg-white border-l border-gray-200"} overflow-auto transition-transform ${showTransportDrawer ? "translate-x-0" : "translate-x-full"}`}
+        className={`fixed top-0 right-0 h-full w-[min(520px,92vw)] z-31 ${isDarkMode ? "bg-gray-800 border-l border-gray-700" : "bg-white border-l border-gray-200"} overflow-auto transition-transform ${showTransportDrawer ? "translate-x-0" : "translate-x-full"}`}
         data-testid="transport-drawer"
       >
         <div className="p-4">
           {/* Drawer Header */}
           <div
-            className={`sticky top-0 flex justify-between items-start gap-2.5 mb-3 p-4 -m-4 mb-3 ${isDarkMode ? "bg-gray-800 border-b border-gray-700" : "bg-white border-b border-gray-200"} z-[1]`}
+            className={`sticky top-0 flex justify-between items-start gap-2.5 mb-3 p-4 -m-4 mb-3 ${isDarkMode ? "bg-gray-800 border-b border-gray-700" : "bg-white border-b border-gray-200"} z-1`}
           >
             <div>
               <div className="text-sm font-extrabold">Transport Details</div>
@@ -1476,13 +1473,13 @@ const DeliveryNoteForm = () => {
         aria-label="Close notes drawer"
       />
       <div
-        className={`fixed top-0 right-0 h-full w-[min(520px,92vw)] z-[31] ${isDarkMode ? "bg-gray-800 border-l border-gray-700" : "bg-white border-l border-gray-200"} overflow-auto transition-transform ${showNotesDrawer ? "translate-x-0" : "translate-x-full"}`}
+        className={`fixed top-0 right-0 h-full w-[min(520px,92vw)] z-31 ${isDarkMode ? "bg-gray-800 border-l border-gray-700" : "bg-white border-l border-gray-200"} overflow-auto transition-transform ${showNotesDrawer ? "translate-x-0" : "translate-x-full"}`}
         data-testid="notes-drawer"
       >
         <div className="p-4">
           {/* Drawer Header */}
           <div
-            className={`sticky top-0 flex justify-between items-start gap-2.5 mb-3 p-4 -m-4 mb-3 ${isDarkMode ? "bg-gray-800 border-b border-gray-700" : "bg-white border-b border-gray-200"} z-[1]`}
+            className={`sticky top-0 flex justify-between items-start gap-2.5 mb-3 p-4 -m-4 mb-3 ${isDarkMode ? "bg-gray-800 border-b border-gray-700" : "bg-white border-b border-gray-200"} z-1`}
           >
             <div>
               <div className="text-sm font-extrabold">Notes</div>

@@ -93,7 +93,7 @@ const StockAvailabilityIndicator = ({ productId, warehouseId, requiredQty, compa
     if (iconOnly) {
       if (loading) {
         return (
-          <span title="Checking stock..." className="flex-shrink-0">
+          <span title="Checking stock..." className="shrink-0">
             <Loader2 size={16} className="animate-spin text-gray-400" />
           </span>
         );
@@ -101,7 +101,7 @@ const StockAvailabilityIndicator = ({ productId, warehouseId, requiredQty, compa
 
       if (error || !stockData) {
         return (
-          <span title={error || "Unable to check stock"} className="flex-shrink-0">
+          <span title={error || "Unable to check stock"} className="shrink-0">
             <AlertTriangle size={16} className="text-gray-400" />
           </span>
         );
@@ -111,7 +111,7 @@ const StockAvailabilityIndicator = ({ productId, warehouseId, requiredQty, compa
         return (
           <span
             title={`No stock available${warehouseId ? " in selected warehouse" : ""}`}
-            className="flex-shrink-0 cursor-help"
+            className="shrink-0 cursor-help"
           >
             <AlertTriangle size={16} className="text-red-500" />
           </span>
@@ -122,7 +122,7 @@ const StockAvailabilityIndicator = ({ productId, warehouseId, requiredQty, compa
         return (
           <span
             title={`Only ${formatQty(stockData.totalAvailable)} available. Need ${formatQty(requiredQty)}, short by ${formatQty(shortfall)}`}
-            className="flex-shrink-0 cursor-help"
+            className="shrink-0 cursor-help"
           >
             <AlertTriangle size={16} className="text-amber-500" />
           </span>
@@ -133,7 +133,7 @@ const StockAvailabilityIndicator = ({ productId, warehouseId, requiredQty, compa
         return (
           <span
             title={`${formatQty(stockData.totalAvailable)} available in ${stockData.batchCount} batch(es)`}
-            className="flex-shrink-0 cursor-help"
+            className="shrink-0 cursor-help"
           >
             <CheckCircle size={16} className="text-green-500" />
           </span>

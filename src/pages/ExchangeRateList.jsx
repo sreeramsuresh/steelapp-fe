@@ -194,7 +194,7 @@ const ExchangeRateList = () => {
       {/* Converter Panel */}
       {showConverter && (
         <div
-          className={`${cardClass} rounded-lg p-6 mb-6 shadow-sm border ${isDarkMode ? "border-purple-800" : "border-purple-200"}`}
+          className={`${cardClass} rounded-lg p-6 mb-6 shadow-xs border ${isDarkMode ? "border-purple-800" : "border-purple-200"}`}
         >
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold flex items-center gap-2">
@@ -305,7 +305,7 @@ const ExchangeRateList = () => {
       )}
 
       {/* Search + Refresh */}
-      <div className={`${cardClass} rounded-lg p-4 mb-6 shadow-sm`}>
+      <div className={`${cardClass} rounded-lg p-4 mb-6 shadow-xs`}>
         <div className="flex gap-4">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
@@ -328,7 +328,7 @@ const ExchangeRateList = () => {
       </div>
 
       {/* Table */}
-      <div className={`${cardClass} rounded-lg shadow-sm overflow-hidden`}>
+      <div className={`${cardClass} rounded-lg shadow-xs overflow-hidden`}>
         {loading ? (
           <div className="p-8 text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600 mx-auto" />

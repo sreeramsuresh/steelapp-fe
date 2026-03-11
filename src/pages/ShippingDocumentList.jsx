@@ -538,7 +538,7 @@ const ShippingDocumentList = () => {
       )}
 
       {/* Filters */}
-      <div className={`${isDarkMode ? "bg-gray-800" : "bg-white"} rounded-lg p-4 mb-6 shadow-sm`}>
+      <div className={`${isDarkMode ? "bg-gray-800" : "bg-white"} rounded-lg p-4 mb-6 shadow-xs`}>
         <div className="flex flex-col md:flex-row gap-4">
           {/* Search */}
           <div className="flex-1">
@@ -689,7 +689,7 @@ const ShippingDocumentList = () => {
       </div>
 
       {/* Documents Table */}
-      <div className={`${isDarkMode ? "bg-gray-800" : "bg-white"} rounded-lg shadow-sm overflow-hidden`}>
+      <div className={`${isDarkMode ? "bg-gray-800" : "bg-white"} rounded-lg shadow-xs overflow-hidden`}>
         {loading ? (
           <div className="p-8 text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600 mx-auto"></div>
@@ -1829,7 +1829,7 @@ const ShippingDocumentList = () => {
 
                           {/* Icon */}
                           <div
-                            className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
+                            className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
                               isCompleted
                                 ? isCurrent
                                   ? "bg-purple-500 text-white"

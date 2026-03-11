@@ -920,7 +920,7 @@ const CustomerManagement = () => {
               type="button"
               onClick={() => setShowAddModal(true)}
               data-testid="add-customer-button"
-              className="px-6 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 whitespace-nowrap"
+              className="px-6 py-2 bg-linear-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 whitespace-nowrap"
             >
               <FaPlus />
               Add Customer
@@ -931,7 +931,7 @@ const CustomerManagement = () => {
             <button
               type="button"
               onClick={() => setShowUploadModal(true)}
-              className="px-6 py-2 bg-gradient-to-r from-[#4CAF50] to-[#388E3C] text-white rounded-lg hover:from-[#66BB6A] hover:to-[#4CAF50] transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 whitespace-nowrap"
+              className="px-6 py-2 bg-linear-to-r from-[#4CAF50] to-[#388E3C] text-white rounded-lg hover:from-[#66BB6A] hover:to-[#4CAF50] transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 whitespace-nowrap"
             >
               <FaUpload />
               Upload Customers
@@ -943,7 +943,7 @@ const CustomerManagement = () => {
             <button
               type="button"
               onClick={handleBulkArchiveCustomers}
-              className="px-4 py-2 bg-gradient-to-r from-[#FFA726] to-[#F57C00] text-white rounded-lg hover:from-[#FFB74D] hover:to-[#FFA726] transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg whitespace-nowrap"
+              className="px-4 py-2 bg-linear-to-r from-[#FFA726] to-[#F57C00] text-white rounded-lg hover:from-[#FFB74D] hover:to-[#FFA726] transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg whitespace-nowrap"
             >
               <FaArchive />
               Archive ({selectedCustomerIds.size})
@@ -1359,7 +1359,7 @@ const CustomerManagement = () => {
           <button
             type="button"
             onClick={() => setShowAddSupplierModal(true)}
-            className="px-6 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 whitespace-nowrap"
+            className="px-6 py-2 bg-linear-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 whitespace-nowrap"
           >
             <FaPlus />
             Add Supplier
@@ -1740,7 +1740,7 @@ const CustomerManagement = () => {
   );
 
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}>
+    <div className={`min-h-screen transition-colors duration-300 ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}>
       <div className="w-full px-4 sm:px-6 lg:px-8 py-6 max-w-[100vw] overflow-x-hidden">
         {/* Page Header */}
         <div className={`mb-8 pb-6 border-b ${isDarkMode ? "border-[#37474F]" : "border-[#E0E0E0]"}`}>
@@ -2189,7 +2189,7 @@ const CustomerManagement = () => {
                 type="button"
                 onClick={handleAddCustomer}
                 disabled={creatingCustomer || !!validateTRN(newCustomer.trn_number)}
-                className="px-4 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2 disabled:opacity-50"
+                className="px-4 py-2 bg-linear-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2 disabled:opacity-50"
               >
                 <FaSave />
                 {creatingCustomer ? "Adding..." : "Add Customer"}
@@ -2435,7 +2435,7 @@ const CustomerManagement = () => {
                 type="button"
                 onClick={handleAddSupplier}
                 disabled={creatingSupplier || !!validateTRN(newSupplier.trn_number)}
-                className="px-4 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg disabled:opacity-50"
+                className="px-4 py-2 bg-linear-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg disabled:opacity-50"
               >
                 <FaSave /> {creatingSupplier ? "Adding..." : "Add Supplier"}
               </button>
@@ -2714,7 +2714,7 @@ const CustomerManagement = () => {
                 type="button"
                 onClick={handleEditSupplier}
                 disabled={updatingSupplier || !!validateTRN(selectedSupplier.trn_number)}
-                className="px-4 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg disabled:opacity-50"
+                className="px-4 py-2 bg-linear-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg disabled:opacity-50"
               >
                 <FaSave /> {updatingSupplier ? "Saving..." : "Save Changes"}
               </button>
@@ -3179,7 +3179,7 @@ const CustomerManagement = () => {
                 type="button"
                 onClick={handleEditCustomer}
                 disabled={updatingCustomer || !!validateTRN(selectedCustomer.trn_number)}
-                className="px-4 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2 disabled:opacity-50"
+                className="px-4 py-2 bg-linear-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2 disabled:opacity-50"
               >
                 <FaSave />
                 {updatingCustomer ? "Saving..." : "Save Changes"}
@@ -3286,7 +3286,7 @@ const CustomerManagement = () => {
                 <button
                   type="button"
                   onClick={addContactEntry}
-                  className="mt-4 px-4 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2"
+                  className="mt-4 px-4 py-2 bg-linear-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2"
                 >
                   <FaPlus />
                   Add Contact Entry

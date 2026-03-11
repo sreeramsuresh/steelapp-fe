@@ -34,7 +34,7 @@ export default function PeriodCard({ period, onClose, onLock, onView, isClosing 
   const canView = status !== "OPEN";
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-lg shadow hover:shadow-md transition-shadow border border-slate-200 dark:border-slate-700">
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm hover:shadow-md transition-shadow border border-slate-200 dark:border-slate-700">
       <div className="p-6">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1">

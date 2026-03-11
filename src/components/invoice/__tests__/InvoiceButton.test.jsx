@@ -35,7 +35,7 @@ describe("InvoiceButton", () => {
     expect(container.innerHTML).not.toContain("teal-600");
   });
 
-  it("applies outline variant", () => {
+  it("applies outline-solid variant", () => {
     const { container } = renderWithTheme(<Button variant="outline">Out</Button>);
     expect(container.innerHTML).toContain("border");
   });

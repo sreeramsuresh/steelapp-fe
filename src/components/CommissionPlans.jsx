@@ -423,7 +423,7 @@ const CommissionPlans = () => {
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     className={`w-full px-3 py-2 rounded-lg border ${
                       isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
-                    } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                    } focus:outline-hidden focus:ring-2 focus:ring-blue-500`}
                     placeholder="Standard Sales Plan"
                   />
                 </div>
@@ -442,7 +442,7 @@ const CommissionPlans = () => {
                     rows={2}
                     className={`w-full px-3 py-2 rounded-lg border ${
                       isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
-                    } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                    } focus:outline-hidden focus:ring-2 focus:ring-blue-500`}
                     placeholder="Optional description for this plan"
                   />
                 </div>
@@ -479,9 +479,7 @@ const CommissionPlans = () => {
 
                 <div className={`p-3 rounded-lg mb-3 ${isDarkMode ? "bg-gray-700" : "bg-blue-50"}`}>
                   <div className="flex items-start space-x-2">
-                    <Info
-                      className={`h-4 w-4 mt-0.5 flex-shrink-0 ${isDarkMode ? "text-blue-400" : "text-blue-600"}`}
-                    />
+                    <Info className={`h-4 w-4 mt-0.5 shrink-0 ${isDarkMode ? "text-blue-400" : "text-blue-600"}`} />
                     <p className={`text-xs ${isDarkMode ? "text-gray-300" : "text-blue-900"}`}>
                       Define tiered commission rates based on sale amounts. Leave max amount empty for unlimited.
                     </p>
@@ -533,7 +531,7 @@ const CommissionPlans = () => {
                               isDarkMode
                                 ? "bg-gray-600 border-gray-500 text-white"
                                 : "bg-white border-gray-300 text-gray-900"
-                            } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                            } focus:outline-hidden focus:ring-2 focus:ring-blue-500`}
                           />
                         </div>
                         <div>
@@ -556,7 +554,7 @@ const CommissionPlans = () => {
                               isDarkMode
                                 ? "bg-gray-600 border-gray-500 text-white"
                                 : "bg-white border-gray-300 text-gray-900"
-                            } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                            } focus:outline-hidden focus:ring-2 focus:ring-blue-500`}
                             placeholder="Unlimited"
                           />
                         </div>
@@ -579,7 +577,7 @@ const CommissionPlans = () => {
                               isDarkMode
                                 ? "bg-gray-600 border-gray-500 text-white"
                                 : "bg-white border-gray-300 text-gray-900"
-                            } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                            } focus:outline-hidden focus:ring-2 focus:ring-blue-500`}
                           />
                         </div>
                       </div>
@@ -657,7 +655,7 @@ const CommissionPlans = () => {
                   onChange={(e) => setEffectiveDate(e.target.value)}
                   className={`w-full px-3 py-2 rounded-lg border ${
                     isDarkMode ? "bg-gray-700 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
-                  } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                  } focus:outline-hidden focus:ring-2 focus:ring-blue-500`}
                 />
               </div>
 

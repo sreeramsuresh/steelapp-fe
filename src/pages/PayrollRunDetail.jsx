@@ -171,19 +171,19 @@ const PayrollRunDetail = () => {
 
       {/* Summary cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-lg shadow p-4">
+        <div className="bg-white rounded-lg shadow-sm p-4">
           <p className="text-sm text-gray-500">Employees</p>
           <p className="text-2xl font-bold">{summary?.employeeCount ?? run.employeeCount ?? 0}</p>
         </div>
-        <div className="bg-white rounded-lg shadow p-4">
+        <div className="bg-white rounded-lg shadow-sm p-4">
           <p className="text-sm text-gray-500">Total Gross</p>
           <p className="text-2xl font-bold">{Number(summary?.totalGross ?? run.totalGross ?? 0).toLocaleString()}</p>
         </div>
-        <div className="bg-white rounded-lg shadow p-4">
+        <div className="bg-white rounded-lg shadow-sm p-4">
           <p className="text-sm text-gray-500">Total Deductions</p>
           <p className="text-2xl font-bold">{Number(summary?.totalDeductions ?? 0).toLocaleString()}</p>
         </div>
-        <div className="bg-white rounded-lg shadow p-4">
+        <div className="bg-white rounded-lg shadow-sm p-4">
           <p className="text-sm text-gray-500">Total Net</p>
           <p className="text-2xl font-bold text-teal-700">
             {Number(summary?.totalNet ?? run.totalNet ?? 0).toLocaleString()}
@@ -195,7 +195,7 @@ const PayrollRunDetail = () => {
       <div className="flex items-center gap-3 mb-6">{actionButtons()}</div>
 
       {/* Entries table */}
-      <div className="bg-white rounded-lg shadow overflow-x-auto">
+      <div className="bg-white rounded-lg shadow-sm overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>

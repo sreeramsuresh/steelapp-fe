@@ -32,13 +32,13 @@ const Button = ({
   const { isDarkMode } = useTheme();
 
   const baseClasses =
-    "inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2";
+    "inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-300 focus:outline-hidden focus:ring-2 focus:ring-offset-2";
 
   const getVariantClasses = () => {
     if (variant === "primary") {
-      return `bg-gradient-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 hover:-translate-y-0.5 focus:ring-teal-500 ${
+      return `bg-linear-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 hover:-translate-y-0.5 focus:ring-teal-500 ${
         isDarkMode ? "disabled:bg-gray-600 focus:ring-offset-gray-800" : "disabled:bg-gray-400 focus:ring-offset-white"
-      } disabled:hover:translate-y-0 shadow-sm hover:shadow-md`;
+      } disabled:hover:translate-y-0 shadow-xs hover:shadow-md`;
     } else {
       // outline
       return `border ${
@@ -63,7 +63,7 @@ const Button = ({
       onClick={onClick}
       {...props}
     >
-      {startIcon && <span className="flex-shrink-0">{startIcon}</span>}
+      {startIcon && <span className="shrink-0">{startIcon}</span>}
       {children}
     </button>
   );
@@ -192,8 +192,8 @@ const RevenueTrendChart = ({ data, isDarkMode, formatCurrency }) => {
       <div
         className={`p-8 text-center rounded-xl border-2 border-dashed min-h-60 flex flex-col items-center justify-center ${
           isDarkMode
-            ? "border-[#37474F] bg-gradient-to-br from-[#121418] to-[#1E2328] text-gray-400"
-            : "border-gray-300 bg-gradient-to-br from-gray-50 to-white text-gray-500"
+            ? "border-[#37474F] bg-linear-to-br from-gray-900 to-[#1E2328] text-gray-400"
+            : "border-gray-300 bg-linear-to-br from-gray-50 to-white text-gray-500"
         }`}
       >
         <Activity size={48} className="mb-4 opacity-60" />
@@ -407,7 +407,7 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className={`p-6 md:p-8 min-h-screen w-full ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}>
+      <div className={`p-6 md:p-8 min-h-screen w-full ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}>
         <div className="flex items-center justify-center min-h-96 gap-3">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
           <span className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Loading dashboard...</span>
@@ -418,7 +418,7 @@ const Dashboard = () => {
 
   return (
     <div
-      className={`p-4 md:p-6 lg:p-8 min-h-screen w-full overflow-auto ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
+      className={`p-4 md:p-6 lg:p-8 min-h-screen w-full overflow-auto ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}
     >
       {/* Header Section */}
       <div className={`mb-6 pb-4 border-b ${isDarkMode ? "border-[#37474F]" : "border-gray-200"}`}>
@@ -475,7 +475,7 @@ const Dashboard = () => {
                   {formatCurrency(stats.totalRevenue)}
                 </h3>
               </div>
-              <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-teal-600 to-teal-700 flex items-center justify-center shadow-lg ml-auto">
+              <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-linear-to-br from-teal-600 to-teal-700 flex items-center justify-center shadow-lg ml-auto">
                 <DollarSign size={18} className="text-white" />
               </div>
             </div>
@@ -514,7 +514,7 @@ const Dashboard = () => {
                   {stats.totalCustomers}
                 </h3>
               </div>
-              <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center shadow-lg ml-auto">
+              <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-linear-to-br from-green-500 to-green-600 flex items-center justify-center shadow-lg ml-auto">
                 <Users size={18} className="text-white" />
               </div>
             </div>
@@ -553,7 +553,7 @@ const Dashboard = () => {
                   {stats.totalProducts}
                 </h3>
               </div>
-              <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-yellow-500 to-yellow-600 flex items-center justify-center shadow-lg ml-auto">
+              <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-linear-to-br from-yellow-500 to-yellow-600 flex items-center justify-center shadow-lg ml-auto">
                 <Package size={18} className="text-white" />
               </div>
             </div>
@@ -592,7 +592,7 @@ const Dashboard = () => {
                   {stats.totalInvoices}
                 </h3>
               </div>
-              <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center shadow-lg ml-auto">
+              <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-linear-to-br from-red-500 to-red-600 flex items-center justify-center shadow-lg ml-auto">
                 <FileText size={18} className="text-white" />
               </div>
             </div>
@@ -634,7 +634,7 @@ const Dashboard = () => {
                   {kpis.grossMargin.toFixed(1)}%
                 </h3>
               </div>
-              <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg ml-auto">
+              <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-linear-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg ml-auto">
                 <Percent size={18} className="text-white" />
               </div>
             </div>
@@ -672,7 +672,7 @@ const Dashboard = () => {
                   {kpis.dso.toFixed(0)} days
                 </h3>
               </div>
-              <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg ml-auto">
+              <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-linear-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg ml-auto">
                 <Clock size={18} className="text-white" />
               </div>
             </div>
@@ -715,10 +715,10 @@ const Dashboard = () => {
               <div
                 className={`w-9 h-9 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center shadow-lg ml-auto ${
                   kpis.creditUtilization > 80
-                    ? "bg-gradient-to-br from-red-500 to-red-600"
+                    ? "bg-linear-to-br from-red-500 to-red-600"
                     : kpis.creditUtilization > 60
-                      ? "bg-gradient-to-br from-yellow-500 to-yellow-600"
-                      : "bg-gradient-to-br from-green-500 to-green-600"
+                      ? "bg-linear-to-br from-yellow-500 to-yellow-600"
+                      : "bg-linear-to-br from-green-500 to-green-600"
                 }`}
               >
                 <CreditCard size={18} className="text-white" />
@@ -834,7 +834,7 @@ const Dashboard = () => {
                     >
                       <div className="flex items-center gap-3 mb-3">
                         <div
-                          className={`w-10 h-10 rounded-xl bg-gradient-to-br ${getGradient()} flex items-center justify-center shadow-lg`}
+                          className={`w-10 h-10 rounded-xl bg-linear-to-br ${getGradient()} flex items-center justify-center shadow-lg`}
                         >
                           <Package size={20} className="text-white" />
                         </div>

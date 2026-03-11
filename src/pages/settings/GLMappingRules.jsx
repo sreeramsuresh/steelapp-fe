@@ -221,7 +221,7 @@ export default function GLMappingRules() {
       )}
 
       {/* Rules Table */}
-      <div className={`${cardBg} rounded-lg shadow overflow-x-auto`}>
+      <div className={`${cardBg} rounded-lg shadow-sm overflow-x-auto`}>
         <table className="min-w-full">
           <thead>
             <tr className={`${theadBg} ${rowBorder}`}>
@@ -307,7 +307,7 @@ export default function GLMappingRules() {
 
       {/* Preview Panel */}
       {previewRule && (
-        <div className={`mt-6 ${cardBg} rounded-lg shadow p-4`}>
+        <div className={`mt-6 ${cardBg} rounded-lg shadow-sm p-4`}>
           <div className="flex items-center justify-between mb-3">
             <h3 className={`text-sm font-semibold ${textPrimary}`}>
               Preview: {previewRule.ruleCode} (sample amount: 1,000)
