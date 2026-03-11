@@ -1,14 +1,14 @@
-import apiClient from "./axiosApi";
+import { apiService } from "./axiosApi";
 
 const globalSearchService = {
   async search(query, options = {}) {
     const params = { q: query };
     if (options.limit) params.limit = options.limit;
-    return apiClient.get("/search", params);
+    return apiService.get("/search", params);
   },
 
   async refreshIndex() {
-    return apiClient.post("/search/refresh");
+    return apiService.post("/search/refresh");
   },
 };
 
