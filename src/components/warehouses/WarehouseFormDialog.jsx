@@ -147,7 +147,12 @@ const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
   const labelClass = `block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="warehouse-dialog-title"
+    >
       {/* Backdrop */}
       <button type="button" className="absolute inset-0 bg-black/50" onClick={onClose} aria-label="Close dialog" />
 
@@ -167,7 +172,10 @@ const WarehouseFormDialog = ({ open, warehouse, onSave, onClose }) => {
             <div className={`p-2 rounded-lg ${isDarkMode ? "bg-teal-900/30" : "bg-teal-100"}`}>
               <MapPin className={`w-5 h-5 ${isDarkMode ? "text-teal-400" : "text-teal-600"}`} />
             </div>
-            <h2 className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+            <h2
+              id="warehouse-dialog-title"
+              className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}
+            >
               {isEditing ? "Edit Warehouse" : "Add New Warehouse"}
             </h2>
           </div>
