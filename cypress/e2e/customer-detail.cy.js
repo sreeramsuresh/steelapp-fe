@@ -60,36 +60,22 @@ describe("Customer Detail & Forms - E2E Tests", () => {
   });
 
   describe("Customer Detail Page", () => {
-    it("should handle navigating to a customer detail page", () => {
-      // First visit customer list to find a valid customer
+    it("should navigate to customer detail via name button", () => {
       cy.visit("/app/customers");
-      cy.get("body", { timeout: 15000 }).should(($body) => {
-        const text = $body.text().toLowerCase();
-        expect(text).to.include("customer");
-      });
+      // Wait for customer list to render with data-testid heading
+      cy.get('[data-testid="customer-management-heading"]', { timeout: 15000 }).should("be.visible");
 
-      // Try to click on a customer row to navigate to detail
+      // Customer rows use button (not <a>) for navigation: data-testid="customer-name-link-{id}"
+      // If no customers exist in the E2E seed, skip gracefully
       cy.get("body").then(($body) => {
-        const $rows = $body.find("table tbody tr");
-        if ($rows.length === 0) {
-          cy.log("No customer rows found, skipping navigation test");
+        const $nameButtons = $body.find('[data-testid^="customer-name-link-"]');
+        if ($nameButtons.length === 0) {
+          cy.log("No customer name buttons found — seed has no customers, skipping");
           return;
         }
-        // Check for links using jQuery (no Cypress timeout on missing elements)
-        const $firstRow = $rows.first();
-        const $link = $firstRow.find("a");
-        if ($link.length > 0) {
-          const href = $link.first().attr("href");
-          if (href) {
-            cy.visit(href);
-          } else {
-            cy.wrap($link.first()).click({ force: true });
-          }
-          cy.url({ timeout: 10000 }).should("match", /\/app\/customers\/\d+/);
-        } else {
-          // No links in row — just verify the row has content
-          expect($firstRow.text().length).to.be.greaterThan(3);
-        }
+        // Click the first customer name button — navigates to /app/customers/:id?tab=overview
+        cy.get('[data-testid^="customer-name-link-"]').first().click();
+        cy.url({ timeout: 10000 }).should("match", /\/app\/customers\/\d+/);
       });
     });
 

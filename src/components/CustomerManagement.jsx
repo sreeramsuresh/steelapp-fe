@@ -1047,6 +1047,7 @@ const CustomerManagement = () => {
               sortedCustomers.map((customer) => (
                 <tr
                   key={customer.id}
+                  data-testid={`customer-row-${customer.id}`}
                   className={`transition-colors ${
                     selectedCustomerIds.has(customer.id)
                       ? isDarkMode
@@ -1078,6 +1079,7 @@ const CustomerManagement = () => {
                         <div className="space-y-1">
                           <button
                             type="button"
+                            data-testid={`customer-name-link-${customer.id}`}
                             onClick={() => handleCustomerClick(customer.id)}
                             className={`font-medium text-left hover:underline block truncate max-w-[180px] ${isDarkMode ? "text-teal-400 hover:text-teal-300" : "text-teal-600 hover:text-teal-700"}`}
                             title={getCustomerCellValue(customer, col.key)}

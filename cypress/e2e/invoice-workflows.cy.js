@@ -89,24 +89,12 @@ describe("Invoice Workflows - E2E Tests", () => {
   });
 
   it("should have a create invoice button or link", () => {
-    // Wait for the invoice page to load (may or may not have data-testid="invoice-list")
-    cy.get("body", { timeout: 15000 }).should(($body) => {
-      expect($body.text().toLowerCase()).to.include("invoice");
-    });
-    cy.get("body").then(($body) => {
-      const hasCreateTestId = $body.find('[data-testid="create-invoice-button"]').length > 0;
-      const hasCreateLink = $body.find('a[href*="invoices/new"], a[href*="invoices/create"]').length > 0;
-      const hasCreateText =
-        $body.find("button, a").filter(function () {
-          return /create|new|add|\+/i.test(this.textContent);
-        }).length > 0;
-      const hasIconButton = $body.find("button svg, a svg").length > 0;
-      const hasInteractiveElements = $body.find("button, a").length > 2;
-      expect(
-        hasCreateTestId || hasCreateLink || hasCreateText || hasIconButton || hasInteractiveElements,
-        "Page should have a create/new invoice button or link",
-      ).to.be.true;
-    });
+    // InvoiceList.jsx wraps content in data-testid="invoice-list"
+    cy.get('[data-testid="invoice-list"]', { timeout: 15000 }).should("be.visible");
+    // Create Invoice button: Link to="/app/invoices/new" with data-testid="create-invoice-button"
+    // Gated by invoices.create permission — E2E admin has PERMISSION_CHECK_DISABLED=true
+    cy.get('[data-testid="create-invoice-button"]', { timeout: 5000 }).should("be.visible");
+    cy.get('[data-testid="create-invoice-button"]').should("have.attr", "href", "/app/invoices/new");
   });
 
   it("should sort table when clicking a column header", () => {

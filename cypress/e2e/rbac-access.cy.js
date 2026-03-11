@@ -109,25 +109,14 @@ describe("RBAC Access Control - E2E Tests", () => {
     it("should show navigation sidebar with admin-level links", () => {
       cy.loginAsRole("admin");
       cy.visit("/app");
-      // Admin should see navigation links in sidebar. Check for core ERP links
-      // and admin-specific sections (settings, audit). Link paths may vary.
-      cy.get("body", { timeout: 15000 }).should(($body) => {
-        const links = $body.find('a[href*="/"]');
-        const hrefs = [...links].map((a) => a.getAttribute("href"));
-        // Admin must see core ERP nav links
-        const hasInvoicesLink = hrefs.some((h) => h && h.includes("/invoices"));
-        const hasCustomersLink = hrefs.some((h) => h && h.includes("/customers"));
-        expect(hasInvoicesLink || hasCustomersLink, "Admin sidebar should contain core ERP links (invoices or customers)").to.be.true;
-      });
-      // Admin-specific: settings or audit links (path may be /settings, /audit-logs, /audit, etc.)
-      cy.get("body").should(($body) => {
-        const links = $body.find('a[href*="/"]');
-        const hrefs = [...links].map((a) => a.getAttribute("href"));
-        const hasSettingsLink = hrefs.some((h) => h && h.includes("/settings"));
-        const hasAuditLink = hrefs.some((h) => h && (h.includes("/audit") || h.includes("/logs")));
-        const hasAdminContent = hasSettingsLink || hasAuditLink || hrefs.length > 5;
-        expect(hasAdminContent, "Admin sidebar should contain settings/audit links or extensive navigation").to.be.true;
-      });
+      // CoreSidebar renders Links for each nav section. Admin should see:
+      // - Core ERP: /app/invoices, /app/customers, /app/quotations
+      // - Admin-only: /app/settings (requiredRoles includes "admin")
+      // Note: Audit Trail (/audit-logs) is NOT in CoreSidebar — it's in the legacy Sidebar
+      cy.get('a[href="/app/invoices"]', { timeout: 15000 }).should("exist");
+      cy.get('a[href="/app/customers"]').should("exist");
+      // Settings link is admin-gated in CoreSidebar
+      cy.get('a[href="/app/settings"]').should("exist");
     });
 
     it("should redirect unauthenticated user from /app to /login", () => {
