@@ -13,7 +13,7 @@ vi.mock("../../services/userPreferencesService", () => ({
 import { userPreferencesService as mockService } from "../../services/userPreferencesService";
 import useHomeSectionOrder from "../useHomeSectionOrder";
 
-const DEFAULT_ORDER = ["quickAccess", "createNew", "recentItems", "integritySummary"];
+const DEFAULT_ORDER = ["quickAccess", "createNew", "integritySummary", "recentItems"];
 
 describe("useHomeSectionOrder", () => {
   beforeEach(() => {
@@ -48,7 +48,7 @@ describe("useHomeSectionOrder", () => {
 
     const { result } = renderHook(() => useHomeSectionOrder());
 
-    expect(result.current.sectionOrder).toEqual(["quickAccess", "createNew", "recentItems", "integritySummary"]);
+    expect(result.current.sectionOrder).toEqual(["quickAccess", "createNew", "integritySummary", "recentItems"]);
   });
 
   it("filters invalid sections", () => {

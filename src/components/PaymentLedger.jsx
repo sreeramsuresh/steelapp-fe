@@ -11,7 +11,7 @@ import {
 } from "../utils/paymentUtils";
 import ConfirmDialog from "./ConfirmDialog";
 
-const PaymentLedger = ({ payments = [], invoice, company, onAddPayment, onEditPayment, onDeletePayment }) => {
+const PaymentLedger = ({ payments = [], invoice, onAddPayment, onEditPayment, onDeletePayment }) => {
   const { isDarkMode } = useTheme();
   const [selectedForDelete, setSelectedForDelete] = useState(new Set());
   const [downloadingReceiptId, setDownloadingReceiptId] = useState(null);

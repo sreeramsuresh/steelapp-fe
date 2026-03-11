@@ -11,6 +11,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useNotifications } from "../../contexts/NotificationCenterContext";
 import { useTheme } from "../../contexts/ThemeContext";
 import api from "../../services/axiosApi";
+import { downloadFile } from "../../services/fileDownloadService.js";
 import InventoryUpload from "../InventoryUpload";
 
 vi.mock("../../contexts/ThemeContext", () => ({
@@ -20,6 +21,9 @@ vi.mock("../../contexts/NotificationCenterContext", () => ({
   useNotifications: vi.fn(() => ({ addNotification: vi.fn() })),
 }));
 vi.mock("../../services/axiosApi", () => ({ default: { post: vi.fn(), get: vi.fn() } }));
+vi.mock("../../services/fileDownloadService.js", () => ({
+  downloadFile: vi.fn().mockResolvedValue(undefined),
+}));
 
 describe("InventoryUpload", () => {
   let mockOnClose;
@@ -183,7 +187,10 @@ describe("InventoryUpload", () => {
       await user.click(downloadButton);
 
       await waitFor(() => {
-        expect(api.get).toHaveBeenCalledWith(expect.stringContaining("template"), expect.any(Object));
+        expect(downloadFile).toHaveBeenCalledWith(
+          expect.stringContaining("template"),
+          expect.stringContaining("template")
+        );
       });
     });
 

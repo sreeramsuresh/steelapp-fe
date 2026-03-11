@@ -5,9 +5,8 @@
  */
 
 import { afterEach, describe, expect, it, vi } from "vitest";
-
-import { apiClient } from "../api.js";
 import { accountStatementService } from "../accountStatementService.js";
+import { apiClient } from "../api.js";
 
 describe("accountStatementService", () => {
   afterEach(() => {

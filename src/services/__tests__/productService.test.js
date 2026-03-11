@@ -400,21 +400,17 @@ describe("productService", () => {
   describe("File Operations", () => {
     describe("downloadProducts()", () => {
       test("should download products as file", async () => {
-        const { mockBrowserDownload } = await import("../../test/downloadMocks.js");
-        const mocks = mockBrowserDownload();
-
-        const mockBlob = new Blob(["product data"], {
-          type: "application/vnd.openxmlformats",
-        });
-
-        const { apiService } = await import("../axiosApi.js");
-        apiService.request = vi.fn().mockResolvedValueOnce(mockBlob);
+        const mockDownloadFile = vi.fn().mockResolvedValue(undefined);
+        vi.doMock("../fileDownloadService.js", () => ({
+          downloadFile: mockDownloadFile,
+        }));
 
         await productService.downloadProducts();
 
-        expect(mocks.createObjectURL).toHaveBeenCalled();
-        expect(mocks.click).toHaveBeenCalled();
-        expect(mocks.anchor.download).toMatch(/^products_\d{4}-\d{2}-\d{2}\.xlsx$/);
+        expect(mockDownloadFile).toHaveBeenCalledWith(
+          "/products/download",
+          expect.stringMatching(/^products_\d{4}-\d{2}-\d{2}\.xlsx$/)
+        );
       });
     });
   });

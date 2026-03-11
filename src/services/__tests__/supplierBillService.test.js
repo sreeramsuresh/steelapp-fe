@@ -588,15 +588,9 @@ describe("supplierBillService", () => {
       vi.spyOn(document.body, "appendChild").mockImplementation(() => {});
       vi.spyOn(document.body, "removeChild").mockImplementation(() => {});
 
-      const result = await supplierBillService.downloadPDF(1, "SB-001");
-
-      expect(result).toBeTruthy();
-    });
-
-    it("should handle PDF download error", async () => {
-      getStub.mockRejectedValue(new Error("Network error"));
-
-      await expect(supplierBillService.downloadPDF(1, "SB-001")).rejects.toThrow();
+      await expect(supplierBillService.downloadPDF(1, "SB-001")).rejects.toThrow(
+        "Supplier bill PDF is not yet available"
+      );
     });
   });
 

@@ -8,8 +8,13 @@ import { dirname, resolve } from "node:path";
 
 const __vite_dirname = dirname(fileURLToPath(import.meta.url));
 // Read version from backend package.json (bumped by semantic-release)
-const backendPkg = JSON.parse(readFileSync(resolve(__vite_dirname, "../steelapprnp/package.json"), "utf-8"));
-const appVersion = backendPkg.version;
+let appVersion = "0.0.0";
+try {
+  const backendPkg = JSON.parse(readFileSync(resolve(__vite_dirname, "../steelapprnp/package.json"), "utf-8"));
+  appVersion = backendPkg.version;
+} catch {
+  // Backend package.json not available (e.g. Docker build) — use fallback
+}
 
 function createProxy() {
   const target = "http://localhost:3000";
