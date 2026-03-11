@@ -51,7 +51,7 @@ export function getAllowedBases(category) {
 
 /**
  * Get default pricing basis for a product category.
- * Falls back to PER_MT if category is unknown/null.
+ * Falls back to PER_PCS if category is unknown/null.
  */
 export function getDefaultBasis(category) {
   if (!category) return "PER_PCS";

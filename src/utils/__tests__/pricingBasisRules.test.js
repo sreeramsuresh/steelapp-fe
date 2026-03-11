@@ -56,12 +56,12 @@ describe("getDefaultBasis", () => {
     expect(getDefaultBasis("BAR")).toBe("PER_KG");
   });
 
-  it("returns PER_MT for null (fallback)", () => {
-    expect(getDefaultBasis(null)).toBe("PER_MT");
+  it("returns PER_PCS for null (fallback)", () => {
+    expect(getDefaultBasis(null)).toBe("PER_PCS");
   });
 
-  it("returns PER_MT for unknown category (fallback)", () => {
-    expect(getDefaultBasis("UNKNOWN")).toBe("PER_MT");
+  it("returns PER_PCS for unknown category (fallback)", () => {
+    expect(getDefaultBasis("UNKNOWN")).toBe("PER_PCS");
   });
 
   it("handles case-insensitive input", () => {

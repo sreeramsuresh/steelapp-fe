@@ -4,10 +4,10 @@ import { usePermission } from "../usePermission";
 
 const mockHasPermission = vi.fn();
 
-vi.mock("../../services/axiosAuthService", () => ({
-  authService: {
+vi.mock("../../contexts/AuthContext", () => ({
+  useAuth: () => ({
     hasPermission: (...args) => mockHasPermission(...args),
-  },
+  }),
 }));
 
 describe("usePermission", () => {
