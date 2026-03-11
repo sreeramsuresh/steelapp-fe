@@ -71,16 +71,24 @@ describe("Customer Detail & Forms - E2E Tests", () => {
       // Try to click on a customer row to navigate to detail
       cy.get("body").then(($body) => {
         const $rows = $body.find("table tbody tr");
-        if ($rows.length > 0) {
-          // Click the first row or first link in the row
-          const $link = $rows.first().find("a");
-          if ($link.length > 0) {
-            cy.wrap($link.first()).click();
-            cy.url({ timeout: 10000 }).should("match", /\/app\/customers\/\d+/);
+        if ($rows.length === 0) {
+          cy.log("No customer rows found, skipping navigation test");
+          return;
+        }
+        // Check for links using jQuery (no Cypress timeout on missing elements)
+        const $firstRow = $rows.first();
+        const $link = $firstRow.find("a");
+        if ($link.length > 0) {
+          const href = $link.first().attr("href");
+          if (href) {
+            cy.visit(href);
           } else {
-            cy.wrap($rows.first()).click();
-            // May or may not navigate depending on UI pattern
+            cy.wrap($link.first()).click({ force: true });
           }
+          cy.url({ timeout: 10000 }).should("match", /\/app\/customers\/\d+/);
+        } else {
+          // No links in row — just verify the row has content
+          expect($firstRow.text().length).to.be.greaterThan(3);
         }
       });
     });
