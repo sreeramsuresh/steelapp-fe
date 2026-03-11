@@ -70,8 +70,8 @@ describe("Procurement Cycle - E2E Tests", () => {
 
     it("should have PO creation entry point from purchases", () => {
       cy.visit("/app/purchases");
-      cy.get("body", { timeout: 15000 }).should("be.visible");
-      cy.get("body").then(($body) => {
+      cy.contains("purchase", { matchCase: false, timeout: 15000 }).should("be.visible");
+      cy.get("body").should(($body) => {
         const hasCreateLink =
           $body.find("a[href*='po/new']").length > 0 ||
           $body.find("a[href*='purchase-orders/new']").length > 0 ||
@@ -83,8 +83,8 @@ describe("Procurement Cycle - E2E Tests", () => {
 
     it("should render tables on procurement list pages", () => {
       cy.visit("/app/purchases");
-      cy.get("body", { timeout: 15000 }).should("be.visible");
-      cy.get("body").then(($body) => {
+      cy.contains("purchase", { matchCase: false, timeout: 15000 }).should("be.visible");
+      cy.get("body").should(($body) => {
         const hasTable = $body.find("table").length > 0;
         const hasDataTestId = $body.find("[data-testid*='po-'], [data-testid*='purchase']").length > 0;
         const hasContent = $body.text().toLowerCase().includes("purchase");
@@ -95,7 +95,7 @@ describe("Procurement Cycle - E2E Tests", () => {
     it("should render supplier bills table", () => {
       cy.visit("/app/supplier-bills");
       cy.get("body", { timeout: 15000 }).should("be.visible");
-      cy.get("body").then(($body) => {
+      cy.get("body").should(($body) => {
         const hasTable = $body.find("table").length > 0;
         const hasBillContent = $body.text().toLowerCase().includes("bill") || $body.text().toLowerCase().includes("supplier");
         expect(hasTable || hasBillContent, "Should show supplier bills table or content").to.be.true;
@@ -105,7 +105,7 @@ describe("Procurement Cycle - E2E Tests", () => {
     it("should display finance dashboard with procurement links", () => {
       cy.visit("/app/finance");
       cy.get("body", { timeout: 15000 }).should("be.visible");
-      cy.get("body").then(($body) => {
+      cy.get("body").should(($body) => {
         const text = $body.text().toLowerCase();
         const hasFinanceContent =
           text.includes("finance") ||

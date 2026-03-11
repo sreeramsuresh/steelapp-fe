@@ -258,7 +258,7 @@ const QuotationList = () => {
   }
 
   return (
-    <div className={`min-h-screen ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"} p-4`}>
+    <div className={`min-h-screen ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"} p-4`} data-testid="quotation-list">
       {/* Header */}
       <div className="mb-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -272,6 +272,7 @@ const QuotationList = () => {
             <Link
               to="/app/quotations/new"
               className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-teal-600 to-teal-700 text-white rounded-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 shadow-lg hover:shadow-teal-500/25"
+              data-testid="create-quotation-button"
             >
               <Plus size={20} />
               New Quotation

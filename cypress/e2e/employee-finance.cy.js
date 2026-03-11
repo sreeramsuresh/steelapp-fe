@@ -23,7 +23,7 @@ describe("Employee Finance - E2E Tests", () => {
   it("should show navigation cards for advances and loans", () => {
     cy.visit("/app/employee-finance");
     cy.get("body", { timeout: 15000 }).should("be.visible");
-    cy.get("body").then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       const text = $body.text().toLowerCase();
       const hasContent =
         text.includes("advance") ||
@@ -45,7 +45,7 @@ describe("Employee Finance - E2E Tests", () => {
   it("should render advances table", () => {
     cy.visit("/app/employee-advances");
     cy.get("body", { timeout: 15000 }).should("be.visible");
-    cy.get("body").then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       const hasTable = $body.find("table").length > 0;
       const hasContent = $body.text().length > 100;
       expect(hasTable || hasContent).to.be.true;
@@ -55,7 +55,7 @@ describe("Employee Finance - E2E Tests", () => {
   it("should have a create advance button", () => {
     cy.visit("/app/employee-advances");
     cy.get("body", { timeout: 15000 }).should("be.visible");
-    cy.get("body").then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       const hasButton =
         $body.find("button, a").filter(function () {
           return /add|create|new|request/i.test(this.textContent);
@@ -73,7 +73,7 @@ describe("Employee Finance - E2E Tests", () => {
   it("should render loans table", () => {
     cy.visit("/app/employee-loans");
     cy.get("body", { timeout: 15000 }).should("be.visible");
-    cy.get("body").then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       const hasTable = $body.find("table").length > 0;
       const hasContent = $body.text().length > 100;
       expect(hasTable || hasContent).to.be.true;
@@ -83,7 +83,7 @@ describe("Employee Finance - E2E Tests", () => {
   it("should display table with expected columns on loans", () => {
     cy.visit("/app/employee-loans");
     cy.get("body", { timeout: 15000 }).should("be.visible");
-    cy.get("body").then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       if ($body.find("table").length > 0) {
         const headerText = $body.find("table thead").text().toLowerCase();
         const hasExpected =

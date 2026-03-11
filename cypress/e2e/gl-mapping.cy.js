@@ -12,11 +12,13 @@ describe("GL Mapping Rules - E2E Tests", () => {
   beforeEach(() => {
     cy.login();
     cy.visit("/app/settings/gl-mapping-rules");
-    cy.get("body", { timeout: 15000 }).should("be.visible");
+    cy.get("body", { timeout: 15000 }).should(($body) => {
+      expect($body.text().length).to.be.greaterThan(10);
+    });
   });
 
   it("should load the GL mapping rules page", () => {
-    cy.get("body").then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       const text = $body.text().toLowerCase();
       const hasContent =
         text.includes("gl mapping") ||
@@ -28,7 +30,7 @@ describe("GL Mapping Rules - E2E Tests", () => {
   });
 
   it("should display the page without crash errors", () => {
-    cy.get("body").then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       const text = $body.text().toLowerCase();
       const hasCrash = text.includes("something went wrong") && text.includes("stack trace");
       expect(hasCrash, "Page should not show crash error").to.be.false;
@@ -36,7 +38,7 @@ describe("GL Mapping Rules - E2E Tests", () => {
   });
 
   it("should show a table or empty state for mapping rules", () => {
-    cy.get("body").then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       const hasTable = $body.find("table").length > 0;
       const hasEmptyState = $body.text().match(/no .*(found|data|rules|defined)/i);
       const hasContent = $body.text().length > 10;
@@ -45,7 +47,7 @@ describe("GL Mapping Rules - E2E Tests", () => {
   });
 
   it("should have action buttons or controls", () => {
-    cy.get("body").then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       const hasButtons = $body.find("button").length > 0;
       const hasLinks = $body.find("a").length > 0;
       const hasControls = $body.find("input, select").length > 0;
@@ -54,7 +56,7 @@ describe("GL Mapping Rules - E2E Tests", () => {
   });
 
   it("should render settings navigation or breadcrumb", () => {
-    cy.get("body").then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       const hasNav = $body.find("nav, aside, [class*='sidebar'], [class*='breadcrumb'], [class*='nav']").length > 0;
       const hasSettingsText = $body.text().toLowerCase().includes("settings") || $body.text().toLowerCase().includes("gl") || $body.text().toLowerCase().includes("mapping");
       expect(hasNav || hasSettingsText, "Should show navigation or settings context").to.be.true;

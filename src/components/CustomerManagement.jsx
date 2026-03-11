@@ -815,6 +815,7 @@ const CustomerManagement = () => {
               id="customer-search"
               name="search"
               type="text"
+              data-testid="customer-search"
               placeholder="Search customers by name, email, or phone..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -918,6 +919,7 @@ const CustomerManagement = () => {
             <button
               type="button"
               onClick={() => setShowAddModal(true)}
+              data-testid="add-customer-button"
               className="px-6 py-2 bg-gradient-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg hover:from-[#4DB6AC] hover:to-[#008B8B] transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 whitespace-nowrap"
             >
               <FaPlus />
@@ -1742,7 +1744,9 @@ const CustomerManagement = () => {
         <div className={`mb-8 pb-6 border-b ${isDarkMode ? "border-[#37474F]" : "border-[#E0E0E0]"}`}>
           <div className="flex items-center gap-3 mb-2">
             <FaUsers className="text-3xl text-teal-600" />
-            <h1 className={`text-2xl font-semibold ${textPrimary}`}>Customer Management</h1>
+            <h1 className={`text-2xl font-semibold ${textPrimary}`} data-testid="customer-management-heading">
+              Customer Management
+            </h1>
           </div>
           <p className={textSecondary}>Manage customer profiles, contact history, and credit limits</p>
         </div>

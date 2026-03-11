@@ -3,11 +3,10 @@
  * Quotation Workflow E2E Tests
  *
  * Tests the quotation lifecycle:
- * - List quotations
- * - Create new quotation
- * - Quotation form fields
- * - Status management (draft/active)
- * - Convert to invoice flow
+ * - List quotations with seeded data
+ * - Navigate to create new quotation
+ * - Quotation form fields (customer, products, dates)
+ * - View existing quotation detail
  *
  * Routes: /app/quotations, /app/quotations/new, /app/quotations/:id
  */
@@ -23,14 +22,13 @@ describe("Quotation Workflow - E2E Tests", () => {
     it("should load the quotations page with heading", () => {
       cy.visit("/app/quotations");
       cy.wait("@getQuotations");
-      cy.get("body", { timeout: 10000 }).should("be.visible");
+      cy.get('[data-testid="quotation-list"]', { timeout: 10000 }).should("exist");
       cy.verifyPageLoads("Quotation", "/app/quotations");
     });
 
-    it("should display quotations in a table with columns", () => {
+    it("should display quotations in a table with column headers", () => {
       cy.visit("/app/quotations");
       cy.wait("@getQuotations");
-      cy.get("body", { timeout: 10000 }).should("be.visible");
       cy.get("table", { timeout: 10000 }).should("exist");
       cy.get("table thead th").should("have.length.greaterThan", 2);
     });
@@ -38,23 +36,35 @@ describe("Quotation Workflow - E2E Tests", () => {
     it("should have search input for filtering quotations", () => {
       cy.visit("/app/quotations");
       cy.wait("@getQuotations");
-      cy.get("body", { timeout: 10000 }).should("be.visible");
       cy.get('input[placeholder*="Search"], input[type="search"], [data-testid*="search"]')
         .first()
         .should("be.visible");
     });
 
-    it("should have create quotation button", () => {
+    it("should have create quotation button with link to /new", () => {
       cy.visit("/app/quotations");
       cy.wait("@getQuotations");
-      cy.get("body", { timeout: 10000 }).should("be.visible");
-      cy.get("body").then(($body) => {
-        const hasCreateBtn =
-          $body.find("a[href*='quotations/new']").length > 0 ||
-          $body.find("button:contains('Create')").length > 0 ||
-          $body.find("button:contains('New')").length > 0 ||
-          $body.find("[data-testid*='create-quotation']").length > 0;
-        expect(hasCreateBtn, "Should have create quotation button").to.be.true;
+      cy.get('[data-testid="create-quotation-button"]', { timeout: 10000 }).should("be.visible");
+      cy.get('[data-testid="create-quotation-button"]').should(
+        "have.attr",
+        "href",
+        "/app/quotations/new",
+      );
+    });
+
+    it("should show seeded quotation data", () => {
+      cy.visit("/app/quotations");
+      cy.wait("@getQuotations");
+      cy.get("body", { timeout: 10000 }).should(($body) => {
+        const text = $body.text();
+        // Seeded quotations: QT-2024-001 (active) and QT-2024-002 (draft)
+        const hasSeededQuotation =
+          text.includes("QT-2024") ||
+          $body.find("table tbody tr").length > 0;
+        expect(
+          hasSeededQuotation,
+          "Quotation list should show seeded quotation data",
+        ).to.be.true;
       });
     });
   });
@@ -69,9 +79,9 @@ describe("Quotation Workflow - E2E Tests", () => {
     it("should have customer selection field", () => {
       cy.visit("/app/quotations/new");
       cy.get("body", { timeout: 10000 }).should("be.visible");
-      cy.get(
-        '[data-testid="customer-autocomplete"], input[placeholder*="customer"], select'
-      ).should("exist");
+      cy.get('[data-testid="customer-autocomplete"], input[placeholder*="customer"], select').should(
+        "exist",
+      );
     });
 
     it("should have product line item section", () => {
@@ -80,9 +90,7 @@ describe("Quotation Workflow - E2E Tests", () => {
       cy.get("body").should(($body) => {
         const text = $body.text().toLowerCase();
         const hasProducts =
-          text.includes("product") ||
-          text.includes("item") ||
-          text.includes("line");
+          text.includes("product") || text.includes("item") || text.includes("line");
         expect(hasProducts, "Should have product/line item section").to.be.true;
       });
     });
@@ -90,12 +98,13 @@ describe("Quotation Workflow - E2E Tests", () => {
     it("should have validity date field", () => {
       cy.visit("/app/quotations/new");
       cy.get("body", { timeout: 15000 }).should("be.visible");
-      cy.get(
-        'input[type="date"], input[name*="valid"], [data-testid*="validity"]'
-      ).should("have.length.greaterThan", 0);
+      cy.get('input[type="date"], input[name*="valid"], [data-testid*="validity"]').should(
+        "have.length.greaterThan",
+        0,
+      );
     });
 
-    it("should have save and status action buttons", () => {
+    it("should have save action buttons", () => {
       cy.visit("/app/quotations/new");
       cy.get("body", { timeout: 15000 }).should("be.visible");
       cy.get("button").should("have.length.greaterThan", 1);
@@ -103,7 +112,7 @@ describe("Quotation Workflow - E2E Tests", () => {
   });
 
   describe("Quotation View", () => {
-    it("should display existing quotation details when navigated", () => {
+    it("should navigate to quotation detail when clicking a row", () => {
       cy.visit("/app/quotations");
       cy.wait("@getQuotations");
       cy.get("body", { timeout: 10000 }).should("be.visible");

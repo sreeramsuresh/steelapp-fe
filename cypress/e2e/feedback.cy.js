@@ -20,7 +20,7 @@ describe("Feedback", () => {
     cy.get("body", { timeout: 15000 }).should("be.visible");
 
     // Page should show either a table/list of feedback or an empty state message
-    cy.get("body").then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       expect($body.text().length).to.be.greaterThan(10);
     });
   });
@@ -30,7 +30,7 @@ describe("Feedback", () => {
     cy.get("body", { timeout: 15000 }).should("be.visible");
 
     // Verify feedback page has submission controls (form, button, or input)
-    cy.get("body").then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       const hasSubmitControl =
         $body.find("form").length > 0 ||
         $body.find("textarea").length > 0 ||

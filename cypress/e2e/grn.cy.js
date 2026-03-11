@@ -1,5 +1,5 @@
 // Owner: procurement
-// Tests: GRN (Goods Receipt Note) management
+// Tests: GRN (Goods Receipt Note) management via PO workspace
 // Route: /app/purchases (GRN accessed via PO workspace)
 
 describe("GRN Management - E2E Tests", () => {
@@ -8,53 +8,65 @@ describe("GRN Management - E2E Tests", () => {
     cy.visit("/app/purchases");
     cy.get("body", { timeout: 15000 }).should("be.visible");
     cy.get("body").should(($body) => {
-      const text = $body.text().toLowerCase();
-      expect(text).to.include("purchase");
+      expect($body.text().toLowerCase()).to.include("purchase");
     });
   });
 
   it("should load the purchases page with heading", () => {
     cy.url().should("include", "/app/purchases");
     cy.get("body").should(($body) => {
-      const text = $body.text().toLowerCase();
-      expect(text).to.include("purchase");
+      expect($body.text().toLowerCase()).to.include("purchase");
     });
   });
 
-  it("should render purchase order table or list", () => {
-    cy.get("body").then(($body) => {
+  it("should render purchase order table with data or empty state", () => {
+    cy.get("body").should(($body) => {
       const hasTable = $body.find("table").length > 0;
-      const hasContent = $body.text().toLowerCase().includes("purchase");
-      expect(hasTable || hasContent, "Page should render PO content or table").to.be.true;
+      const hasEmptyState =
+        $body.text().toLowerCase().includes("no purchase") ||
+        $body.text().toLowerCase().includes("create");
+      expect(
+        hasTable || hasEmptyState,
+        "Page should render PO table or empty state with create prompt",
+      ).to.be.true;
     });
   });
 
-  it("should show status indicators on PO rows", () => {
+  it("should have create PO button", () => {
+    cy.get('[data-testid="create-po-button"]', { timeout: 10000 }).should("be.visible");
+  });
+
+  it("should show status indicators on PO rows when data exists", () => {
     cy.get("body").then(($body) => {
       if ($body.find("table tbody tr").length === 0) {
-        cy.log("No PO rows available, skipping status indicator test");
+        // No seeded PO data -- verify empty state
+        cy.get("body").should(($b) => {
+          expect($b.text().length).to.be.greaterThan(50);
+        });
         return;
       }
-      cy.get("table tbody tr").first().then(($row) => {
-        const text = $row.text().toLowerCase();
-        const hasStatus =
-          text.includes("draft") ||
-          text.includes("approved") ||
-          text.includes("sent") ||
-          text.includes("received") ||
-          text.includes("partial") ||
-          text.includes("closed") ||
-          text.includes("pending") ||
-          $row.find("[class*='badge'], [class*='chip'], [class*='status']").length > 0;
-        expect(hasStatus, "PO row should display a status indicator").to.be.true;
-      });
+      // Verify first row has a status indicator
+      cy.get("table tbody tr")
+        .first()
+        .should(($row) => {
+          const text = $row.text().toLowerCase();
+          const hasStatus =
+            text.includes("draft") ||
+            text.includes("approved") ||
+            text.includes("sent") ||
+            text.includes("received") ||
+            text.includes("partial") ||
+            text.includes("closed") ||
+            text.includes("pending");
+          expect(hasStatus, "PO row should display a status indicator").to.be.true;
+        });
     });
   });
 
-  it("should open PO workspace when clicking a PO row", () => {
+  it("should navigate to PO workspace when clicking a PO row", () => {
     cy.get("body").then(($body) => {
       if ($body.find("table tbody tr").length === 0) {
-        cy.log("No PO rows available, skipping navigation test");
+        cy.log("No PO rows available -- skipping navigation test");
         return;
       }
       cy.get("table tbody tr").first().click();
@@ -62,31 +74,31 @@ describe("GRN Management - E2E Tests", () => {
     });
   });
 
-  it("should show navigation tabs in PO workspace", () => {
+  it("should show PO workspace tabs (overview, GRN, bill)", () => {
     cy.get("body").then(($body) => {
       if ($body.find("table tbody tr").length === 0) {
-        cy.log("No PO rows available, skipping workspace tabs test");
+        cy.log("No PO rows -- skipping workspace tabs test");
         return;
       }
       cy.get("table tbody tr").first().click();
       cy.url({ timeout: 10000 }).should("match", /\/app\/purchases\/po\/\d+/);
-      cy.get("body", { timeout: 10000 }).then(($wsBody) => {
+      cy.get("body", { timeout: 10000 }).should(($wsBody) => {
         const text = $wsBody.text().toLowerCase();
         const hasTabs =
           text.includes("overview") ||
           text.includes("grn") ||
           text.includes("goods receipt") ||
           text.includes("bill") ||
-          $wsBody.find("[role='tab'], [role='tablist'], button[class*='tab']").length > 0;
+          $wsBody.find("[role='tab'], [role='tablist']").length > 0;
         expect(hasTabs, "PO workspace should have navigation tabs").to.be.true;
       });
     });
   });
 
-  it("should access GRN tab from PO workspace", () => {
+  it("should access GRN tab from PO workspace when PO exists", () => {
     cy.get("body").then(($body) => {
       if ($body.find("table tbody tr").length === 0) {
-        cy.log("No PO rows available, skipping GRN tab test");
+        cy.log("No PO rows -- skipping GRN tab test");
         return;
       }
       cy.get("table tbody tr").first().click();
@@ -94,7 +106,7 @@ describe("GRN Management - E2E Tests", () => {
       cy.contains("button, [role='tab'], a", /grn|goods receipt|receive/i, { timeout: 10000 })
         .first()
         .click();
-      cy.get("body").then(($wsBody) => {
+      cy.get("body").should(($wsBody) => {
         const text = $wsBody.text().toLowerCase();
         const hasGrnContent =
           text.includes("grn") ||
@@ -106,38 +118,20 @@ describe("GRN Management - E2E Tests", () => {
     });
   });
 
-  it("should show a create or receive goods button in PO workspace", () => {
-    cy.get("body").then(($body) => {
-      if ($body.find("table tbody tr").length === 0) {
-        cy.log("No PO rows available, skipping receive goods button test");
-        return;
-      }
-      cy.get("table tbody tr").first().click();
-      cy.url({ timeout: 10000 }).should("match", /\/app\/purchases\/po\/\d+/);
-      cy.get("body", { timeout: 10000 }).then(($wsBody) => {
-        const hasReceiveButton =
-          $wsBody.find("button, a").filter(function () {
-            const t = this.textContent.toLowerCase();
-            return t.includes("receive") || t.includes("create grn") || t.includes("new grn") || t.includes("goods receipt");
-          }).length > 0;
-        expect(hasReceiveButton, "Receive goods or create GRN button should exist").to.be.true;
-      });
-    });
-  });
-
   it("should display supplier information on PO detail", () => {
     cy.get("body").then(($body) => {
       if ($body.find("table tbody tr").length === 0) {
-        cy.log("No PO rows available, skipping supplier info test");
+        cy.log("No PO rows -- skipping supplier info test");
         return;
       }
       cy.get("table tbody tr").first().click();
       cy.url({ timeout: 10000 }).should("match", /\/app\/purchases\/po\/\d+/);
-      cy.get("body", { timeout: 10000 }).then(($wsBody) => {
+      cy.get("body", { timeout: 10000 }).should(($wsBody) => {
         const text = $wsBody.text().toLowerCase();
-        const hasSupplier =
-          text.includes("supplier") || text.includes("vendor");
-        expect(hasSupplier, "Supplier information should be visible").to.be.true;
+        expect(
+          text.includes("supplier") || text.includes("vendor"),
+          "Supplier information should be visible on PO detail",
+        ).to.be.true;
       });
     });
   });

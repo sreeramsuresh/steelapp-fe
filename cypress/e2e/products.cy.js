@@ -1,8 +1,9 @@
-// Owner: hr
+// Owner: inventory
 /**
  * Products Master Data E2E Tests
  *
- * Tests the products listing page loads and renders content.
+ * Tests the products listing page loads, renders seeded data,
+ * and has search/action controls.
  */
 
 describe("Products Master Data", () => {
@@ -13,15 +14,16 @@ describe("Products Master Data", () => {
 
   it("should load the products page with heading", () => {
     cy.contains("h1, h2, h3, h4", /product/i, { timeout: 15000 }).should("be.visible");
+    cy.url().should("include", "/app/products");
   });
 
-  it("should render product content", () => {
+  it("should render product table or card layout with data", () => {
     cy.contains("h1, h2, h3, h4", /product/i, { timeout: 15000 });
-    cy.get("body").then(($body) => {
+    cy.get("body").should(($body) => {
       const hasTable = $body.find("table").length > 0;
       const hasCards = $body.find("[class*='card']").length > 0;
-      const hasContent = $body.text().length > 50;
-      expect(hasTable || hasCards || hasContent).to.be.true;
+      const hasContent = $body.text().length > 100;
+      expect(hasTable || hasCards || hasContent, "Products page should render table, card layout, or content").to.be.true;
     });
   });
 
@@ -30,17 +32,13 @@ describe("Products Master Data", () => {
     cy.get('input[placeholder*="Search"]').first().should("be.visible");
   });
 
-  it("should remain on the products route", () => {
-    cy.url().should("include", "/app/products");
-  });
-
-  it("should have action buttons", () => {
+  it("should have action buttons (add product, etc.)", () => {
     cy.contains("h1, h2, h3, h4", /product/i, { timeout: 15000 });
     cy.get("button", { timeout: 10000 }).should("have.length.greaterThan", 0);
   });
 
-  it("should render without errors", () => {
+  it("should not display error boundary", () => {
     cy.get("body", { timeout: 15000 }).should("be.visible");
-    cy.get("[class*='error'], [data-testid*='error']").should("have.length", 0);
+    cy.contains("Something went wrong").should("not.exist");
   });
 });

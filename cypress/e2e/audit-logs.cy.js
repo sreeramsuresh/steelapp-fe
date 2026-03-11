@@ -7,7 +7,9 @@ describe("Audit Logs - E2E Tests", () => {
     cy.login();
     cy.intercept("GET", "**/api/audit-logs*").as("getAuditLogs");
     cy.visit("/app/audit-logs");
-    cy.get("body", { timeout: 15000 }).should("be.visible");
+    cy.contains("h1, h2, h3, h4, [data-testid]", /Audit/i, { timeout: 15000 }).should(
+      "be.visible",
+    );
   });
 
   it("should load page with Audit Logs heading", () => {
@@ -17,9 +19,9 @@ describe("Audit Logs - E2E Tests", () => {
   });
 
   it("should render audit log table or content", () => {
-    cy.get("body").then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       if ($body.find("table").length > 0) {
-        cy.get("table").should("exist");
+        expect($body.find("table").length).to.be.greaterThan(0);
       } else {
         expect($body.text().length).to.be.greaterThan(10);
       }
@@ -27,7 +29,7 @@ describe("Audit Logs - E2E Tests", () => {
   });
 
   it("should display expected column headers (Action, User, Module, Date/Time)", () => {
-    cy.get("body").then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       if ($body.find("table thead").length > 0) {
         const headerTexts = [...$body.find("table thead th, table thead td")].map((el) => el.textContent.trim().toLowerCase());
         const allText = headerTexts.join(" ");
@@ -43,7 +45,7 @@ describe("Audit Logs - E2E Tests", () => {
   });
 
   it("should have search input", () => {
-    cy.get("body").then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       const hasSearch =
         $body.find('input[placeholder*="Search"]').length > 0 ||
         $body.find('input[placeholder*="Filter"]').length > 0 ||
@@ -53,7 +55,7 @@ describe("Audit Logs - E2E Tests", () => {
   });
 
   it("should have filter by action type", () => {
-    cy.get("body").then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       const hasActionFilter =
         $body.find("select").length > 0 ||
         $body.find('[role="combobox"]').length > 0 ||
@@ -64,7 +66,7 @@ describe("Audit Logs - E2E Tests", () => {
   });
 
   it("should have filter by user", () => {
-    cy.get("body").then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       const text = $body.text().toLowerCase();
       const hasUserFilter =
         text.includes("user") ||
@@ -75,7 +77,7 @@ describe("Audit Logs - E2E Tests", () => {
   });
 
   it("should have date range filter", () => {
-    cy.get("body").then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       const hasDateFilter =
         $body.find('input[type="date"]').length > 0 ||
         $body.find('[class*="date"]').length > 0 ||
@@ -86,7 +88,7 @@ describe("Audit Logs - E2E Tests", () => {
   });
 
   it("should show action details in table rows", () => {
-    cy.get("body", { timeout: 10000 }).then(($body) => {
+    cy.get("body", { timeout: 15000 }).then(($body) => {
       if ($body.find("tbody tr").length === 0) return; // No data, skip
       const $row = $body.find("tbody tr").first();
       const text = $row.text().trim();
@@ -95,7 +97,7 @@ describe("Audit Logs - E2E Tests", () => {
   });
 
   it("should have pagination controls", () => {
-    cy.get("body").then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       const text = $body.text().toLowerCase();
       const hasPagination =
         $body.find('[class*="pagination"]').length > 0 ||
@@ -109,9 +111,9 @@ describe("Audit Logs - E2E Tests", () => {
   });
 
   it("should display log entries sorted by date (newest first)", () => {
-    cy.get("body").then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       if ($body.find("table").length > 0) {
-        cy.get("table").should("exist");
+        expect($body.find("table").length).to.be.greaterThan(0);
       } else {
         expect($body.text().length).to.be.greaterThan(10);
       }

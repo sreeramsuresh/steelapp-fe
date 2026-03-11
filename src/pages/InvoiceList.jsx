@@ -2139,6 +2139,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
   return (
     <div
       className={`p-0 sm:p-4 min-h-[calc(100vh-64px)] overflow-auto ${isDarkMode ? "bg-[#121418]" : "bg-[#FAFAFA]"}`}
+      data-testid="invoice-list"
     >
       {/* Invoice Preview Modal
           Uses company data for template settings (colors, logo, fonts).
@@ -2313,6 +2314,7 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
               <Link
                 to="/app/invoices/new"
                 className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 font-medium"
+                data-testid="create-invoice-button"
               >
                 <Plus size={18} />
                 Create Invoice

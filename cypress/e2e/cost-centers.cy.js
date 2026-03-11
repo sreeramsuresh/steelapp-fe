@@ -19,7 +19,7 @@ describe("Cost Centers - E2E Tests", () => {
   it("should show navigation cards on hub", () => {
     cy.visit("/app/cost-centers-hub");
     cy.get("body", { timeout: 15000 }).should("be.visible");
-    cy.get("body").then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       const text = $body.text().toLowerCase();
       const hasContent =
         text.includes("cost center") ||
@@ -39,7 +39,7 @@ describe("Cost Centers - E2E Tests", () => {
   it("should render cost centers table", () => {
     cy.visit("/app/cost-centers");
     cy.get("table, [class*='cost-center']", { timeout: 10000 }).should("exist");
-    cy.get("body").then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       const hasTable = $body.find("table").length > 0;
       const hasContent = $body.text().length > 100;
       expect(hasTable || hasContent).to.be.true;
@@ -49,7 +49,7 @@ describe("Cost Centers - E2E Tests", () => {
   it("should have a create cost center button", () => {
     cy.visit("/app/cost-centers");
     cy.get("table, [class*='cost-center']", { timeout: 10000 }).should("exist");
-    cy.get("body").then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       const hasButton =
         $body.find("button, a").filter(function () {
           return /add|create|new/i.test(this.textContent);
@@ -66,7 +66,7 @@ describe("Cost Centers - E2E Tests", () => {
   it("should render budgets content", () => {
     cy.visit("/app/cost-center-budgets");
     cy.get("body", { timeout: 10000 }).should("be.visible");
-    cy.get("body").then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       const hasTable = $body.find("table").length > 0;
       const hasContent = $body.text().length > 50;
       expect(hasTable || hasContent, "Budgets page should have content").to.be.true;
@@ -76,7 +76,7 @@ describe("Cost Centers - E2E Tests", () => {
   it("should display table with expected columns on budgets", () => {
     cy.visit("/app/cost-center-budgets");
     cy.get("body", { timeout: 10000 }).should("be.visible");
-    cy.get("body").then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       if ($body.find("table").length > 0) {
         const headerText = $body.find("table thead").text().toLowerCase();
         const hasExpected =

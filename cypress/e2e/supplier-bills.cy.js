@@ -31,15 +31,8 @@ describe("Supplier Bills - E2E Tests", () => {
   });
 
   it("should have status filter controls", () => {
-    cy.get("body").then(($body) => {
-      const hasFilters =
-        $body.find("button, [role='tab']").filter(function () {
-          const t = this.textContent.toLowerCase();
-          return t.includes("all") || t.includes("draft") || t.includes("pending") || t.includes("paid") || t.includes("approved");
-        }).length > 0 ||
-        $body.find("select, [role='combobox']").length > 0;
-      expect(hasFilters, "Status filter controls should exist").to.be.true;
-    });
+    // Wait for loading to finish (select appears after initial load)
+    cy.get('select[aria-label="Filter by status"], select, [role="combobox"]', { timeout: 15000 }).should("exist");
   });
 
   it("should have a create bill button", () => {
@@ -71,15 +64,7 @@ describe("Supplier Bills - E2E Tests", () => {
   });
 
   it("should display bill summary or stats", () => {
-    cy.get("body").then(($body) => {
-      const text = $body.text().toLowerCase();
-      const hasSummary =
-        text.includes("total") ||
-        text.includes("outstanding") ||
-        text.includes("overdue") ||
-        text.includes("summary") ||
-        $body.find("[class*='card'], [class*='stat'], [class*='summary']").length > 0;
-      expect(hasSummary, "Page should show bill summary or stats").to.be.true;
-    });
+    // Wait for loading to finish — summary cards render after API response
+    cy.contains("Total Bills", { timeout: 15000 }).should("be.visible");
   });
 });

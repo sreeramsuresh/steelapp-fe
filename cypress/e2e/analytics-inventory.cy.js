@@ -8,7 +8,7 @@ describe('Inventory Analytics - E2E Tests', () => {
 
   it('should load the stock movement report', () => {
     cy.visit('/analytics/stock-movement-report', { timeout: 15000 });
-    cy.get('body', { timeout: 15000 }).then(($body) => {
+    cy.get('body', { timeout: 15000 }).should(($body) => {
       const hasHeading = $body.find('h1, h2, h3, h4, [data-testid$="-heading"]').length > 0;
       expect(hasHeading, 'Stock movement page should have a heading').to.be.true;
     });
@@ -17,7 +17,7 @@ describe('Inventory Analytics - E2E Tests', () => {
 
   it('should have date range filter on stock movement', () => {
     cy.visit('/analytics/stock-movement-report', { timeout: 15000 });
-    cy.get('body', { timeout: 15000 }).then(($body) => {
+    cy.get('body', { timeout: 15000 }).should(($body) => {
       const hasDateRange =
         $body.find('input[type="date"]').length > 0 ||
         $body.find('[class*="date"], [class*="Date"]').length > 0 ||
@@ -31,7 +31,7 @@ describe('Inventory Analytics - E2E Tests', () => {
 
   it('should have table or chart content or page content on stock movement', () => {
     cy.visit('/analytics/stock-movement-report', { timeout: 15000 });
-    cy.get('body', { timeout: 15000 }).then(($body) => {
+    cy.get('body', { timeout: 15000 }).should(($body) => {
       const hasContent =
         $body.find('canvas, svg, [class*="chart"], [class*="Chart"], [class*="recharts"], .echarts-for-react, table').length > 0 ||
         $body.find('button, input, select, a').length > 0 ||
@@ -50,7 +50,7 @@ describe('Inventory Analytics - E2E Tests', () => {
 
   it('should have filter controls on batch analytics', () => {
     cy.visit('/analytics/batch-analytics', { timeout: 15000 });
-    cy.get('body', { timeout: 15000 }).then(($body) => {
+    cy.get('body', { timeout: 15000 }).should(($body) => {
       const hasFilter =
         $body.find('select').length > 0 ||
         $body.find('input[type="date"]').length > 0 ||
@@ -64,7 +64,7 @@ describe('Inventory Analytics - E2E Tests', () => {
 
   it('should show data visualization or content on batch analytics', () => {
     cy.visit('/analytics/batch-analytics', { timeout: 15000 });
-    cy.get('body', { timeout: 15000 }).then(($body) => {
+    cy.get('body', { timeout: 15000 }).should(($body) => {
       const hasContent =
         $body.find('canvas, svg, [class*="chart"], [class*="Chart"], [class*="recharts"], .echarts-for-react, table, [class*="card"], [class*="Card"]').length > 0 ||
         $body.find('button, input, select, a').length > 0 ||
@@ -75,7 +75,7 @@ describe('Inventory Analytics - E2E Tests', () => {
 
   it('should have export button or action controls on stock movement', () => {
     cy.visit('/analytics/stock-movement-report', { timeout: 15000 });
-    cy.get('body', { timeout: 15000 }).then(($body) => {
+    cy.get('body', { timeout: 15000 }).should(($body) => {
       const hasExport =
         $body.find('button').filter(':contains("Export"), :contains("Download"), :contains("PDF"), :contains("CSV"), :contains("Print")').length > 0 ||
         $body.find('[data-testid*="export"], [data-testid*="download"]').length > 0 ||
@@ -89,7 +89,7 @@ describe('Inventory Analytics - E2E Tests', () => {
 
   it('should have product or warehouse filter', () => {
     cy.visit('/analytics/stock-movement-report', { timeout: 15000 });
-    cy.get('body', { timeout: 15000 }).then(($body) => {
+    cy.get('body', { timeout: 15000 }).should(($body) => {
       const hasProductOrWarehouseFilter =
         $body.find('select').length > 0 ||
         $body.find('[role="combobox"]').length > 0 ||

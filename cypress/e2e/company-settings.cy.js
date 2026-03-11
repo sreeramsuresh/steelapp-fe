@@ -6,12 +6,18 @@ describe("Company Settings - E2E Tests", () => {
   beforeEach(() => {
     cy.login();
     cy.visit("/app/settings");
-    cy.get("body", { timeout: 15000 }).should("be.visible");
+    cy.get("body", { timeout: 15000 }).should(($body) => {
+      const text = $body.text().toLowerCase();
+      expect(
+        text.includes("settings") || text.includes("company") || text.includes("profile") || $body.find("input").length > 0,
+        "Settings page should have loaded",
+      ).to.be.true;
+    });
   });
 
   it("should load settings page with heading", () => {
     cy.url().should("include", "/app/settings");
-    cy.get("body").then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       const text = $body.text().toLowerCase();
       const hasSettingsContent =
         text.includes("settings") ||
@@ -23,7 +29,7 @@ describe("Company Settings - E2E Tests", () => {
   });
 
   it("should show Company Profile content visible", () => {
-    cy.get("body").then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       const text = $body.text().toLowerCase();
       const hasProfile =
         text.includes("company") ||
@@ -36,7 +42,7 @@ describe("Company Settings - E2E Tests", () => {
   });
 
   it("should have input fields on settings page", () => {
-    cy.get("body", { timeout: 10000 }).then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       const hasInput =
         $body.find('input[placeholder*="company name"]').length > 0 ||
         $body.find('input[placeholder*="Company"]').length > 0 ||
@@ -48,7 +54,7 @@ describe("Company Settings - E2E Tests", () => {
   });
 
   it("should have company code or TRN fields", () => {
-    cy.get("body", { timeout: 10000 }).then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       const text = $body.text().toLowerCase();
       const hasCodeFields =
         text.includes("trn") ||
@@ -63,7 +69,7 @@ describe("Company Settings - E2E Tests", () => {
   });
 
   it("should have address fields", () => {
-    cy.get("body", { timeout: 10000 }).then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       const text = $body.text().toLowerCase();
       const hasAddress =
         text.includes("address") ||
@@ -78,7 +84,7 @@ describe("Company Settings - E2E Tests", () => {
   });
 
   it("should have action buttons", () => {
-    cy.get("body", { timeout: 10000 }).then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       const hasSave =
         $body.find('button').filter(':contains("Save")').length > 0 ||
         $body.find('button').filter(':contains("Update")').length > 0 ||
@@ -89,7 +95,7 @@ describe("Company Settings - E2E Tests", () => {
   });
 
   it("should show Document Templates tab or section", () => {
-    cy.get("body", { timeout: 10000 }).then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       const text = $body.text().toLowerCase();
       const hasTemplates =
         text.includes("template") ||
@@ -101,7 +107,7 @@ describe("Company Settings - E2E Tests", () => {
   });
 
   it("should show VAT or tax section", () => {
-    cy.get("body", { timeout: 10000 }).then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       const text = $body.text().toLowerCase();
       const hasVat =
         text.includes("vat") ||
@@ -114,14 +120,15 @@ describe("Company Settings - E2E Tests", () => {
   });
 
   it("should allow tab switching or section navigation", () => {
-    cy.get("body", { timeout: 10000 }).then(($body) => {
+    cy.get("body", { timeout: 15000 }).should("be.visible");
+    cy.get("body").then(($body) => {
       // Try clicking a tab if present
       const $tabs = $body.find('[role="tab"], button').filter(function () {
         return /template|document|vat|tax/i.test(this.textContent);
       });
       if ($tabs.length > 0) {
         cy.wrap($tabs.first()).click();
-        cy.get("body").then(($updatedBody) => {
+        cy.get("body", { timeout: 15000 }).should(($updatedBody) => {
           const text = $updatedBody.text().toLowerCase();
           const hasContent =
             text.includes("template") || text.includes("document") ||
@@ -137,7 +144,7 @@ describe("Company Settings - E2E Tests", () => {
   });
 
   it("should have contact information or form inputs", () => {
-    cy.get("body", { timeout: 10000 }).then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       const text = $body.text().toLowerCase();
       const hasContact =
         text.includes("phone") ||

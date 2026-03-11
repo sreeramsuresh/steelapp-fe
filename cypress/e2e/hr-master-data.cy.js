@@ -18,8 +18,7 @@ describe("HR Master Data - E2E Tests", () => {
 
   it("should render departments table or list or empty state", () => {
     cy.visit("/app/departments");
-    cy.get("body", { timeout: 10000 }).should("be.visible");
-    cy.get("body").then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       const hasTable = $body.find("table").length > 0;
       const hasCards = $body.find("[class*='card'], [class*='list'], [class*='department']").length > 0;
       const hasContent = $body.text().length > 20;
@@ -29,7 +28,7 @@ describe("HR Master Data - E2E Tests", () => {
 
   it("should have an add department button or action controls", () => {
     cy.visit("/app/departments");
-    cy.get("body", { timeout: 10000 }).then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       const hasButton =
         $body.find("button, a").filter(function () {
           return /add|create|new/i.test(this.textContent);
@@ -46,8 +45,7 @@ describe("HR Master Data - E2E Tests", () => {
 
   it("should render designations table or list or empty state", () => {
     cy.visit("/app/designations");
-    cy.get("body", { timeout: 10000 }).should("be.visible");
-    cy.get("body").then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       const hasTable = $body.find("table").length > 0;
       const hasCards = $body.find("[class*='card'], [class*='list'], [class*='designation']").length > 0;
       const hasContent = $body.text().length > 20;
@@ -57,7 +55,7 @@ describe("HR Master Data - E2E Tests", () => {
 
   it("should have an add designation button or action controls", () => {
     cy.visit("/app/designations");
-    cy.get("body", { timeout: 10000 }).then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       const hasButton =
         $body.find("button, a").filter(function () {
           return /add|create|new/i.test(this.textContent);

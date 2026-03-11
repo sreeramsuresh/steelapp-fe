@@ -15,17 +15,15 @@ describe("Delivery Notes - E2E Tests", () => {
   });
 
   it("should render delivery notes table or empty state", () => {
-    cy.get("body", { timeout: 10000 }).then(($body) => {
-      if ($body.find("table").length > 0) {
-        cy.get("table").should("be.visible");
-      } else {
-        expect($body.text().length).to.be.greaterThan(10);
-      }
+    cy.get("body", { timeout: 15000 }).should(($body) => {
+      const hasTable = $body.find("table").length > 0;
+      const hasContent = $body.text().length > 10;
+      expect(hasTable || hasContent, "Should have table or meaningful content").to.be.true;
     });
   });
 
   it("should display expected columns or empty state", () => {
-    cy.get("body", { timeout: 10000 }).then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       if ($body.find("table").length > 0) {
         const headerText = $body.find("table thead").text().toLowerCase();
         const hasExpected =
@@ -54,8 +52,12 @@ describe("Delivery Notes - E2E Tests", () => {
   });
 
   it("should show status badges on rows", () => {
-    cy.get("body", { timeout: 10000 }).then(($body) => {
-      if ($body.find("table tbody tr").length === 0) return; // No data, skip
+    cy.get("body", { timeout: 15000 }).should(($body) => {
+      if ($body.find("table tbody tr").length === 0) {
+        // No data — just verify page has content
+        expect($body.text().length).to.be.greaterThan(10);
+        return;
+      }
       const $row = $body.find("table tbody tr").first();
       const hasStatus =
         $row.find("[class*='badge'], [class*='chip'], [class*='status']").length > 0 ||
@@ -65,7 +67,8 @@ describe("Delivery Notes - E2E Tests", () => {
   });
 
   it("should navigate to detail page when clicking a row", () => {
-    cy.get("body", { timeout: 10000 }).then(($body) => {
+    cy.get("body", { timeout: 15000 }).should("be.visible");
+    cy.get("body", { timeout: 15000 }).then(($body) => {
       if ($body.find("table tbody tr").length === 0) return; // No data, skip
       cy.get("table tbody tr").first().click();
       cy.url().should("match", /\/app\/delivery-notes\/\d+/);
@@ -73,7 +76,7 @@ describe("Delivery Notes - E2E Tests", () => {
   });
 
   it("should have filter controls", () => {
-    cy.get("body").then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       const hasFilters =
         $body.find("button, [role='tab']").filter(function () {
           const t = this.textContent.toLowerCase();

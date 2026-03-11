@@ -17,7 +17,7 @@ describe("Audit Hub - E2E Tests", () => {
 
   it("should show summary cards or metrics on dashboard", () => {
     cy.visit("/app/audit-hub");
-    cy.get("body", { timeout: 15000 }).then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       const text = $body.text().toLowerCase();
       const hasSummary =
         text.includes("dataset") ||
@@ -33,8 +33,7 @@ describe("Audit Hub - E2E Tests", () => {
 
   it("should navigate to dataset explorer", () => {
     cy.visit("/app/audit-hub");
-    cy.get("body", { timeout: 15000 }).should("be.visible");
-    cy.get("body").then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       const text = $body.text().toLowerCase();
       const hasDatasetNav =
         text.includes("dataset") || text.includes("explore") || text.includes("data") ||
@@ -45,7 +44,7 @@ describe("Audit Hub - E2E Tests", () => {
 
   it("should show data categories in dataset explorer", () => {
     cy.visit("/app/audit-hub");
-    cy.get("body", { timeout: 15000 }).then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       const text = $body.text().toLowerCase();
       const hasCategories =
         text.includes("invoice") ||
@@ -60,7 +59,7 @@ describe("Audit Hub - E2E Tests", () => {
 
   it("should have sign-off workflow content", () => {
     cy.visit("/app/audit-hub");
-    cy.get("body", { timeout: 15000 }).then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       const text = $body.text().toLowerCase();
       const hasSignOff =
         text.includes("sign") ||
@@ -74,7 +73,7 @@ describe("Audit Hub - E2E Tests", () => {
 
   it("should render a list or table of items", () => {
     cy.visit("/app/audit-hub");
-    cy.get("body", { timeout: 15000 }).then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       const hasList =
         $body.find("table").length > 0 ||
         $body.find("[class*='card'], [class*='Card']").length > 0 ||
@@ -89,8 +88,7 @@ describe("Audit Hub - E2E Tests", () => {
 
   it("should have action buttons on dashboard", () => {
     cy.visit("/app/audit-hub");
-    cy.get("body", { timeout: 15000 }).should("be.visible");
-    cy.get("body").then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       const hasActions =
         $body.find("button").length > 0 ||
         $body.find("a, input, select, [role='tab']").length > 0;
@@ -100,14 +98,13 @@ describe("Audit Hub - E2E Tests", () => {
 
   it("should support navigation between audit hub sections", () => {
     cy.visit("/app/audit-hub");
-    cy.get("body", { timeout: 15000 }).should("be.visible");
-    cy.url().should("include", "/audit-hub");
-    cy.get("body").then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       const hasNav =
         $body.find("a").length > 0 ||
         $body.find("button").length > 0 ||
         $body.find('[role="tab"]').length > 0;
       expect(hasNav, "Should have navigation elements for audit hub sections").to.be.true;
     });
+    cy.url().should("include", "/audit-hub");
   });
 });

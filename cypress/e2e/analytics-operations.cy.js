@@ -8,7 +8,7 @@ describe('Operations Analytics - E2E Tests', () => {
 
   it('should load the delivery variance dashboard', () => {
     cy.visit('/analytics/delivery-performance', { timeout: 15000 });
-    cy.get('body', { timeout: 15000 }).then(($body) => {
+    cy.get('body', { timeout: 15000 }).should(($body) => {
       const hasHeading = $body.find('h1, h2, h3, h4, [data-testid$="-heading"]').length > 0;
       expect(hasHeading, 'Delivery performance page should have a heading').to.be.true;
     });
@@ -17,7 +17,7 @@ describe('Operations Analytics - E2E Tests', () => {
 
   it('should have chart or table content or page content on delivery variance', () => {
     cy.visit('/analytics/delivery-performance', { timeout: 15000 });
-    cy.get('body', { timeout: 15000 }).then(($body) => {
+    cy.get('body', { timeout: 15000 }).should(($body) => {
       const hasContent =
         $body.find('canvas, svg, [class*="chart"], [class*="Chart"], [class*="recharts"], .echarts-for-react, table, [class*="card"], [class*="Card"]').length > 0 ||
         $body.find('button, input, select, a').length > 0 ||
@@ -36,7 +36,7 @@ describe('Operations Analytics - E2E Tests', () => {
 
   it('should have filters and metrics on supplier performance', () => {
     cy.visit('/analytics/supplier-performance', { timeout: 15000 });
-    cy.get('body', { timeout: 15000 }).then(($body) => {
+    cy.get('body', { timeout: 15000 }).should(($body) => {
       const hasFiltersOrMetrics =
         $body.find('select').length > 0 ||
         $body.find('[role="combobox"]').length > 0 ||
@@ -58,7 +58,7 @@ describe('Operations Analytics - E2E Tests', () => {
 
   it('should show summary or metrics or content on commission dashboard', () => {
     cy.visit('/app/commission-dashboard', { timeout: 15000 });
-    cy.get('body', { timeout: 15000 }).then(($body) => {
+    cy.get('body', { timeout: 15000 }).should(($body) => {
       const hasContent =
         $body.find('canvas, svg, [class*="chart"], [class*="Chart"], [class*="recharts"], .echarts-for-react, table, [class*="card"], [class*="Card"], [class*="summary"], [class*="Summary"]').length > 0 ||
         $body.find('button, input, select, a').length > 0 ||

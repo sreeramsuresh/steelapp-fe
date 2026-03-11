@@ -5,6 +5,8 @@ describe('Dashboard - E2E Tests', () => {
   beforeEach(() => {
     cy.login();
     cy.visit('/analytics/dashboard', { timeout: 15000 });
+    cy.get('body', { timeout: 15000 }).should('be.visible');
+    cy.contains(/dashboard|analytics/i, { timeout: 15000 }).should('exist');
   });
 
   it('should load the dashboard page with heading', () => {
@@ -15,7 +17,7 @@ describe('Dashboard - E2E Tests', () => {
   });
 
   it('should have widget or card containers', () => {
-    cy.get('body', { timeout: 15000 }).then(($body) => {
+    cy.get('body', { timeout: 15000 }).should(($body) => {
       const hasWidgets =
         $body.find('[class*="card"], [class*="widget"], [class*="Card"], [data-testid*="card"], [data-testid*="widget"]').length > 0 ||
         $body.find('button, a, input, select').length > 0;
@@ -24,7 +26,7 @@ describe('Dashboard - E2E Tests', () => {
   });
 
   it('should have a date selector or period filter', () => {
-    cy.get('body', { timeout: 15000 }).then(($body) => {
+    cy.get('body', { timeout: 15000 }).should(($body) => {
       const hasDateControl =
         $body.find('input[type="date"]').length > 0 ||
         $body.find('[class*="date"], [class*="Date"]').length > 0 ||
@@ -37,7 +39,7 @@ describe('Dashboard - E2E Tests', () => {
   });
 
   it('should render chart container or meaningful content', () => {
-    cy.get('body', { timeout: 15000 }).then(($body) => {
+    cy.get('body', { timeout: 15000 }).should(($body) => {
       const hasChart =
         $body.find('canvas, svg, [class*="chart"], [class*="Chart"], [class*="recharts"], .echarts-for-react').length > 0 ||
         $body.find('[class*="card"], [class*="Card"], [class*="widget"]').length > 0 ||
@@ -48,7 +50,7 @@ describe('Dashboard - E2E Tests', () => {
   });
 
   it('should show KPI card labels', () => {
-    cy.get('body', { timeout: 15000 }).then(($body) => {
+    cy.get('body', { timeout: 15000 }).should(($body) => {
       const $cards = $body.find('[class*="card"], [class*="widget"], [class*="Card"], [data-testid*="card"], [data-testid*="kpi"]');
       if ($cards.length > 0) {
         expect($cards.first().text().trim().length).to.be.greaterThan(0);
@@ -60,7 +62,7 @@ describe('Dashboard - E2E Tests', () => {
   });
 
   it('should have dashboard navigation menu visible', () => {
-    cy.get('body', { timeout: 15000 }).then(($body) => {
+    cy.get('body', { timeout: 15000 }).should(($body) => {
       const hasNav =
         $body.find('nav, aside, [class*="sidebar"], [class*="Sidebar"], [role="navigation"]').length > 0 ||
         $body.find('a, button, [role="menu"], [role="menuitem"]').length > 0;
@@ -69,7 +71,7 @@ describe('Dashboard - E2E Tests', () => {
   });
 
   it('should have refresh or reload controls', () => {
-    cy.get('body', { timeout: 15000 }).then(($body) => {
+    cy.get('body', { timeout: 15000 }).should(($body) => {
       const hasRefresh =
         $body.find('button').filter(':contains("Refresh"), :contains("Reload"), :contains("refresh")').length > 0 ||
         $body.find('[data-testid*="refresh"]').length > 0 ||
@@ -82,7 +84,7 @@ describe('Dashboard - E2E Tests', () => {
   });
 
   it('should have widget areas with content', () => {
-    cy.get('body', { timeout: 15000 }).then(($body) => {
+    cy.get('body', { timeout: 15000 }).should(($body) => {
       const $widgets = $body.find('[class*="card"], [class*="widget"], [class*="Card"], [data-testid*="card"], [data-testid*="widget"]');
       if ($widgets.length > 0) {
         $widgets.each((_i, el) => {

@@ -33,8 +33,8 @@ describe("Multi-Warehouse Operations - E2E Tests", () => {
 
     it("should render warehouse cards or table rows", () => {
       cy.visit("/app/warehouses");
-      cy.get("body", { timeout: 15000 }).should("be.visible");
-      cy.get("body").then(($body) => {
+      cy.contains("warehouse", { matchCase: false, timeout: 15000 }).should("be.visible");
+      cy.get("body").should(($body) => {
         const hasContent =
           $body.find("table").length > 0 ||
           $body.find("[data-testid*='warehouse']").length > 0 ||
@@ -54,7 +54,7 @@ describe("Multi-Warehouse Operations - E2E Tests", () => {
   describe("Warehouse Detail", () => {
     it("should navigate to warehouse detail when clicked", () => {
       cy.visit("/app/warehouses");
-      cy.get("body", { timeout: 15000 }).should("be.visible");
+      cy.contains("warehouse", { matchCase: false, timeout: 15000 }).should("be.visible");
       cy.get("body").then(($body) => {
         const $links = $body.find("a[href*='warehouses/']").not("a[href*='warehouses/new']");
         if ($links.length > 0) {
@@ -74,7 +74,7 @@ describe("Multi-Warehouse Operations - E2E Tests", () => {
 
     it("should display warehouse details (name, code, location)", () => {
       cy.visit("/app/warehouses");
-      cy.get("body", { timeout: 15000 }).should("be.visible");
+      cy.contains("warehouse", { matchCase: false, timeout: 15000 }).should("be.visible");
       cy.get("body").then(($body) => {
         const $links = $body.find("a[href*='warehouses/']").not("a[href*='warehouses/new']");
         if ($links.length > 0) {
@@ -113,7 +113,7 @@ describe("Multi-Warehouse Operations - E2E Tests", () => {
     it("should have filter controls on inventory page", () => {
       cy.visit("/app/inventory");
       cy.get("body", { timeout: 15000 }).should("be.visible");
-      cy.get("body").then(($body) => {
+      cy.get("body").should(($body) => {
         const hasFilterControls = $body.find("input, select, [data-testid*='filter'], button").length > 0;
         expect(hasFilterControls, "Should have filter controls or interactive elements").to.be.true;
       });

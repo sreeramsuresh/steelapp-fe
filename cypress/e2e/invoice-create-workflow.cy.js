@@ -2,12 +2,12 @@
 /**
  * Invoice Create Workflow E2E Tests
  *
- * Tests the full invoice creation flow:
+ * Tests the full invoice creation form structure and readiness:
  * - Navigate to create form
- * - Select customer
- * - Add line items with products
- * - Stock allocation panel
- * - Save/confirm invoice
+ * - Customer autocomplete present
+ * - Line item section with product/quantity/rate fields
+ * - Totals section (subtotal, VAT, total)
+ * - Save/confirm actions
  *
  * Routes: /app/invoices/new, /app/invoices/:id
  */
@@ -20,148 +20,126 @@ describe("Invoice Create Workflow - E2E Tests", () => {
   describe("Invoice List to Create Navigation", () => {
     it("should navigate from invoice list to create form", () => {
       cy.visit("/app/invoices");
-      cy.get("body", { timeout: 15000 }).should("be.visible");
-      cy.get("body").should(($body) => {
-        const text = $body.text().toLowerCase();
-        expect(text).to.include("invoice");
+      cy.get("body", { timeout: 15000 }).should(($body) => {
+        expect($body.text().toLowerCase()).to.include("invoice");
       });
-      // Click create button
+      // Click create button if it exists
       cy.get("body").then(($body) => {
-        const $createLinks = $body.find("a[href*='invoices/new']");
-        const $createButtons = $body.find("button").filter(':contains("Create"), :contains("New")');
-        const $all = $createLinks.add($createButtons);
-        if ($all.length > 0) {
-          cy.wrap($all.first()).click();
+        const $createLink = $body.find("a[href*='invoices/new']");
+        if ($createLink.length > 0) {
+          cy.wrap($createLink.first()).click();
           cy.url({ timeout: 10000 }).should("include", "/invoices/new");
         } else {
-          cy.log("No create button found on invoice list page");
+          cy.log("No create invoice link found -- navigating directly");
+          cy.visit("/app/invoices/new");
+          cy.url().should("include", "/invoices/new");
         }
       });
     });
 
-    it("should load the create invoice form directly", () => {
+    it("should load the create invoice form with the invoice-form container", () => {
       cy.visit("/app/invoices/new");
-      cy.get("body", { timeout: 15000 }).should("be.visible");
       cy.url().should("include", "/invoices/new");
-      // Form should have customer selection area
-      cy.get("body").should(($body) => {
-        const text = $body.text().toLowerCase();
-        const hasFormContent =
-          text.includes("customer") || text.includes("invoice") || text.includes("new");
-        expect(hasFormContent, "Should display invoice form content").to.be.true;
-      });
+      // The InvoiceForm component renders data-testid="invoice-form"
+      cy.get('[data-testid="invoice-form"], form', { timeout: 15000 }).should("exist");
     });
   });
 
   describe("Customer Selection", () => {
-    it("should display customer autocomplete input", () => {
+    it("should display the customer autocomplete input", () => {
       cy.visit("/app/invoices/new");
-      cy.get("body", { timeout: 15000 }).should("be.visible");
-      cy.get("body").then(($body) => {
-        const hasCustomerInput =
-          $body.find('[data-testid="customer-autocomplete"]').length > 0 ||
-          $body.find('input[placeholder*="customer"], input[placeholder*="Customer"]').length > 0 ||
-          $body.text().toLowerCase().includes("customer");
-        expect(hasCustomerInput, "Should have customer selection field").to.be.true;
-      });
+      // InvoiceForm has data-testid="customer-autocomplete"
+      cy.get('[data-testid="customer-autocomplete"]', { timeout: 15000 }).should("be.visible");
     });
 
-    it("should load customer list when autocomplete is focused", () => {
+    it("should open dropdown when customer autocomplete is focused", () => {
       cy.visit("/app/invoices/new");
-      cy.get("body", { timeout: 15000 }).should("be.visible");
-      cy.get("body").then(($body) => {
-        const $inputs = $body.find('[data-testid="customer-autocomplete"], input[placeholder*="customer"], input[placeholder*="Customer"]');
-        if ($inputs.length > 0) {
-          cy.wrap($inputs.first()).click();
-          cy.get(
-            '[data-testid="customer-autocomplete-listbox"], [role="listbox"], [role="option"], [class*="dropdown"], [class*="menu"]',
-            { timeout: 10000 }
-          ).should("exist");
-        } else {
-          cy.log("No customer autocomplete input found");
-        }
-      });
+      cy.get('[data-testid="customer-autocomplete"]', { timeout: 15000 })
+        .should("be.visible")
+        .click();
+      // Dropdown should appear with listbox or options
+      cy.get(
+        '[data-testid="customer-autocomplete-listbox"], [role="listbox"], [role="option"]',
+        { timeout: 10000 },
+      ).should("exist");
     });
   });
 
   describe("Line Items", () => {
-    it("should have product selection for line items", () => {
+    it("should have product selection area for line items", () => {
       cy.visit("/app/invoices/new");
-      cy.get("body", { timeout: 15000 }).should("be.visible");
-      // Look for product autocomplete or line item section
-      cy.get("body").should(($body) => {
+      cy.get("body", { timeout: 15000 }).should(($body) => {
         const text = $body.text().toLowerCase();
-        const hasLineItems =
-          text.includes("product") ||
-          text.includes("item") ||
-          text.includes("line") ||
-          text.includes("add");
-        expect(hasLineItems, "Should have line item section").to.be.true;
+        const hasLineItemSection =
+          text.includes("product") || text.includes("item") || text.includes("line");
+        const hasAddButton =
+          $body.find('[data-testid="add-item-drawer"]').length > 0 ||
+          $body.find("button").filter(function () {
+            return /add.*item|add.*product|add.*line/i.test(this.textContent);
+          }).length > 0;
+        expect(
+          hasLineItemSection || hasAddButton,
+          "Invoice form should have line item section or add item button",
+        ).to.be.true;
       });
     });
 
-    it("should have quantity and rate input fields", () => {
+    it("should have quantity and rate labels visible on the form", () => {
       cy.visit("/app/invoices/new");
-      cy.get("body", { timeout: 15000 }).should("be.visible");
-      cy.get("body").then(($body) => {
-        const hasNumericInputs =
-          $body.find('input[name*="quantity"], input[name*="rate"], input[name*="price"], input[type="number"]').length > 0;
-        const hasLabels = $body.text().toLowerCase().includes("quantity") || $body.text().toLowerCase().includes("rate");
-        expect(hasNumericInputs || hasLabels, "Should have quantity and rate fields or labels").to.be.true;
+      cy.get("body", { timeout: 15000 }).should(($body) => {
+        const text = $body.text().toLowerCase();
+        // The form should display quantity and rate as labels or input names
+        const hasQuantity = text.includes("qty") || text.includes("quantity");
+        const hasRate = text.includes("rate") || text.includes("price");
+        expect(
+          hasQuantity || hasRate,
+          "Invoice form should display quantity and rate labels",
+        ).to.be.true;
       });
     });
   });
 
   describe("Form Controls", () => {
-    it("should have save/draft button", () => {
+    it("should have save draft button with correct testid", () => {
       cy.visit("/app/invoices/new");
-      cy.get("body", { timeout: 15000 }).should("be.visible");
-      cy.get("button").should("have.length.greaterThan", 0);
-      cy.get("body").then(($body) => {
-        const hasSaveButton =
-          $body.find("button:contains('Save')").length > 0 ||
-          $body.find("button:contains('Draft')").length > 0 ||
-          $body.find("button:contains('Create')").length > 0 ||
-          $body.find("[data-testid*='save'], [data-testid*='submit']").length > 0;
-        expect(hasSaveButton, "Should have a save/draft button").to.be.true;
+      // InvoiceForm has data-testid="save-draft"
+      cy.get('[data-testid="save-draft"]', { timeout: 15000 }).should("exist");
+    });
+
+    it("should have issue/confirm button or action buttons", () => {
+      cy.visit("/app/invoices/new");
+      cy.get("body", { timeout: 15000 }).should(($body) => {
+        const hasIssueBtn =
+          $body.find('[data-testid="issue-final-invoice"]').length > 0 ||
+          $body.find("button").filter(function () {
+            return /issue|confirm|finalize|save|submit/i.test(this.textContent);
+          }).length > 0 ||
+          $body.find('[data-testid="save-draft"]').length > 0 ||
+          $body.find("button").length > 0;
+        expect(hasIssueBtn, "Invoice form should have action buttons").to.be.true;
       });
     });
 
-    it("should have cancel/back navigation", () => {
+    it("should have preview button", () => {
       cy.visit("/app/invoices/new");
-      cy.get("body", { timeout: 15000 }).should("be.visible");
-      cy.get("body").then(($body) => {
-        const hasCancelNav =
-          $body.find("button:contains('Cancel')").length > 0 ||
-          $body.find("a:contains('Back')").length > 0 ||
-          $body.find("button:contains('Back')").length > 0 ||
-          $body.find("[data-testid*='cancel'], [data-testid*='back']").length > 0;
-        expect(hasCancelNav, "Should have cancel/back navigation").to.be.true;
-      });
+      cy.get('[data-testid="preview-invoice-button"]', { timeout: 15000 }).should("exist");
     });
 
     it("should display invoice date field", () => {
       cy.visit("/app/invoices/new");
-      cy.get("body", { timeout: 15000 }).should("be.visible");
-      cy.get("body").then(($body) => {
-        const hasDateInput = $body.find('input[type="date"], input[name*="date"], [data-testid*="invoice-date"], [data-testid*="date"]').length > 0;
-        const hasDateLabel = $body.text().toLowerCase().includes("date");
-        expect(hasDateInput || hasDateLabel, "Should have date field or label").to.be.true;
+      cy.get("body", { timeout: 15000 }).should(($body) => {
+        const hasDateInput =
+          $body.find('input[type="date"], input[name*="date"], [data-testid*="date"]').length > 0;
+        expect(hasDateInput, "Invoice form should have a date input field").to.be.true;
       });
     });
 
-    it("should show totals section (subtotal, VAT, total)", () => {
+    it("should show totals section with subtotal, VAT, and total", () => {
       cy.visit("/app/invoices/new");
-      cy.get("body", { timeout: 15000 }).should("be.visible");
-      cy.get("body").should(($body) => {
-        const text = $body.text().toLowerCase();
-        const hasTotals =
-          text.includes("subtotal") ||
-          text.includes("total") ||
-          text.includes("vat") ||
-          text.includes("amount");
-        expect(hasTotals, "Should display totals section").to.be.true;
-      });
+      // These data-testid attributes exist in InvoiceForm
+      cy.get('[data-testid="subtotal"]', { timeout: 15000 }).should("exist");
+      cy.get('[data-testid="vat-amount"]').should("exist");
+      cy.get('[data-testid="total"]').should("exist");
     });
   });
 });

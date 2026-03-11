@@ -31,8 +31,8 @@ describe("Procurement Workflow - E2E Tests", () => {
 
     it("should display purchase order list or cards", () => {
       cy.visit("/app/purchases");
-      cy.get("body", { timeout: 15000 }).should("be.visible");
-      cy.get("body").then(($body) => {
+      cy.contains("purchase", { matchCase: false, timeout: 15000 }).should("be.visible");
+      cy.get("body").should(($body) => {
         const hasTable = $body.find("table").length > 0;
         const hasDataTestId = $body.find("[data-testid*='po-'], [data-testid*='purchase-order']").length > 0;
         const hasContent = $body.text().toLowerCase().includes("purchase");
@@ -42,8 +42,8 @@ describe("Procurement Workflow - E2E Tests", () => {
 
     it("should have create PO button or link", () => {
       cy.visit("/app/purchases");
-      cy.get("body", { timeout: 15000 }).should("be.visible");
-      cy.get("body").then(($body) => {
+      cy.contains("purchase", { matchCase: false, timeout: 15000 }).should("be.visible");
+      cy.get("body").should(($body) => {
         const hasCreateBtn =
           $body.find("a[href*='po/new']").length > 0 ||
           $body.find("a[href*='purchase-orders/new']").length > 0 ||
@@ -89,7 +89,7 @@ describe("Procurement Workflow - E2E Tests", () => {
     it("should display bills in a table or list", () => {
       cy.visit("/app/supplier-bills");
       cy.get("body", { timeout: 15000 }).should("be.visible");
-      cy.get("body").then(($body) => {
+      cy.get("body").should(($body) => {
         const hasTable = $body.find("table").length > 0;
         const hasBillContent = $body.text().toLowerCase().includes("bill") || $body.text().toLowerCase().includes("supplier");
         expect(hasTable || hasBillContent, "Should show bills table or content").to.be.true;
@@ -99,7 +99,7 @@ describe("Procurement Workflow - E2E Tests", () => {
     it("should have create supplier bill button or action", () => {
       cy.visit("/app/supplier-bills");
       cy.get("body", { timeout: 15000 }).should("be.visible");
-      cy.get("body").then(($body) => {
+      cy.get("body").should(($body) => {
         const hasCreateBtn =
           $body.find("a[href*='supplier-bills/new']").length > 0 ||
           $body.find("button:contains('Create')").length > 0 ||

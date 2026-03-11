@@ -15,7 +15,7 @@ describe("Expense Configuration - E2E Tests", () => {
     cy.visit("/app/expense-config");
     cy.url().should("include", "/app/expense-config");
     cy.get("body", { timeout: 15000 }).should("be.visible");
-    cy.get("body").then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       const text = $body.text().toLowerCase();
       const hasContent =
         text.includes("expense") ||
@@ -29,7 +29,7 @@ describe("Expense Configuration - E2E Tests", () => {
   it("should show navigation cards for categories, policies, and approval chains", () => {
     cy.visit("/app/expense-config");
     cy.get("body", { timeout: 15000 }).should("be.visible");
-    cy.get("body").then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       const text = $body.text().toLowerCase();
       const hasContent =
         text.includes("categor") ||
@@ -47,7 +47,7 @@ describe("Expense Configuration - E2E Tests", () => {
     cy.visit("/app/expense-categories");
     cy.url().should("include", "/app/expense-categories");
     cy.get("body", { timeout: 15000 }).should("be.visible");
-    cy.get("body").then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       const text = $body.text().toLowerCase();
       const hasContent =
         text.includes("categor") ||
@@ -60,7 +60,7 @@ describe("Expense Configuration - E2E Tests", () => {
   it("should render categories content", () => {
     cy.visit("/app/expense-categories");
     cy.get("body", { timeout: 10000 }).should("be.visible");
-    cy.get("body").then(($body) => {
+    cy.get("body", { timeout: 15000 }).should(($body) => {
       const hasTable = $body.find("table").length > 0;
       const hasContent = $body.text().length > 50;
       expect(hasTable || hasContent, "Categories page should have content").to.be.true;

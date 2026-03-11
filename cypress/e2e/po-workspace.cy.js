@@ -29,8 +29,8 @@ describe("PO Workspace - E2E Tests", () => {
 
     it("should display purchase orders in table or cards", () => {
       cy.visit("/app/purchases");
-      cy.get("body", { timeout: 15000 }).should("be.visible");
-      cy.get("body").then(($body) => {
+      cy.contains("purchase", { matchCase: false, timeout: 15000 }).should("be.visible");
+      cy.get("body").should(($body) => {
         const hasTable = $body.find("table").length > 0;
         const hasDataTestId = $body.find("[data-testid*='po-'], [data-testid*='purchase']").length > 0;
         const hasContent = $body.text().toLowerCase().includes("purchase");
@@ -40,7 +40,7 @@ describe("PO Workspace - E2E Tests", () => {
 
     it("should navigate to PO workspace when clicking a PO", () => {
       cy.visit("/app/purchases");
-      cy.get("body", { timeout: 15000 }).should("be.visible");
+      cy.contains("purchase", { matchCase: false, timeout: 15000 }).should("be.visible");
       cy.get("body").then(($body) => {
         const $links = $body.find("a[href*='purchases/po/']");
         if ($links.length > 0) {
@@ -59,7 +59,7 @@ describe("PO Workspace - E2E Tests", () => {
   describe("PO Workspace Tabs", () => {
     it("should show workspace tabs when navigated to PO", () => {
       cy.visit("/app/purchases");
-      cy.get("body", { timeout: 15000 }).should("be.visible");
+      cy.contains("purchase", { matchCase: false, timeout: 15000 }).should("be.visible");
       cy.get("body").then(($body) => {
         const $links = $body.find("a[href*='purchases/po/']");
         if ($links.length > 0) {
@@ -85,7 +85,7 @@ describe("PO Workspace - E2E Tests", () => {
 
     it("should show PO details in overview tab", () => {
       cy.visit("/app/purchases");
-      cy.get("body", { timeout: 15000 }).should("be.visible");
+      cy.contains("purchase", { matchCase: false, timeout: 15000 }).should("be.visible");
       cy.get("body").then(($body) => {
         const $links = $body.find("a[href*='purchases/po/']");
         if ($links.length > 0) {
@@ -150,7 +150,7 @@ describe("PO Workspace - E2E Tests", () => {
     it("should have supplier selection and line items", () => {
       cy.visit("/app/purchase-orders/new");
       cy.get("body", { timeout: 15000 }).should("be.visible");
-      cy.get("body").then(($body) => {
+      cy.get("body").should(($body) => {
         const hasFormControls = $body.find("input, select, [data-testid*='supplier']").length > 0;
         const hasFormContent = $body.text().toLowerCase().includes("supplier") || $body.text().toLowerCase().includes("product");
         expect(hasFormControls || hasFormContent, "Should have supplier selection or form controls").to.be.true;

@@ -20,7 +20,7 @@ describe("Accounting Periods - E2E Tests", () => {
       cy.visit("/app/settings/financial");
       cy.url().should("include", "/app/settings/financial");
       cy.get("body", { timeout: 15000 }).should("be.visible");
-      cy.get("body").then(($body) => {
+      cy.get("body", { timeout: 15000 }).should(($body) => {
         const text = $body.text().toLowerCase();
         const hasContent =
           text.includes("financial") ||
@@ -57,7 +57,7 @@ describe("Accounting Periods - E2E Tests", () => {
       cy.visit("/app/settings/financial");
       cy.get("body", { timeout: 15000 }).should("be.visible");
       // Periods may be displayed in a table, list, or as settings content
-      cy.get("body").then(($body) => {
+      cy.get("body", { timeout: 15000 }).should(($body) => {
         const hasTable = $body.find("table, [data-testid*='period'], [class*='period']").length > 0;
         const hasContent = $body.text().length > 50;
         expect(hasTable || hasContent, "Financial settings page should have content").to.be.true;
@@ -89,7 +89,7 @@ describe("Accounting Periods - E2E Tests", () => {
       cy.visit("/app/settings/financial");
       cy.get("body", { timeout: 15000 }).should("be.visible");
       // Look for action buttons — page should have at least some buttons
-      cy.get("body").then(($body) => {
+      cy.get("body", { timeout: 15000 }).should(($body) => {
         const hasButtons = $body.find("button, a, input, select").length > 0;
         const hasControls =
           $body.find(

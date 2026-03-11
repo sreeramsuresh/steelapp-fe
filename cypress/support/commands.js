@@ -63,7 +63,8 @@ Cypress.Commands.add("verifyPageLoads", (heading, expectedUrl) => {
 Cypress.Commands.add("verifyTableColumns", (columns, tableSelector) => {
   const selector = tableSelector || "table";
   cy.get(selector, { timeout: 10000 }).should("be.visible");
-  cy.get(`${selector} thead th, ${selector} thead td`).then(($headers) => {
+  // Use .should() for retryability -- .then() runs once and cannot retry
+  cy.get(`${selector} thead th, ${selector} thead td`).should(($headers) => {
     const headerTexts = [...$headers].map((el) => el.textContent.trim().toLowerCase());
     for (const col of columns) {
       const found = headerTexts.some((h) => h.includes(col.toLowerCase()));
@@ -299,11 +300,10 @@ Cypress.Commands.add(
   "shouldContainText",
   { prevSubject: true },
   (subject, text) => {
-    cy.wrap(subject)
-      .invoke("text")
-      .then((elementText) => {
-        expect(elementText.toLowerCase()).to.include(text.toLowerCase());
-      });
+    // Use .should() for retryability -- .then() runs once and cannot retry
+    cy.wrap(subject).should(($el) => {
+      expect($el.text().toLowerCase()).to.include(text.toLowerCase());
+    });
   },
 );
 

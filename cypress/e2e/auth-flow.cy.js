@@ -8,6 +8,7 @@ describe("Auth Flow - E2E Tests", () => {
       cy.visit("/login");
       cy.get('input[type="email"], input[name="email"]', { timeout: 10000 }).should("be.visible");
       cy.get('input[type="password"], input[name="password"]').should("be.visible");
+      cy.get('button[type="submit"]').should("exist");
     });
 
     it("should redirect to /app after successful login", () => {
@@ -16,7 +17,7 @@ describe("Auth Flow - E2E Tests", () => {
       cy.url({ timeout: 15000 }).should("match", /\/(app|analytics)/);
     });
 
-    it("should show error message for wrong email", () => {
+    it("should show error and stay on login for wrong email", () => {
       cy.visit("/login");
       cy.get('input[type="email"], input[name="email"]', { timeout: 10000 })
         .clear()
@@ -25,24 +26,14 @@ describe("Auth Flow - E2E Tests", () => {
         .clear()
         .type("SomePassword123!");
       cy.get('button[type="submit"]').click();
+
+      // Must stay on login page
       cy.url({ timeout: 10000 }).should("include", "/login");
-      cy.get("body").then(($body) => {
-        const text = $body.text().toLowerCase();
-        const hasError =
-          text.includes("invalid") ||
-          text.includes("error") ||
-          text.includes("incorrect") ||
-          text.includes("failed") ||
-          text.includes("unable") ||
-          text.includes("wrong");
-        // If no visible error message, at least verify we stayed on login
-        if (!hasError) {
-          cy.get('input[type="email"], input[name="email"]').should("exist");
-        }
-      });
+      // Email input should still be visible (form not cleared/navigated)
+      cy.get('input[type="email"], input[name="email"]').should("exist");
     });
 
-    it("should show error message for wrong password", () => {
+    it("should show error and stay on login for wrong password", () => {
       cy.visit("/login");
       cy.get('input[type="email"], input[name="email"]', { timeout: 10000 })
         .clear()
@@ -51,36 +42,26 @@ describe("Auth Flow - E2E Tests", () => {
         .clear()
         .type("TotallyWrongPassword999!");
       cy.get('button[type="submit"]').click();
+
+      // Must stay on login page
       cy.url({ timeout: 10000 }).should("include", "/login");
-      cy.get("body").then(($body) => {
-        const text = $body.text().toLowerCase();
-        const hasError =
-          text.includes("invalid") ||
-          text.includes("error") ||
-          text.includes("incorrect") ||
-          text.includes("failed") ||
-          text.includes("unable") ||
-          text.includes("wrong");
-        // If no visible error message, at least verify we stayed on login
-        if (!hasError) {
-          cy.get('input[type="email"], input[name="email"]').should("exist");
-        }
-      });
+      cy.get('input[type="email"], input[name="email"]').should("exist");
     });
 
-    it("should show validation on empty form submit", () => {
+    it("should prevent submission with empty fields", () => {
       cy.visit("/login");
       cy.get('input[type="email"], input[name="email"]', { timeout: 10000 }).clear();
       cy.get('input[type="password"], input[name="password"]').clear();
       cy.get('button[type="submit"]').click();
-      // Should stay on login page — either HTML5 validation or app-level validation
+      // Should stay on login page -- either HTML5 validation or app-level validation
       cy.url({ timeout: 5000 }).should("include", "/login");
     });
 
     it("should have password field masked (type=password)", () => {
       cy.visit("/login");
-      cy.get('input[type="password"]', { timeout: 10000 }).should("exist");
-      cy.get('input[type="password"]').should("have.attr", "type", "password");
+      cy.get('input[type="password"]', { timeout: 10000 })
+        .should("exist")
+        .should("have.attr", "type", "password");
     });
   });
 
@@ -102,6 +83,7 @@ describe("Auth Flow - E2E Tests", () => {
       cy.url({ timeout: 15000 }).should("include", "/app");
       cy.visit("/app/customers");
       cy.url({ timeout: 15000 }).should("include", "/app/customers");
+      // Verify content loaded (not just a blank page)
       cy.get("body").should(($body) => {
         expect($body.text().length).to.be.greaterThan(10);
       });
@@ -113,57 +95,23 @@ describe("Auth Flow - E2E Tests", () => {
       cy.login();
     });
 
-    it("should show user menu button", () => {
+    it("should show user menu or navigation controls", () => {
       cy.visit("/app");
       cy.get("body", { timeout: 15000 }).should("be.visible");
-      // Look for user menu button with flexible matching
-      cy.get("body").then(($body) => {
-        const $userBtn = $body.find("button").filter(function () {
-          return /Development User|E2E Admin|admin|user|profile|account/i.test(this.textContent);
-        });
-        const $avatar = $body.find('[class*="avatar"], [class*="user-menu"], [data-testid*="user"]');
-        const hasUserMenu = $userBtn.length > 0 || $avatar.length > 0;
-        // At minimum, page should have buttons
-        expect(hasUserMenu || $body.find("button").length > 0, "Should have user menu or buttons").to.be.true;
-      });
+      // Page should have interactive elements (buttons in nav, sidebar, etc.)
+      cy.get("button, a, [role='menuitem']").should("have.length.greaterThan", 2);
     });
 
     it("should redirect to login page after logout", () => {
       cy.visit("/app");
       cy.get("body", { timeout: 15000 }).should("be.visible");
-
-      // Try structured logout, fall back to clearing auth
-      cy.get("body").then(($body) => {
-        const $userBtn = $body.find("button").filter(function () {
-          return /Development User|E2E Admin|admin|user|profile|account/i.test(this.textContent);
-        });
-        if ($userBtn.length > 0) {
-          cy.wrap($userBtn.first()).click({ force: true });
-          cy.get("body").then(($menuBody) => {
-            const $logoutBtn = $menuBody.find("button, a, [role='menuitem']").filter(function () {
-              return /logout|sign out|log out/i.test(this.textContent);
-            });
-            if ($logoutBtn.length > 0) {
-              cy.wrap($logoutBtn.first()).click();
-            } else {
-              cy.clearCookies();
-              cy.clearLocalStorage();
-              cy.visit("/login");
-            }
-          });
-        } else {
-          cy.clearCookies();
-          cy.clearLocalStorage();
-          cy.visit("/login");
-        }
-      });
+      cy.logout();
       cy.url({ timeout: 10000 }).should("include", "/login");
     });
 
-    it("should redirect to login when visiting /app after logout", () => {
+    it("should redirect to login when visiting /app after clearing auth", () => {
       cy.visit("/app");
       cy.get("body", { timeout: 15000 }).should("be.visible");
-
       // Clear auth state
       cy.clearCookies();
       cy.clearLocalStorage();
@@ -173,14 +121,9 @@ describe("Auth Flow - E2E Tests", () => {
   });
 
   describe("Forgot Password", () => {
-    it("should load forgot password page at /forgot-password", () => {
+    it("should load forgot password page with email input", () => {
       cy.visit("/forgot-password");
       cy.url().should("include", "/forgot-password");
-      cy.get("body", { timeout: 10000 }).should("be.visible");
-    });
-
-    it("should have email input field on forgot password form", () => {
-      cy.visit("/forgot-password");
       cy.get('input[type="email"], input[name="email"]', { timeout: 10000 }).should("exist");
     });
 
