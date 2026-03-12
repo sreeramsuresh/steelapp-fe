@@ -24,11 +24,15 @@ vi.mock("../../contexts/AuthContext", () => ({
 
 vi.mock("../../services/analyticsService", () => ({
   analyticsService: {
-    getDashboardStats: vi.fn().mockResolvedValue({
+    getDashboardData: vi.fn().mockResolvedValue({
       totalRevenue: 0,
       totalInvoices: 0,
       totalCustomers: 0,
     }),
+    getDashboardKPIs: vi.fn().mockResolvedValue({}),
+    getSalesTrends: vi.fn().mockResolvedValue([]),
+    getTopCustomers: vi.fn().mockResolvedValue([]),
+    getTopProducts: vi.fn().mockResolvedValue([]),
   },
 }));
 

@@ -17,8 +17,8 @@ vi.mock("../../contexts/ThemeContext", () => ({
 
 vi.mock("../../services/invoiceService", () => ({
   invoiceService: {
-    getById: vi.fn().mockResolvedValue({ invoice: { id: 1, items: [] } }),
-    confirmAllocation: vi.fn().mockResolvedValue({}),
+    getInvoice: vi.fn().mockResolvedValue({ invoice: { id: 1, items: [] } }),
+    confirmInvoiceAllocation: vi.fn().mockResolvedValue({}),
   },
 }));
 
