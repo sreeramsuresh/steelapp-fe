@@ -106,7 +106,7 @@ export default function PasskeyManagement() {
     <div>
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Passkeys</h3>
+          <h3 className={`text-base font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Passkeys</h3>
           <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
             Sign in quickly and securely with biometrics or a security key
           </p>
@@ -115,7 +115,7 @@ export default function PasskeyManagement() {
           type="button"
           onClick={handleRegister}
           disabled={registering}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+          className={`flex items-center justify-center gap-2 min-w-[160px] h-10 px-4 text-sm rounded-lg font-medium transition-colors ${
             isDarkMode ? "bg-teal-600 text-white hover:bg-teal-700" : "bg-teal-500 text-white hover:bg-teal-600"
           } disabled:opacity-60`}
         >

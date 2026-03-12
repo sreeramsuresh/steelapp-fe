@@ -1,4 +1,4 @@
-import { KeyRound, LogOut, RefreshCw, Shield, ShieldOff } from "lucide-react";
+import { LogOut, RefreshCw, Shield, ShieldOff } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PasskeyManagement from "../components/PasskeyManagement";
@@ -191,476 +191,408 @@ export default function UserProfile() {
     );
   }
 
+  const dividerClass = isDarkMode ? "border-gray-700" : "border-gray-200";
+  const btnClass = `min-w-[160px] h-10 px-4 text-sm text-center rounded-lg font-medium transition-colors ${
+    isDarkMode ? "bg-teal-600 text-white hover:bg-teal-700" : "bg-teal-500 text-white hover:bg-teal-600"
+  }`;
+  const inputClass = `w-full px-4 py-2 rounded-lg border transition-colors ${
+    isDarkMode
+      ? "bg-gray-700 border-gray-600 text-white focus:border-teal-400"
+      : "bg-gray-50 border-gray-300 text-gray-900 focus:border-teal-600"
+  } focus:outline-hidden`;
+  const labelClass = `block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`;
+
   return (
     <div className={`min-h-screen py-8 ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}>
-      <div className="max-w-2xl mx-auto px-4">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className={`text-4xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>My Profile</h1>
-          <p className={`text-sm mt-2 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-            Manage your account settings and preferences
-          </p>
-        </div>
-
-        {/* Profile Card */}
-        <div className={`rounded-2xl shadow-lg p-8 mb-6 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
-          <div className="flex items-start justify-between mb-6">
-            <div className="flex items-center gap-4">
-              <div
-                className={`w-16 h-16 rounded-full flex items-center justify-center text-white font-semibold text-xl ${
-                  isDarkMode ? "bg-teal-600" : "bg-teal-500"
-                }`}
-              >
-                {currentUser.name?.charAt(0)?.toUpperCase() || "U"}
-              </div>
-              <div>
-                <h2 className={`text-2xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                  {currentUser.name || "User"}
-                </h2>
-                <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>{currentUser.email}</p>
-                <span
-                  className={`inline-block px-2 py-0.5 text-xs font-medium rounded border mt-1 ${
-                    isDarkMode
-                      ? "text-teal-400 border-teal-600 bg-teal-900/20"
-                      : "text-teal-600 border-teal-300 bg-teal-50"
-                  }`}
-                >
-                  {currentUser.role || "Administrator"}
-                </span>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => setEditMode(!editMode)}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                isDarkMode ? "bg-teal-600 text-white hover:bg-teal-700" : "bg-teal-500 text-white hover:bg-teal-600"
-              }`}
-            >
-              {editMode ? "Cancel" : "Edit Profile"}
-            </button>
+      <div className="max-w-2xl mx-auto px-4 pb-12">
+        {/* Single unified card */}
+        <div className={`rounded-2xl shadow-lg ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+          {/* Section: Header + Profile */}
+          <div className="px-8 pt-8 pb-6">
+            <h1 className={`text-xl font-bold mb-1 ${isDarkMode ? "text-white" : "text-gray-900"}`}>My Profile</h1>
+            <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+              Manage your account settings and preferences
+            </p>
           </div>
 
-          {/* Edit Mode */}
-          {editMode && (
-            <div className={`space-y-4 border-t pt-6 ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
-              <div>
-                <label
-                  htmlFor="user-name-input"
-                  className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                >
-                  Full Name
-                </label>
-                <input
-                  id="user-name-input"
-                  type="text"
-                  value={editData.name}
-                  onChange={(e) => setEditData((prev) => ({ ...prev, name: e.target.value }))}
-                  className={`w-full px-4 py-2 rounded-lg border transition-colors ${
-                    isDarkMode
-                      ? "bg-gray-700 border-gray-600 text-white focus:border-teal-400"
-                      : "bg-gray-50 border-gray-300 text-gray-900 focus:border-teal-600"
-                  } focus:outline-hidden`}
-                />
-              </div>
+          <div className={`border-t ${dividerClass}`} />
 
-              <div>
-                <label
-                  htmlFor="user-email-input"
-                  className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+          {/* Section: User info */}
+          <div className="px-8 py-6">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-4">
+                <div
+                  className={`w-14 h-14 rounded-full flex items-center justify-center text-white font-semibold text-lg ${
+                    isDarkMode ? "bg-teal-600" : "bg-teal-500"
+                  }`}
                 >
-                  Email
-                </label>
-                <input
-                  id="user-email-input"
-                  type="email"
-                  value={editData.email}
-                  onChange={(e) => setEditData((prev) => ({ ...prev, email: e.target.value }))}
-                  className={`w-full px-4 py-2 rounded-lg border transition-colors ${
-                    isDarkMode
-                      ? "bg-gray-700 border-gray-600 text-white focus:border-teal-400"
-                      : "bg-gray-50 border-gray-300 text-gray-900 focus:border-teal-600"
-                  } focus:outline-hidden`}
-                />
+                  {currentUser.name?.charAt(0)?.toUpperCase() || "U"}
+                </div>
+                <div>
+                  <h2 className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                    {currentUser.name || "User"}
+                  </h2>
+                  <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>{currentUser.email}</p>
+                  <span
+                    className={`inline-block px-2 py-0.5 text-xs font-medium rounded border mt-1 ${
+                      isDarkMode
+                        ? "text-teal-400 border-teal-600 bg-teal-900/20"
+                        : "text-teal-600 border-teal-300 bg-teal-50"
+                    }`}
+                  >
+                    {currentUser.role || "Administrator"}
+                  </span>
+                </div>
               </div>
-
-              <button
-                type="button"
-                onClick={handleSaveProfile}
-                disabled={loading}
-                className={`w-full px-4 py-2 rounded-lg font-medium transition-colors ${
-                  isDarkMode
-                    ? "bg-teal-600 text-white hover:bg-teal-700 disabled:bg-gray-700"
-                    : "bg-teal-500 text-white hover:bg-teal-600 disabled:bg-gray-300"
-                }`}
-              >
-                {loading ? "Saving..." : "Save Changes"}
+              <button type="button" onClick={() => setEditMode(!editMode)} className={btnClass}>
+                {editMode ? "Cancel" : "Edit Profile"}
               </button>
             </div>
-          )}
 
-          {/* View Mode */}
-          {!editMode && (
-            <div
-              className={`grid grid-cols-2 gap-6 border-t pt-6 ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
-            >
-              <div>
-                <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Full Name</p>
-                <p className={`text-lg font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                  {currentUser.name || "Not set"}
-                </p>
+            {/* Edit Mode */}
+            {editMode && (
+              <div className={`space-y-4 border-t mt-6 pt-6 ${dividerClass}`}>
+                <div>
+                  <label htmlFor="user-name-input" className={labelClass}>
+                    Full Name
+                  </label>
+                  <input
+                    id="user-name-input"
+                    type="text"
+                    value={editData.name}
+                    onChange={(e) => setEditData((prev) => ({ ...prev, name: e.target.value }))}
+                    className={inputClass}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="user-email-input" className={labelClass}>
+                    Email
+                  </label>
+                  <input
+                    id="user-email-input"
+                    type="email"
+                    value={editData.email}
+                    onChange={(e) => setEditData((prev) => ({ ...prev, email: e.target.value }))}
+                    className={inputClass}
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={handleSaveProfile}
+                  disabled={loading}
+                  className={`w-full px-4 py-2 rounded-lg font-medium transition-colors ${
+                    isDarkMode
+                      ? "bg-teal-600 text-white hover:bg-teal-700 disabled:bg-gray-700"
+                      : "bg-teal-500 text-white hover:bg-teal-600 disabled:bg-gray-300"
+                  }`}
+                >
+                  {loading ? "Saving..." : "Save Changes"}
+                </button>
               </div>
-              <div>
-                <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Email</p>
-                <p className={`text-lg font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                  {currentUser.email}
-                </p>
-              </div>
-            </div>
-          )}
-        </div>
+            )}
 
-        {/* Password Change Card */}
-        <div className={`rounded-2xl shadow-lg p-8 mb-6 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
-          <div className="flex items-center justify-between mb-6">
-            <h3 className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Security</h3>
-            {!showPasswordChange && (
-              <button
-                type="button"
-                onClick={() => setShowPasswordChange(true)}
-                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                  isDarkMode
-                    ? "bg-orange-600 text-white hover:bg-orange-700"
-                    : "bg-orange-500 text-white hover:bg-orange-600"
-                }`}
-              >
-                Change Password
-              </button>
+            {/* View Mode */}
+            {!editMode && (
+              <div className={`grid grid-cols-2 gap-6 border-t mt-6 pt-6 ${dividerClass}`}>
+                <div>
+                  <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Full Name</p>
+                  <p className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                    {currentUser.name || "Not set"}
+                  </p>
+                </div>
+                <div>
+                  <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Email</p>
+                  <p className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                    {currentUser.email}
+                  </p>
+                </div>
+              </div>
             )}
           </div>
 
-          {showPasswordChange && (
-            <div className={`space-y-4 border-t pt-6 ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
-              <div>
-                <label
-                  htmlFor="current-password"
-                  className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                >
-                  Current Password
-                </label>
-                <input
-                  id="current-password"
-                  type="password"
-                  value={passwordChange.currentPassword}
-                  onChange={(e) =>
-                    setPasswordChange((prev) => ({
-                      ...prev,
-                      currentPassword: e.target.value,
-                    }))
-                  }
-                  className={`w-full px-4 py-2 rounded-lg border transition-colors ${
-                    isDarkMode
-                      ? "bg-gray-700 border-gray-600 text-white focus:border-teal-400"
-                      : "bg-gray-50 border-gray-300 text-gray-900 focus:border-teal-600"
-                  } focus:outline-hidden`}
-                  placeholder="Enter current password"
-                  disabled={loading}
-                />
-              </div>
+          <div className={`border-t ${dividerClass}`} />
 
-              <div>
-                <label
-                  htmlFor="new-password"
-                  className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                >
-                  New Password
-                </label>
-                <input
-                  id="new-password"
-                  type="password"
-                  value={passwordChange.newPassword}
-                  onChange={(e) =>
-                    setPasswordChange((prev) => ({
-                      ...prev,
-                      newPassword: e.target.value,
-                    }))
-                  }
-                  className={`w-full px-4 py-2 rounded-lg border transition-colors ${
-                    isDarkMode
-                      ? "bg-gray-700 border-gray-600 text-white focus:border-teal-400"
-                      : "bg-gray-50 border-gray-300 text-gray-900 focus:border-teal-600"
-                  } focus:outline-hidden`}
-                  placeholder="Enter new password (min 8 chars)"
-                  disabled={loading}
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="confirm-password"
-                  className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                >
-                  Confirm New Password
-                </label>
-                <input
-                  id="confirm-password"
-                  type="password"
-                  value={passwordChange.confirmPassword}
-                  onChange={(e) =>
-                    setPasswordChange((prev) => ({
-                      ...prev,
-                      confirmPassword: e.target.value,
-                    }))
-                  }
-                  className={`w-full px-4 py-2 rounded-lg border transition-colors ${
-                    isDarkMode
-                      ? "bg-gray-700 border-gray-600 text-white focus:border-teal-400"
-                      : "bg-gray-50 border-gray-300 text-gray-900 focus:border-teal-600"
-                  } focus:outline-hidden`}
-                  placeholder="Confirm new password"
-                  disabled={loading}
-                />
-              </div>
-
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowPasswordChange(false);
-                    setPasswordChange({
-                      currentPassword: "",
-                      newPassword: "",
-                      confirmPassword: "",
-                    });
-                  }}
-                  disabled={loading}
-                  className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
-                    isDarkMode
-                      ? "bg-gray-700 text-white hover:bg-gray-600 disabled:bg-gray-800"
-                      : "bg-gray-200 text-gray-900 hover:bg-gray-300 disabled:bg-gray-100"
-                  }`}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={handleChangePassword}
-                  disabled={loading}
-                  className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
-                    isDarkMode
-                      ? "bg-orange-600 text-white hover:bg-orange-700 disabled:bg-gray-700"
-                      : "bg-orange-500 text-white hover:bg-orange-600 disabled:bg-gray-300"
-                  }`}
-                >
-                  {loading ? "Changing..." : "Change Password"}
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Two-Factor Authentication Card */}
-        <div className={`rounded-2xl shadow-lg p-8 mb-6 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
-          {show2FASetup ? (
-            <TwoFactorSetup
-              onComplete={() => {
-                setShow2FASetup(false);
-                setTwoFactorStatus({ enabled: true, method: "totp" });
-                notificationService.success("Two-factor authentication enabled");
-              }}
-              onCancel={() => setShow2FASetup(false)}
-            />
-          ) : (
-            <>
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h3 className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                    Two-Factor Authentication
-                  </h3>
-                  <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                    {twoFactorStatus?.enabled
-                      ? "Your account is protected with 2FA"
-                      : "Add an extra layer of security to your account"}
-                  </p>
-                </div>
-                <div
-                  className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                    twoFactorStatus?.enabled
-                      ? isDarkMode
-                        ? "bg-green-900/30 text-green-400 border border-green-700"
-                        : "bg-green-50 text-green-700 border border-green-200"
-                      : isDarkMode
-                        ? "bg-gray-700 text-gray-400 border border-gray-600"
-                        : "bg-gray-100 text-gray-500 border border-gray-200"
-                  }`}
-                >
-                  {twoFactorStatus?.enabled ? "Enabled" : "Disabled"}
-                </div>
-              </div>
-
-              {twoFactorStatus?.enabled ? (
-                <div className={`space-y-4 border-t pt-4 ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
-                  <div className="flex items-center gap-3">
-                    <Shield size={18} className={isDarkMode ? "text-green-400" : "text-green-600"} />
-                    <span className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
-                      Method: {twoFactorStatus.method === "totp" ? "Authenticator App" : twoFactorStatus.method}
-                    </span>
-                  </div>
-
-                  {/* Regenerate Recovery Codes */}
-                  {showRegenCodes ? (
-                    <div className="space-y-3">
-                      {recoveryCodes.length > 0 ? (
-                        <div
-                          className={`grid grid-cols-2 gap-2 p-4 rounded-lg border font-mono text-sm ${
-                            isDarkMode
-                              ? "bg-gray-900 border-gray-700 text-gray-300"
-                              : "bg-gray-50 border-gray-200 text-gray-700"
-                          }`}
-                        >
-                          {recoveryCodes.map((code) => (
-                            <div key={code} className="text-center py-1">
-                              {code}
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <>
-                          <input
-                            type="password"
-                            value={regenPassword}
-                            onChange={(e) => setRegenPassword(e.target.value)}
-                            placeholder="Enter your password"
-                            className={`w-full px-4 py-2 rounded-lg border transition-colors ${
-                              isDarkMode
-                                ? "bg-gray-700 border-gray-600 text-white focus:border-teal-400"
-                                : "bg-gray-50 border-gray-300 text-gray-900 focus:border-teal-600"
-                            } focus:outline-hidden`}
-                          />
-                          <div className="flex gap-2">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setShowRegenCodes(false);
-                                setRegenPassword("");
-                              }}
-                              className={`flex-1 px-4 py-2 rounded-lg font-medium ${isDarkMode ? "bg-gray-700 text-white hover:bg-gray-600" : "bg-gray-200 text-gray-900 hover:bg-gray-300"}`}
-                            >
-                              Cancel
-                            </button>
-                            <button
-                              type="button"
-                              onClick={handleRegenerateRecoveryCodes}
-                              disabled={twoFactorLoading}
-                              className="flex-1 px-4 py-2 rounded-lg font-medium bg-teal-600 text-white hover:bg-teal-700 disabled:opacity-60"
-                            >
-                              {twoFactorLoading ? "Generating..." : "Regenerate"}
-                            </button>
-                          </div>
-                        </>
-                      )}
-                      {recoveryCodes.length > 0 && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setShowRegenCodes(false);
-                            setRecoveryCodes([]);
-                          }}
-                          className="w-full px-4 py-2 rounded-lg font-medium bg-teal-600 text-white hover:bg-teal-700"
-                        >
-                          Done
-                        </button>
-                      )}
-                    </div>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => setShowRegenCodes(true)}
-                      className={`flex items-center gap-2 text-sm font-medium ${isDarkMode ? "text-teal-400 hover:text-teal-300" : "text-teal-600 hover:text-teal-700"} transition-colors`}
-                    >
-                      <RefreshCw size={14} />
-                      Regenerate Recovery Codes
-                    </button>
-                  )}
-
-                  {/* Disable 2FA */}
-                  {showDisable2FA ? (
-                    <div className="space-y-3">
-                      <input
-                        type="password"
-                        value={disablePassword}
-                        onChange={(e) => setDisablePassword(e.target.value)}
-                        placeholder="Enter your password to confirm"
-                        className={`w-full px-4 py-2 rounded-lg border transition-colors ${
-                          isDarkMode
-                            ? "bg-gray-700 border-gray-600 text-white focus:border-teal-400"
-                            : "bg-gray-50 border-gray-300 text-gray-900 focus:border-teal-600"
-                        } focus:outline-hidden`}
-                      />
-                      <div className="flex gap-2">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setShowDisable2FA(false);
-                            setDisablePassword("");
-                          }}
-                          className={`flex-1 px-4 py-2 rounded-lg font-medium ${isDarkMode ? "bg-gray-700 text-white hover:bg-gray-600" : "bg-gray-200 text-gray-900 hover:bg-gray-300"}`}
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          type="button"
-                          onClick={handleDisable2FA}
-                          disabled={twoFactorLoading}
-                          className="flex-1 px-4 py-2 rounded-lg font-medium bg-red-600 text-white hover:bg-red-700 disabled:opacity-60"
-                        >
-                          {twoFactorLoading ? "Disabling..." : "Disable 2FA"}
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => setShowDisable2FA(true)}
-                      className={`flex items-center gap-2 text-sm font-medium ${isDarkMode ? "text-red-400 hover:text-red-300" : "text-red-600 hover:text-red-700"} transition-colors`}
-                    >
-                      <ShieldOff size={14} />
-                      Disable Two-Factor Authentication
-                    </button>
-                  )}
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setShow2FASetup(true)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
-                    isDarkMode ? "bg-teal-600 text-white hover:bg-teal-700" : "bg-teal-500 text-white hover:bg-teal-600"
-                  }`}
-                >
-                  <KeyRound size={16} />
-                  Enable Two-Factor Authentication
+          {/* Section: Security / Change Password */}
+          <div className="px-8 py-6">
+            <div className="flex items-center justify-between">
+              <h3 className={`text-base font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>Security</h3>
+              {!showPasswordChange && (
+                <button type="button" onClick={() => setShowPasswordChange(true)} className={btnClass}>
+                  Change Password
                 </button>
               )}
-            </>
-          )}
-        </div>
+            </div>
 
-        {/* Passkeys Card */}
-        <div className={`rounded-2xl shadow-lg p-8 mb-6 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
-          <PasskeyManagement />
-        </div>
+            {showPasswordChange && (
+              <div className={`space-y-4 border-t mt-6 pt-6 ${dividerClass}`}>
+                <div>
+                  <label htmlFor="current-password" className={labelClass}>
+                    Current Password
+                  </label>
+                  <input
+                    id="current-password"
+                    type="password"
+                    value={passwordChange.currentPassword}
+                    onChange={(e) => setPasswordChange((prev) => ({ ...prev, currentPassword: e.target.value }))}
+                    className={inputClass}
+                    placeholder="Enter current password"
+                    disabled={loading}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="new-password" className={labelClass}>
+                    New Password
+                  </label>
+                  <input
+                    id="new-password"
+                    type="password"
+                    value={passwordChange.newPassword}
+                    onChange={(e) => setPasswordChange((prev) => ({ ...prev, newPassword: e.target.value }))}
+                    className={inputClass}
+                    placeholder="Enter new password (min 8 chars)"
+                    disabled={loading}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="confirm-password" className={labelClass}>
+                    Confirm New Password
+                  </label>
+                  <input
+                    id="confirm-password"
+                    type="password"
+                    value={passwordChange.confirmPassword}
+                    onChange={(e) => setPasswordChange((prev) => ({ ...prev, confirmPassword: e.target.value }))}
+                    className={inputClass}
+                    placeholder="Confirm new password"
+                    disabled={loading}
+                  />
+                </div>
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowPasswordChange(false);
+                      setPasswordChange({ currentPassword: "", newPassword: "", confirmPassword: "" });
+                    }}
+                    disabled={loading}
+                    className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
+                      isDarkMode
+                        ? "bg-gray-700 text-white hover:bg-gray-600 disabled:bg-gray-800"
+                        : "bg-gray-200 text-gray-900 hover:bg-gray-300 disabled:bg-gray-100"
+                    }`}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleChangePassword}
+                    disabled={loading}
+                    className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
+                      isDarkMode
+                        ? "bg-teal-600 text-white hover:bg-teal-700 disabled:bg-gray-700"
+                        : "bg-teal-500 text-white hover:bg-teal-600 disabled:bg-gray-300"
+                    }`}
+                  >
+                    {loading ? "Changing..." : "Change Password"}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
 
-        {/* Logout Card */}
-        <div className={`rounded-2xl shadow-lg p-8 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
-          <button
-            type="button"
-            onClick={handleLogout}
-            className={`w-full flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors ${
-              isDarkMode ? "bg-red-600 text-white hover:bg-red-700" : "bg-red-500 text-white hover:bg-red-600"
-            }`}
-          >
-            <LogOut size={18} />
-            Logout
-          </button>
+          <div className={`border-t ${dividerClass}`} />
+
+          {/* Section: Two-Factor Authentication */}
+          <div className="px-8 py-6">
+            {show2FASetup ? (
+              <TwoFactorSetup
+                onComplete={() => {
+                  setShow2FASetup(false);
+                  setTwoFactorStatus({ enabled: true, method: "totp" });
+                  notificationService.success("Two-factor authentication enabled");
+                }}
+                onCancel={() => setShow2FASetup(false)}
+              />
+            ) : (
+              <>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className={`text-base font-semibold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                      Two-Factor Authentication
+                    </h3>
+                    <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                      {twoFactorStatus?.enabled
+                        ? "Your account is protected with 2FA"
+                        : "Add an extra layer of security to your account"}
+                    </p>
+                  </div>
+                  {twoFactorStatus?.enabled ? (
+                    <div
+                      className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                        isDarkMode
+                          ? "bg-green-900/30 text-green-400 border border-green-700"
+                          : "bg-green-50 text-green-700 border border-green-200"
+                      }`}
+                    >
+                      Enabled
+                    </div>
+                  ) : (
+                    <button type="button" onClick={() => setShow2FASetup(true)} className={btnClass}>
+                      Enable 2FA
+                    </button>
+                  )}
+                </div>
+
+                {twoFactorStatus?.enabled ? (
+                  <div className={`space-y-4 border-t mt-4 pt-4 ${dividerClass}`}>
+                    <div className="flex items-center gap-3">
+                      <Shield size={18} className={isDarkMode ? "text-green-400" : "text-green-600"} />
+                      <span className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+                        Method: {twoFactorStatus.method === "totp" ? "Authenticator App" : twoFactorStatus.method}
+                      </span>
+                    </div>
+
+                    {/* Regenerate Recovery Codes */}
+                    {showRegenCodes ? (
+                      <div className="space-y-3">
+                        {recoveryCodes.length > 0 ? (
+                          <div
+                            className={`grid grid-cols-2 gap-2 p-4 rounded-lg border font-mono text-sm ${
+                              isDarkMode
+                                ? "bg-gray-900 border-gray-700 text-gray-300"
+                                : "bg-gray-50 border-gray-200 text-gray-700"
+                            }`}
+                          >
+                            {recoveryCodes.map((code) => (
+                              <div key={code} className="text-center py-1">
+                                {code}
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <>
+                            <input
+                              type="password"
+                              value={regenPassword}
+                              onChange={(e) => setRegenPassword(e.target.value)}
+                              placeholder="Enter your password"
+                              className={inputClass}
+                            />
+                            <div className="flex gap-2">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setShowRegenCodes(false);
+                                  setRegenPassword("");
+                                }}
+                                className={`flex-1 px-4 py-2 rounded-lg font-medium ${isDarkMode ? "bg-gray-700 text-white hover:bg-gray-600" : "bg-gray-200 text-gray-900 hover:bg-gray-300"}`}
+                              >
+                                Cancel
+                              </button>
+                              <button
+                                type="button"
+                                onClick={handleRegenerateRecoveryCodes}
+                                disabled={twoFactorLoading}
+                                className="flex-1 px-4 py-2 rounded-lg font-medium bg-teal-600 text-white hover:bg-teal-700 disabled:opacity-60"
+                              >
+                                {twoFactorLoading ? "Generating..." : "Regenerate"}
+                              </button>
+                            </div>
+                          </>
+                        )}
+                        {recoveryCodes.length > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setShowRegenCodes(false);
+                              setRecoveryCodes([]);
+                            }}
+                            className="w-full px-4 py-2 rounded-lg font-medium bg-teal-600 text-white hover:bg-teal-700"
+                          >
+                            Done
+                          </button>
+                        )}
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setShowRegenCodes(true)}
+                        className={`flex items-center gap-2 text-sm font-medium ${isDarkMode ? "text-teal-400 hover:text-teal-300" : "text-teal-600 hover:text-teal-700"} transition-colors`}
+                      >
+                        <RefreshCw size={14} />
+                        Regenerate Recovery Codes
+                      </button>
+                    )}
+
+                    {/* Disable 2FA */}
+                    {showDisable2FA ? (
+                      <div className="space-y-3">
+                        <input
+                          type="password"
+                          value={disablePassword}
+                          onChange={(e) => setDisablePassword(e.target.value)}
+                          placeholder="Enter your password to confirm"
+                          className={inputClass}
+                        />
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setShowDisable2FA(false);
+                              setDisablePassword("");
+                            }}
+                            className={`flex-1 px-4 py-2 rounded-lg font-medium ${isDarkMode ? "bg-gray-700 text-white hover:bg-gray-600" : "bg-gray-200 text-gray-900 hover:bg-gray-300"}`}
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleDisable2FA}
+                            disabled={twoFactorLoading}
+                            className="flex-1 px-4 py-2 rounded-lg font-medium bg-red-600 text-white hover:bg-red-700 disabled:opacity-60"
+                          >
+                            {twoFactorLoading ? "Disabling..." : "Disable 2FA"}
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setShowDisable2FA(true)}
+                        className={`flex items-center gap-2 text-sm font-medium ${isDarkMode ? "text-red-400 hover:text-red-300" : "text-red-600 hover:text-red-700"} transition-colors`}
+                      >
+                        <ShieldOff size={14} />
+                        Disable Two-Factor Authentication
+                      </button>
+                    )}
+                  </div>
+                ) : null}
+              </>
+            )}
+          </div>
+
+          <div className={`border-t ${dividerClass}`} />
+
+          {/* Section: Passkeys */}
+          <div className="px-8 py-6">
+            <PasskeyManagement />
+          </div>
+
+          <div className={`border-t ${dividerClass}`} />
+
+          {/* Section: Logout */}
+          <div className="px-8 py-6 flex items-center justify-end">
+            <button
+              type="button"
+              onClick={handleLogout}
+              className={`min-w-[160px] h-10 px-4 text-sm text-center flex items-center justify-center gap-2 rounded-lg font-medium transition-colors ${
+                isDarkMode ? "bg-red-600 text-white hover:bg-red-700" : "bg-red-500 text-white hover:bg-red-600"
+              }`}
+            >
+              <LogOut size={16} />
+              Logout
+            </button>
+          </div>
         </div>
       </div>
     </div>
