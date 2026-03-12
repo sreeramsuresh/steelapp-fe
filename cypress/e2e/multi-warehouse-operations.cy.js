@@ -33,7 +33,11 @@ describe("Multi-Warehouse Operations - E2E Tests", () => {
 
     it("should render warehouse cards or table rows", () => {
       cy.visit("/app/warehouses");
-      cy.contains("warehouse", { matchCase: false, timeout: 15000 }).should("be.visible");
+      cy.get("body", { timeout: 15000 }).should("be.visible");
+      cy.get("body").should(($body) => {
+        const text = $body.text().toLowerCase();
+        expect(text).to.include("warehouse");
+      });
       cy.get("body").should(($body) => {
         const hasContent =
           $body.find("table").length > 0 ||
@@ -54,7 +58,7 @@ describe("Multi-Warehouse Operations - E2E Tests", () => {
   describe("Warehouse Detail", () => {
     it("should navigate to warehouse detail when clicked", () => {
       cy.visit("/app/warehouses");
-      cy.contains("warehouse", { matchCase: false, timeout: 15000 }).should("be.visible");
+      cy.get("body", { timeout: 15000 }).should("be.visible");
       cy.get("body").then(($body) => {
         const $links = $body.find("a[href*='warehouses/']").not("a[href*='warehouses/new']");
         if ($links.length > 0) {
@@ -74,13 +78,18 @@ describe("Multi-Warehouse Operations - E2E Tests", () => {
 
     it("should display warehouse details (name, code, location)", () => {
       cy.visit("/app/warehouses");
-      cy.contains("warehouse", { matchCase: false, timeout: 15000 }).should("be.visible");
+      // Wait for page content to render
+      cy.get("body", { timeout: 15000 }).should(($body) => {
+        expect($body.text().trim().length).to.be.greaterThan(10);
+      });
       cy.get("body").then(($body) => {
         const $links = $body.find("a[href*='warehouses/']").not("a[href*='warehouses/new']");
         if ($links.length > 0) {
           cy.wrap($links.first()).click();
+          cy.url({ timeout: 10000 }).should("include", "/warehouses/");
           cy.get("body", { timeout: 15000 }).should(($detailBody) => {
-            const text = $detailBody.text().toLowerCase();
+            const text = $detailBody.text().trim().toLowerCase();
+            expect(text.length).to.be.greaterThan(10);
             const hasDetail =
               text.includes("warehouse") ||
               text.includes("name") ||

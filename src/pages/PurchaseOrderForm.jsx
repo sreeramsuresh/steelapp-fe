@@ -1774,6 +1774,8 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
             "Please start PostgreSQL service and refresh the page to auto-initialize warehouses."
         );
       } else {
+        // Always show error as toast so the user sees it
+        notificationService.error(errorMessage);
         setErrors({ submit: errorMessage });
       }
     } finally {
@@ -1789,7 +1791,7 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
       {/* ==================== STICKY HEADER ==================== */}
       {!workspaceMode && (
         <header
-          className={`sticky top-0 z-20 shrink-0 backdrop-blur-md border-b ${
+          className={`sticky top-0 z-[1100] shrink-0 backdrop-blur-md border-b ${
             isDarkMode ? "bg-gray-900/92 border-gray-700" : "bg-white/92 border-gray-200"
           }`}
         >
