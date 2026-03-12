@@ -83,11 +83,21 @@ describe("Invoice Workflows - E2E Tests", () => {
     });
   });
 
-  it("should navigate to invoice detail when clicking edit in a table row", () => {
+  it("should open invoice preview when clicking view on a table row", () => {
     cy.get('[data-testid="invoice-list"]', { timeout: 15000 }).should("be.visible");
     cy.get("table tbody tr", { timeout: 10000 }).should("have.length.at.least", 1);
     cy.get("table tbody tr")
       .first()
+      .find('[data-testid="invoice-row-view"]')
+      .click();
+    cy.get('[data-testid="invoice-preview-modal"]', { timeout: 10000 }).should("exist");
+  });
+
+  it("should navigate to invoice form when clicking edit on a draft invoice", () => {
+    cy.get('[data-testid="invoice-list"]', { timeout: 15000 }).should("be.visible");
+    cy.get("table tbody tr", { timeout: 10000 }).should("have.length.at.least", 1);
+    // Find the seeded draft invoice row by its invoice number
+    cy.contains("table tbody tr", "E2E-DRAFT-INV-001")
       .find('[data-testid="invoice-row-edit"]')
       .click();
     cy.url({ timeout: 10000 }).should("match", /\/app\/invoices\/\d+/);

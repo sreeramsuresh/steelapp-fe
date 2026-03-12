@@ -420,6 +420,7 @@ const InvoiceTableRow = memo(function InvoiceTableRow({
           {/* View button */}
           <button
             type="button"
+            data-testid="invoice-row-view"
             className={`p-2 rounded transition-all shadow-xs hover:shadow-md ${
               isDarkMode
                 ? "text-cyan-400 hover:text-cyan-300 bg-gray-800/30 hover:bg-gray-700/50"
@@ -2147,7 +2148,10 @@ const InvoiceList = ({ defaultStatusFilter = "all" }) => {
           Falls back to DEFAULT_TEMPLATE_SETTINGS if company not loaded.
           This ensures preview matches final PDF appearance. */}
       {showPreviewModal && previewInvoice && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
+        <div
+          data-testid="invoice-preview-modal"
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto"
+        >
           <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto">
             <InvoicePreview
               invoice={previewInvoice}
