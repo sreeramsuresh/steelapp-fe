@@ -85,6 +85,11 @@ export const purchaseOrderService = {
     return apiClient.get(`/purchase-orders/${id}/workspace-summary`);
   },
 
+  // Approve or reject purchase order
+  approve: (id, data) => {
+    return apiClient.post(`/purchase-orders/${id}/approve`, data);
+  },
+
   // Generate and download PDF
   downloadPDF: async (id) => {
     const { downloadFile } = await import("./fileDownloadService.js");

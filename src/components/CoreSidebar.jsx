@@ -13,6 +13,7 @@ import {
   CheckCircle,
   ChevronDown,
   ChevronUp,
+  ClipboardCheck,
   Container,
   FileText,
   HandCoins,
@@ -85,6 +86,20 @@ const CoreSidebar = ({ isOpen, onToggle }) => {
 
   // Core ERP navigation items (operational only - no analytics/dashboards)
   const navigationItems = [
+    // 0. APPROVALS (top-level, no section header)
+    {
+      section: null,
+      items: [
+        {
+          name: "Approvals",
+          path: "/app/approvals",
+          icon: ClipboardCheck,
+          description: "Review and approve pending requests",
+          requiredPermission: "approvals.read",
+        },
+      ],
+    },
+
     // 1. SALES (operational)
     {
       section: "Sales",

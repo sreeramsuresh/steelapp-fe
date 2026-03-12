@@ -113,6 +113,9 @@ const PayrollRegisterReport = lazy(() => import("../pages/PayrollRegisterReport"
 const SalaryVsRevenueReport = lazy(() => import("../pages/SalaryVsRevenueReport"));
 const CostCenterBudgetList = lazy(() => import("../pages/CostCenterBudgetList"));
 
+// Approvals Hub
+const ApprovalsHub = lazy(() => import("../pages/ApprovalsHub"));
+
 // Purchases Dashboard
 const PurchasesDashboard = lazy(() => import("../pages/PurchasesDashboard"));
 
@@ -389,6 +392,18 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
               element={
                 <ProtectedRoute user={user}>
                   <SearchResults />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* ===== APPROVALS HUB ===== */}
+            <Route
+              path="approvals"
+              element={
+                <ProtectedRoute user={user} requiredPermission="approvals.read">
+                  <Suspense fallback={<PageLoadingFallback />}>
+                    <ApprovalsHub />
+                  </Suspense>
                 </ProtectedRoute>
               }
             />
