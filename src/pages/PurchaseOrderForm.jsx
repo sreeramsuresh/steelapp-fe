@@ -355,8 +355,6 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
     stockStatus: "retain", // Default to 'retain' (form-level, deprecated for new POs)
     // Exchange rate for multi-currency POs
     exchangeRate: null, // Exchange rate to AED (null when currency is AED)
-    // Incoterms and delivery
-    incoterms: "", // FOB, CIF, EXW, etc.
     // Buyer/Purchaser information
     buyerName: "",
     buyerEmail: "",
@@ -1068,7 +1066,15 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
       const apiWarehouses = response?.warehouses || response?.data || response;
 
       if (apiWarehouses && Array.isArray(apiWarehouses) && apiWarehouses.length > 0) {
-        setWarehouses(apiWarehouses.filter((w) => w.isActive !== false));
+        const activeWarehouses = apiWarehouses.filter((w) => w.isActive !== false);
+        setWarehouses(activeWarehouses);
+        // Auto-select default warehouse for new POs (not editing existing)
+        if (!id) {
+          const defaultWh = activeWarehouses.find((w) => w.isDefault);
+          if (defaultWh) {
+            setSelectedWarehouse(defaultWh.id.toString());
+          }
+        }
         return;
       }
     } catch (_error) {
@@ -1105,7 +1111,7 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
     ];
     setWarehouses(sampleWarehouses.filter((w) => w.isActive));
     notificationService.warning("Using offline warehouse data. Some features may not work properly.");
-  }, []);
+  }, [id]);
 
   // Fetch available products and warehouses
   useEffect(() => {
@@ -1637,8 +1643,6 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
         buyer_email: poData.buyerEmail || null,
         ...(poData.buyerPhone ? { buyer_phone: poData.buyerPhone } : {}),
         buyer_department: poData.buyerDepartment || null,
-        // Trade terms
-        incoterms: poData.incoterms || null,
         // Approval workflow
         approval_status: poData.approvalStatus || "pending",
         // Additional charges
@@ -2095,23 +2099,6 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
                       ) : (
                         <SelectItem value="received">Received at Warehouse</SelectItem>
                       )}
-                    </FormSelect>
-                  </div>
-                  <div className="col-span-6 sm:col-span-3">
-                    <FormSelect
-                      label="Incoterms"
-                      value={purchaseOrder.incoterms || "none"}
-                      onValueChange={(value) => handleInputChange("incoterms", value === "none" ? "" : value)}
-                    >
-                      <SelectItem value="none">Select Incoterm</SelectItem>
-                      <SelectItem value="FOB">FOB - Free on Board</SelectItem>
-                      <SelectItem value="CIF">CIF - Cost, Insurance & Freight</SelectItem>
-                      <SelectItem value="EXW">EXW - Ex Works</SelectItem>
-                      <SelectItem value="DDP">DDP - Delivered Duty Paid</SelectItem>
-                      <SelectItem value="DAP">DAP - Delivered at Place</SelectItem>
-                      <SelectItem value="FCA">FCA - Free Carrier</SelectItem>
-                      <SelectItem value="CPT">CPT - Carriage Paid To</SelectItem>
-                      <SelectItem value="CIP">CIP - Carriage and Insurance Paid To</SelectItem>
                     </FormSelect>
                   </div>
                 </div>
@@ -2878,23 +2865,6 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
               className={`text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
             >
               Delivery Settings
-            </div>
-            <div>
-              <FormSelect
-                label="Incoterms"
-                value={purchaseOrder.incoterms || "none"}
-                onValueChange={(value) => handleInputChange("incoterms", value === "none" ? "" : value)}
-              >
-                <SelectItem value="none">Select Incoterm</SelectItem>
-                <SelectItem value="FOB">FOB - Free on Board</SelectItem>
-                <SelectItem value="CIF">CIF - Cost, Insurance & Freight</SelectItem>
-                <SelectItem value="EXW">EXW - Ex Works</SelectItem>
-                <SelectItem value="DDP">DDP - Delivered Duty Paid</SelectItem>
-                <SelectItem value="DAP">DAP - Delivered at Place</SelectItem>
-                <SelectItem value="FCA">FCA - Free Carrier</SelectItem>
-                <SelectItem value="CPT">CPT - Carriage Paid To</SelectItem>
-                <SelectItem value="CIP">CIP - Carriage and Insurance Paid To</SelectItem>
-              </FormSelect>
             </div>
             <div>
               <FormSelect

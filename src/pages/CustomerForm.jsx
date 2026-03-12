@@ -29,6 +29,38 @@ import { notificationService } from "../services/notificationService";
 import { formatDateDMY } from "../utils/invoiceUtils";
 
 /**
+ * Normalize legacy country values (e.g., "UAE", "China") to ISO alpha-2 codes.
+ */
+const COUNTRY_NAME_TO_ISO = {
+  UAE: "AE",
+  CHINA: "CN",
+  INDIA: "IN",
+  "SOUTH KOREA": "KR",
+  JAPAN: "JP",
+  TURKEY: "TR",
+  "SAUDI ARABIA": "SA",
+  OMAN: "OM",
+  BAHRAIN: "BH",
+  QATAR: "QA",
+  KUWAIT: "KW",
+  TAIWAN: "TW",
+  VIETNAM: "VN",
+  INDONESIA: "ID",
+  MALAYSIA: "MY",
+  THAILAND: "TH",
+  GERMANY: "DE",
+  SPAIN: "ES",
+  ITALY: "IT",
+  FRANCE: "FR",
+};
+function normalizeCountryCode(val) {
+  if (!val) return "AE";
+  const upper = val.trim().toUpperCase();
+  if (upper.length === 2) return upper;
+  return COUNTRY_NAME_TO_ISO[upper] || upper.slice(0, 2);
+}
+
+/**
  * ISO 3166-1 alpha-2 country codes for address validation
  * Used to enforce VAT/compliance standards: all addresses must use ISO alpha-2 format
  * Example: AE (UAE), IN (India), CN (China), not "UAE", "India", "China"
@@ -393,8 +425,8 @@ const CustomerForm = () => {
         city: customer.city || addressParsed.city || "", // Prioritize generated column
         state: addressParsed.state || "",
         postalCode: addressParsed.postalCode || "",
-        country: customer.country || addressParsed.country || "AE", // Prioritize generated column
-        vatNumber: customer.vatNumber || "",
+        country: normalizeCountryCode(customer.country || addressParsed.country || "AE"),
+        vatNumber: String(customer.vatNumber || ""),
         trn: customer.trn || "",
         creditLimit: customer.creditLimit || 0,
         paymentTermsDays: customer.paymentTermsDays || 0,
@@ -444,8 +476,18 @@ const CustomerForm = () => {
       setSaving(true);
       setError("");
 
+      // Strip non-digits (except leading +) from phone fields to ensure E.164
+      const toE164 = (v) => (v ? v.replace(/(?!^\+)\D/g, "") : "");
+
+      // Normalize phone fields before validation
+      const normalizedData = {
+        ...formData,
+        phone: toE164(formData.phone),
+        alternatePhone: toE164(formData.alternatePhone),
+      };
+
       // Zod schema validation
-      const zodResult = zodValidate(formData);
+      const zodResult = zodValidate(normalizedData);
       if (!zodResult.success) {
         const firstError = Object.values(zodResult.fieldErrors)[0];
         setErrors(zodResult.fieldErrors);
@@ -482,8 +524,8 @@ const CustomerForm = () => {
         name: formData.name,
         company: formData.company,
         email: formData.email,
-        phone: formData.phone,
-        alternatePhone: formData.alternatePhone,
+        phone: normalizedData.phone,
+        alternatePhone: normalizedData.alternatePhone,
         address: {
           street: formData.street || "",
           city: formData.city || "",

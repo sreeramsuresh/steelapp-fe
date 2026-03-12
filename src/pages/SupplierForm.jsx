@@ -56,14 +56,6 @@ const COUNTRY_OPTIONS = [
 ];
 
 /**
- * Supplier Location options
- */
-const SUPPLIER_LOCATION_OPTIONS = [
-  { value: "UAE_LOCAL", label: "UAE Local" },
-  { value: "OVERSEAS", label: "Overseas" },
-];
-
-/**
  * Payment Terms options
  */
 const PAYMENT_TERMS_OPTIONS = [
@@ -86,6 +78,38 @@ const CURRENCY_OPTIONS = [
   { value: "EUR", label: "EUR (Euro)" },
   { value: "CNY", label: "CNY (Chinese Yuan)" },
 ];
+
+/**
+ * Normalize legacy country values (e.g., "UAE", "China") to ISO alpha-2 codes.
+ */
+const COUNTRY_NAME_TO_ISO = {
+  UAE: "AE",
+  CHINA: "CN",
+  INDIA: "IN",
+  "SOUTH KOREA": "KR",
+  JAPAN: "JP",
+  TURKEY: "TR",
+  "SAUDI ARABIA": "SA",
+  OMAN: "OM",
+  BAHRAIN: "BH",
+  QATAR: "QA",
+  KUWAIT: "KW",
+  TAIWAN: "TW",
+  VIETNAM: "VN",
+  INDONESIA: "ID",
+  MALAYSIA: "MY",
+  THAILAND: "TH",
+  GERMANY: "DE",
+  SPAIN: "ES",
+  ITALY: "IT",
+  FRANCE: "FR",
+};
+function normalizeCountryCode(val) {
+  if (!val) return "";
+  const upper = val.trim().toUpperCase();
+  if (upper.length === 2) return upper;
+  return COUNTRY_NAME_TO_ISO[upper] || upper.slice(0, 2);
+}
 
 /**
  * ISO 3166-1 alpha-2 country codes for address validation
@@ -460,10 +484,10 @@ export function SupplierForm() {
     tradeLicenseFilePath: "",
     vatCertificateFilePath: "",
 
-    // Supplier Classification
-    supplierLocation: "UAE_LOCAL",
+    // Supplier Classification (supplierLocation derived from country — never set manually)
+    supplierLocation: "",
     isMill: false,
-    primaryCountry: "UAE",
+    primaryCountry: "",
     typicalLeadTimeDays: 7,
     supplierType: "",
     category: "",
@@ -584,7 +608,7 @@ export function SupplierForm() {
           city: supplier.city || addressParsed.city || "",
           state: addressParsed.state || "",
           postalCode: addressParsed.postalCode || "",
-          country: supplier.country || addressParsed.country || "AE",
+          country: normalizeCountryCode(supplier.country || addressParsed.country || "AE"),
 
           // Contact Person
           contactPerson: supplier.contactPerson || supplier.contact_person || "",
@@ -602,7 +626,14 @@ export function SupplierForm() {
           vatCertificateFilePath: supplier.vatCertificateFilePath || supplier.vat_certificate_file_path || "",
 
           // Supplier Classification
-          supplierLocation: supplier.supplierLocation || supplier.supplier_location || "UAE_LOCAL",
+          supplierLocation:
+            supplier.supplierLocation ||
+            supplier.supplier_location ||
+            ((supplier.country || supplier.address?.country || "").toUpperCase() === "AE"
+              ? "UAE_LOCAL"
+              : supplier.country || supplier.address?.country
+                ? "OVERSEAS"
+                : ""),
           isMill: supplier.isMill ?? supplier.is_mill ?? false,
           primaryCountry: supplier.primaryCountry || supplier.primary_country || "AE",
           typicalLeadTimeDays: supplier.typicalLeadTimeDays ?? supplier.typical_lead_time_days ?? 7,
@@ -660,22 +691,17 @@ export function SupplierForm() {
       setErrors((prev) => ({ ...prev, [field]: null }));
     }
 
-    // Auto-update primaryCountry when supplierLocation changes
-    if (field === "supplierLocation") {
-      if (value === "UAE_LOCAL") {
-        setFormData((prev) => ({
-          ...prev,
-          supplierLocation: value,
-          primaryCountry: "UAE",
-          typicalLeadTimeDays: 7, // Local suppliers typically faster
-        }));
-      } else {
-        setFormData((prev) => ({
-          ...prev,
-          supplierLocation: value,
-          typicalLeadTimeDays: 45, // Overseas typically longer
-        }));
-      }
+    // Auto-derive supplierLocation and primaryCountry from country field
+    if (field === "country") {
+      const code = (value || "").toUpperCase();
+      const isLocal = code === "AE";
+      setFormData((prev) => ({
+        ...prev,
+        country: value,
+        supplierLocation: isLocal ? "UAE_LOCAL" : code ? "OVERSEAS" : "",
+        primaryCountry: code || prev.primaryCountry,
+        typicalLeadTimeDays: isLocal ? 7 : code ? 45 : prev.typicalLeadTimeDays,
+      }));
     }
   };
 
@@ -823,8 +849,14 @@ export function SupplierForm() {
       // Prepare payload with serialized JSON fields
       const { street, city, state, postalCode, country, ...otherFields } = formData;
 
+      // Strip non-digits (except leading +) from phone fields to ensure E.164
+      const toE164 = (v) => (v ? v.replace(/(?!^\+)\D/g, "") : "");
+
       const payload = {
         ...otherFields,
+        phone: toE164(otherFields.phone),
+        alternatePhone: toE164(otherFields.alternatePhone),
+        contactPhone: toE164(otherFields.contactPhone),
         // Structure address as an object (gRPC expects object, not string)
         address: JSON.stringify({
           street: street || "",
@@ -1368,30 +1400,39 @@ export function SupplierForm() {
                     </FormSelect>
                   </div>
 
-                  {/* Supplier Location */}
+                  {/* Supplier Location (derived from Country — read-only) */}
                   <div>
-                    <FormSelect
-                      label={
-                        <>
-                          <Building2 size={14} className="inline mr-1" />
-                          Supplier Location
-                        </>
-                      }
-                      value={formData.supplierLocation}
-                      onValueChange={(value) => handleChange("supplierLocation", value)}
-                      required={true}
-                      showValidation={false}
+                    <span className={labelClasses}>
+                      <Building2 size={14} className="inline mr-1" />
+                      Supplier Location
+                    </span>
+                    <div
+                      className={`flex items-center h-[52px] px-4 rounded-lg border ${
+                        isDarkMode ? "bg-gray-700 border-gray-600" : "bg-gray-100 border-gray-300"
+                      }`}
                     >
-                      {SUPPLIER_LOCATION_OPTIONS.map((opt) => (
-                        <SelectItem key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </SelectItem>
-                      ))}
-                    </FormSelect>
+                      <span
+                        className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                          formData.supplierLocation === "UAE_LOCAL"
+                            ? "bg-teal-100 text-teal-800"
+                            : formData.supplierLocation === "OVERSEAS"
+                              ? "bg-blue-100 text-blue-800"
+                              : "bg-gray-200 text-gray-600"
+                        }`}
+                      >
+                        {formData.supplierLocation === "UAE_LOCAL"
+                          ? "UAE Local"
+                          : formData.supplierLocation === "OVERSEAS"
+                            ? "Overseas"
+                            : "Set country first"}
+                      </span>
+                    </div>
                     <p className={`text-xs mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                       {formData.supplierLocation === "UAE_LOCAL"
                         ? "Local suppliers: faster delivery, lower margins (~8%)"
-                        : "Overseas suppliers: longer lead times, higher margins (~18%)"}
+                        : formData.supplierLocation === "OVERSEAS"
+                          ? "Overseas suppliers: longer lead times, higher margins (~18%)"
+                          : "Derived automatically from Country field"}
                     </p>
                   </div>
 
@@ -1424,7 +1465,7 @@ export function SupplierForm() {
                     </p>
                   </div>
 
-                  {/* Primary Country */}
+                  {/* Primary Country (derived from Country — read-only) */}
                   <div>
                     <FormSelect
                       label={
@@ -1434,11 +1475,8 @@ export function SupplierForm() {
                         </>
                       }
                       value={formData.primaryCountry || "none"}
-                      onValueChange={(value) => handleChange("primaryCountry", value === "none" ? "" : value)}
-                      required={formData.supplierLocation === "OVERSEAS"}
-                      disabled={formData.supplierLocation === "UAE_LOCAL"}
-                      validationState={errors.primaryCountry ? "invalid" : null}
-                      showValidation={true}
+                      onValueChange={() => {}}
+                      disabled={true}
                     >
                       {COUNTRY_OPTIONS.map((opt) => (
                         <SelectItem key={opt.value} value={opt.value}>
@@ -1446,7 +1484,9 @@ export function SupplierForm() {
                         </SelectItem>
                       ))}
                     </FormSelect>
-                    {errors.primaryCountry && <p className="text-red-500 text-sm mt-1">{errors.primaryCountry}</p>}
+                    <p className={`text-xs mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                      Auto-set from Country field
+                    </p>
                   </div>
 
                   {/* Typical Lead Time */}
