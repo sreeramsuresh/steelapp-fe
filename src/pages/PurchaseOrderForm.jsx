@@ -789,7 +789,7 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
   }, []);
   // Suppliers
   const { data: suppliersData, loading: loadingSuppliers } = useApiData(
-    () => supplierService.getSuppliers({ status: "active" }),
+    () => supplierService.getSuppliers({ status: "active", supplierLocation: "UAE_LOCAL" }),
     []
   );
 

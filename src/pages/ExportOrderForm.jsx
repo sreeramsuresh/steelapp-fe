@@ -1251,7 +1251,7 @@ const ExportOrderForm = () => {
   useEffect(() => {
     const fetchSuppliers = async () => {
       try {
-        const response = await supplierService.getSuppliers();
+        const response = await supplierService.getSuppliers({ supplierLocation: "OVERSEAS" });
         const supplierList = response.suppliers || response.data || [];
         setSuppliers(Array.isArray(supplierList) ? supplierList : []);
       } catch (error) {

@@ -596,7 +596,7 @@ const ImportOrderForm = () => {
     const fetchSuppliers = async () => {
       setLoadingSuppliers(true);
       try {
-        const response = await supplierService.getSuppliers();
+        const response = await supplierService.getSuppliers({ supplierLocation: "OVERSEAS" });
         setSuppliers(response.suppliers || []);
       } catch (error) {
         console.error("Failed to fetch suppliers:", error);
