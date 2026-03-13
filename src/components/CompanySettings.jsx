@@ -1147,13 +1147,13 @@ const CompanySettings = () => {
                               </div>
                             ) : (
                               <img
-                                src={`${companyProfile.logoUrl.startsWith("/") ? (import.meta.env.VITE_API_BASE_URL?.replace("/api", "") || "http://localhost:3000") + companyProfile.logoUrl : companyProfile.logoUrl}?t=${Date.now()}`}
+                                src={`${companyProfile.logoUrl.startsWith("/") ? (import.meta.env.VITE_API_BASE_URL?.replace("/api", "") || window.location.origin) + companyProfile.logoUrl : companyProfile.logoUrl}?t=${Date.now()}`}
                                 alt="Company Logo"
                                 className="w-full h-full object-contain rounded-lg"
                                 onError={(e) => {
                                   if (e.target.src.includes("?t=")) {
                                     const baseUrl =
-                                      import.meta.env.VITE_API_BASE_URL?.replace("/api", "") || "http://localhost:3000";
+                                      import.meta.env.VITE_API_BASE_URL?.replace("/api", "") || window.location.origin;
                                     e.target.src = companyProfile.logoUrl.startsWith("/")
                                       ? baseUrl + companyProfile.logoUrl
                                       : companyProfile.logoUrl;
@@ -1264,13 +1264,13 @@ const CompanySettings = () => {
                               </div>
                             ) : (
                               <img
-                                src={`${companyProfile.brandmarkUrl.startsWith("/") ? (import.meta.env.VITE_API_BASE_URL?.replace("/api", "") || "http://localhost:3000") + companyProfile.brandmarkUrl : companyProfile.brandmarkUrl}?t=${Date.now()}`}
+                                src={`${companyProfile.brandmarkUrl.startsWith("/") ? (import.meta.env.VITE_API_BASE_URL?.replace("/api", "") || window.location.origin) + companyProfile.brandmarkUrl : companyProfile.brandmarkUrl}?t=${Date.now()}`}
                                 alt="Company Brandmark"
                                 className="w-full h-full object-contain rounded-lg"
                                 onError={(e) => {
                                   if (e.target.src.includes("?t=")) {
                                     const baseUrl =
-                                      import.meta.env.VITE_API_BASE_URL?.replace("/api", "") || "http://localhost:3000";
+                                      import.meta.env.VITE_API_BASE_URL?.replace("/api", "") || window.location.origin;
                                     e.target.src = companyProfile.brandmarkUrl.startsWith("/")
                                       ? baseUrl + companyProfile.brandmarkUrl
                                       : companyProfile.brandmarkUrl;
@@ -1354,13 +1354,13 @@ const CompanySettings = () => {
                               </div>
                             ) : (
                               <img
-                                src={`${companyProfile.pdfSealUrl.startsWith("/") ? (import.meta.env.VITE_API_BASE_URL?.replace("/api", "") || "http://localhost:3000") + companyProfile.pdfSealUrl : companyProfile.pdfSealUrl}?t=${Date.now()}`}
+                                src={`${companyProfile.pdfSealUrl.startsWith("/") ? (import.meta.env.VITE_API_BASE_URL?.replace("/api", "") || window.location.origin) + companyProfile.pdfSealUrl : companyProfile.pdfSealUrl}?t=${Date.now()}`}
                                 alt="Company Seal"
                                 className="w-full h-full object-contain rounded-lg"
                                 onError={(e) => {
                                   if (e.target.src.includes("?t=")) {
                                     const baseUrl =
-                                      import.meta.env.VITE_API_BASE_URL?.replace("/api", "") || "http://localhost:3000";
+                                      import.meta.env.VITE_API_BASE_URL?.replace("/api", "") || window.location.origin;
                                     e.target.src = companyProfile.pdfSealUrl.startsWith("/")
                                       ? baseUrl + companyProfile.pdfSealUrl
                                       : companyProfile.pdfSealUrl;

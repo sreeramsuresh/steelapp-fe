@@ -8,7 +8,7 @@ import { toUAEDateProfessional } from "../../utils/invoiceUtils";
  */
 const InvoiceHeader = ({ company, invoice, isFirstPage, primaryColor, template = null, documentType = "invoice" }) => {
   const compAddr = company?.address || {};
-  const baseUrl = import.meta.env.VITE_API_BASE_URL?.replace("/api", "") || "http://localhost:3000";
+  const baseUrl = import.meta.env.VITE_API_BASE_URL?.replace("/api", "") || window.location.origin;
 
   const docImageSettings = company?.settings?.documentImages?.[documentType] || {
     showLogo: true,

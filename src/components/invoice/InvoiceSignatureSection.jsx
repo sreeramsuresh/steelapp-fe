@@ -7,7 +7,7 @@
  * Uses seal uploaded in Company Settings (pdf_seal_url or seal_url)
  */
 const InvoiceSignatureSection = ({ company, template = null }) => {
-  const baseUrl = import.meta.env.VITE_API_BASE_URL?.replace("/api", "") || "http://localhost:3000";
+  const baseUrl = import.meta.env.VITE_API_BASE_URL?.replace("/api", "") || window.location.origin;
 
   const colors = template?.colors || {};
   const primaryColor = colors.primary || "#111";

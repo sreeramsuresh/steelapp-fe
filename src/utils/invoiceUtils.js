@@ -669,7 +669,7 @@ export const formatNumber = (value, fractionDigits = 2) => {
  * @returns {Object} { logoUrl, sealUrl }
  */
 export const getCompanyImages = (company) => {
-  const baseUrl = env.VITE_API_BASE_URL?.replace("/api", "") || "http://localhost:3000";
+  const baseUrl = env.VITE_API_BASE_URL?.replace("/api", "") || window.location.origin;
 
   // Get logo URL - prioritize pdf_logo_url, fallback to logo_url
   let logoUrl = null;
