@@ -43,7 +43,7 @@ export default defineConfig({
     visualizer({ filename: "stats.html", gzipSize: true }),
   ],
   // Strip console.log/info/debug from production builds (keep error/warn)
-  esbuild: {
+  oxc: {
     pure: ["console.log", "console.info", "console.debug"],
   },
   define: {
@@ -77,7 +77,7 @@ export default defineConfig({
     },
   },
   build: {
-    rollupOptions: {
+    rolldownOptions: {
       output: {
         // Only split echarts + zrender (self-contained, no React cycle risk).
         // Generic vendor splitting removed due to circular init deps
@@ -90,8 +90,8 @@ export default defineConfig({
     },
     // Target modern browsers for smaller bundles
     target: "es2020",
-    // Enable minification
-    minify: "esbuild",
+    // Minification (Vite 8 defaults to Oxc minifier)
+    minify: true,
     // Keep chunk size warning at reasonable level
     chunkSizeWarningLimit: 550,
     // Enable source maps for debugging (can disable in production)
