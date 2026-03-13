@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { ArrowDown, ArrowUp, ArrowUpDown, Settings2, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, Settings2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import {
   FaArchive,
@@ -17,7 +17,6 @@ import {
   FaSave,
   FaSearch,
   FaTimes,
-  FaTrash,
   FaUpload,
   FaUsers,
 } from "react-icons/fa";
@@ -29,7 +28,6 @@ import { authService } from "../services/axiosAuthService";
 import { customerService } from "../services/customerService";
 import { notificationService } from "../services/notificationService";
 import pricelistService from "../services/pricelistService";
-import { supplierService } from "../services/supplierService";
 import { formatCurrency } from "../utils/invoiceUtils";
 import ConfirmDialog from "./ConfirmDialog";
 import CustomerUpload from "./CustomerUpload";
@@ -43,16 +41,6 @@ const CUSTOMER_COLUMNS = [
   { key: "phone", label: "Phone", width: "w-[120px]" },
   { key: "creditLimit", label: "Credit Limit", width: "w-[120px]" },
   { key: "creditUsed", label: "Credit Used", width: "w-[120px]" },
-];
-
-// Column definitions for Suppliers table
-const SUPPLIER_COLUMNS = [
-  { key: "name", label: "Supplier Name", width: "w-[200px]", required: true },
-  { key: "company", label: "Company", width: "w-[150px]" },
-  { key: "email", label: "Email", width: "w-[180px]" },
-  { key: "phone", label: "Phone", width: "w-[120px]" },
-  { key: "trnNumber", label: "TRN", width: "w-[140px]" },
-  { key: "paymentTerms", label: "Payment Terms", width: "w-[120px]" },
 ];
 
 const CustomerManagement = () => {
@@ -70,33 +58,21 @@ const CustomerManagement = () => {
   const [showArchived, setShowArchived] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [customerPageSize, setCustomerPageSize] = useState(20);
-  const [supplierCurrentPage, setSupplierCurrentPage] = useState(1);
-  const [supplierPageSize, setSupplierPageSize] = useState(20);
-  const [supplierSearchTerm, setSupplierSearchTerm] = useState("");
-  const [supplierFilterStatus, setSupplierFilterStatus] = useState("all");
-  const [showDeletedSuppliers, setShowDeletedSuppliers] = useState(false);
 
   // Row selection state
   const [selectedCustomerIds, setSelectedCustomerIds] = useState(new Set());
-  const [selectedSupplierIds, setSelectedSupplierIds] = useState(new Set());
 
   // Table sorting state
   const [customerSortConfig, setCustomerSortConfig] = useState({
     key: "name",
     direction: "asc",
   });
-  const [supplierSortConfig, setSupplierSortConfig] = useState({
-    key: "name",
-    direction: "asc",
-  });
 
   // Column visibility state
   const [customerVisibleColumns, setCustomerVisibleColumns] = useState(CUSTOMER_COLUMNS.map((col) => col.key));
-  const [supplierVisibleColumns, setSupplierVisibleColumns] = useState(SUPPLIER_COLUMNS.map((col) => col.key));
 
   // Column picker visibility
   const [showCustomerColumnPicker, setShowCustomerColumnPicker] = useState(false);
-  const [showSupplierColumnPicker, setShowSupplierColumnPicker] = useState(false);
 
   const canReadCustomers = authService.hasPermission("customers", "read") || authService.hasRole("admin");
 
@@ -120,32 +96,10 @@ const CustomerManagement = () => {
     refetch: refetchCustomers,
   } = useApiData(getCustomersCallback, [searchTerm, filterStatus, currentPage, customerPageSize, canReadCustomers]);
 
-  // Suppliers API hooks
-  const getSuppliersCallback = useCallback(
-    () =>
-      supplierService.getSuppliers({
-        query: supplierSearchTerm,
-        page: supplierCurrentPage,
-        limit: supplierPageSize,
-      }),
-    [supplierSearchTerm, supplierCurrentPage, supplierPageSize]
-  );
-
-  const {
-    data: suppliersData,
-    loading: loadingSuppliers,
-    error: suppliersError,
-    refetch: refetchSuppliers,
-  } = useApiData(getSuppliersCallback, [supplierSearchTerm, supplierCurrentPage, supplierPageSize]);
-
   // Pricelists API hooks
   const getPricelistsCallback = useCallback(() => pricelistService.getAll({ include_items: false }), []);
 
   const { data: pricelistsData, loading: _loadingPricelists } = useApiData(getPricelistsCallback, []);
-  const { execute: createSupplier, loading: creatingSupplier } = useApi(supplierService.createSupplier);
-  const { execute: updateSupplier, loading: updatingSupplier } = useApi(supplierService.updateSupplier);
-  const { execute: deleteSupplier } = useApi(supplierService.deleteSupplier);
-
   const { execute: createCustomer, loading: creatingCustomer } = useApi(customerService.createCustomer);
   const { execute: updateCustomer, loading: updatingCustomer } = useApi(customerService.updateCustomer);
   const { execute: _deleteCustomer } = useApi(customerService.deleteCustomer);
@@ -154,8 +108,6 @@ const CustomerManagement = () => {
 
   const customers = customersData?.customers || [];
   const pageInfo = customersData?.pageInfo || {};
-  const suppliers = suppliersData?.suppliers || [];
-  const supplierPageInfo = suppliersData?.pageInfo || {};
   const pricelists = pricelistsData?.data || [];
   const canDeleteCustomers = authService.hasPermission("customers", "delete") || authService.hasRole("admin");
 
@@ -165,19 +117,9 @@ const CustomerManagement = () => {
     setCurrentPage(1);
   }, []);
 
-  // Reset supplier page to 1 when search changes
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setSupplierCurrentPage(1);
-  }, []);
-
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
-  // Supplier modals
-  const [showAddSupplierModal, setShowAddSupplierModal] = useState(false);
-  const [showEditSupplierModal, setShowEditSupplierModal] = useState(false);
-  const [selectedSupplier, setSelectedSupplier] = useState(null);
   const [showContactHistory, setShowContactHistory] = useState(false);
   const [contactHistoryCustomer, setContactHistoryCustomer] = useState(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
@@ -251,28 +193,6 @@ const CustomerManagement = () => {
     }
   };
 
-  // Helper to get cell value for supplier columns
-  const getSupplierCellValue = (supplier, columnKey) => {
-    switch (columnKey) {
-      case "name":
-        return supplier.name || "N/A";
-      case "company":
-        return supplier.company || "-";
-      case "email":
-        return supplier.email || "-";
-      case "phone":
-        return supplier.phone || "-";
-      case "trnNumber":
-        return supplier.trn_number || "-";
-      case "paymentTerms":
-        return supplier.paymentTerms || "-";
-      case "status":
-        return supplier.status || "active";
-      default:
-        return "-";
-    }
-  };
-
   // Helper to normalize status for comparison (handles case and numeric)
   const normalizeStatus = (status) => {
     if (status === null || status === undefined) return "active";
@@ -295,42 +215,9 @@ const CustomerManagement = () => {
     return aStr > bStr ? -1 : aStr < bStr ? 1 : 0;
   });
 
-  // Filter suppliers
-  const filteredSuppliers = suppliers.filter((s) => {
-    // Filter by status
-    if (supplierFilterStatus !== "all" && normalizeStatus(s.status) !== supplierFilterStatus) {
-      return false;
-    }
-    // Filter out deleted unless showDeletedSuppliers is true
-    if (!showDeletedSuppliers && normalizeStatus(s.status) === "deleted") {
-      return false;
-    }
-    return true;
-  });
-
-  // Sort suppliers
-  const sortedSuppliers = [...filteredSuppliers].sort((a, b) => {
-    const aVal = getSupplierCellValue(a, supplierSortConfig.key);
-    const bVal = getSupplierCellValue(b, supplierSortConfig.key);
-    const aStr = String(aVal).toLowerCase();
-    const bStr = String(bVal).toLowerCase();
-    if (supplierSortConfig.direction === "asc") {
-      return aStr < bStr ? -1 : aStr > bStr ? 1 : 0;
-    }
-    return aStr > bStr ? -1 : aStr < bStr ? 1 : 0;
-  });
-
   // Handle customer sort
   const handleCustomerSort = (key) => {
     setCustomerSortConfig((prev) => ({
-      key,
-      direction: prev.key === key && prev.direction === "asc" ? "desc" : "asc",
-    }));
-  };
-
-  // Handle supplier sort
-  const handleSupplierSort = (key) => {
-    setSupplierSortConfig((prev) => ({
       key,
       direction: prev.key === key && prev.direction === "asc" ? "desc" : "asc",
     }));
@@ -341,12 +228,6 @@ const CustomerManagement = () => {
     const col = CUSTOMER_COLUMNS.find((c) => c.key === key);
     if (col?.required) return;
     setCustomerVisibleColumns((prev) => (prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]));
-  };
-
-  const toggleSupplierColumn = (key) => {
-    const col = SUPPLIER_COLUMNS.find((c) => c.key === key);
-    if (col?.required) return;
-    setSupplierVisibleColumns((prev) => (prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]));
   };
 
   // Row selection handlers - Customers
@@ -370,27 +251,6 @@ const CustomerManagement = () => {
     }
   };
 
-  // Row selection handlers - Suppliers
-  const toggleSupplierSelection = (id) => {
-    setSelectedSupplierIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-      return next;
-    });
-  };
-
-  const toggleAllSuppliers = () => {
-    if (selectedSupplierIds.size === sortedSuppliers.length) {
-      setSelectedSupplierIds(new Set());
-    } else {
-      setSelectedSupplierIds(new Set(sortedSuppliers.map((s) => s.id)));
-    }
-  };
-
   // Bulk action handlers
   const handleBulkArchiveCustomers = async () => {
     if (selectedCustomerIds.size === 0) return;
@@ -410,27 +270,6 @@ const CustomerManagement = () => {
       notificationService.success(`${selectedCustomerIds.size} customer(s) archived`);
     } catch (error) {
       notificationService.apiError("Bulk archive", error);
-    }
-  };
-
-  const handleBulkDeleteSuppliers = async () => {
-    if (selectedSupplierIds.size === 0) return;
-    const confirmed = await confirm({
-      title: "Delete Selected Suppliers?",
-      message: `Delete ${selectedSupplierIds.size} selected supplier(s)? This cannot be undone.`,
-      confirmText: "Delete All",
-      variant: "danger",
-    });
-    if (!confirmed) return;
-    try {
-      for (const id of selectedSupplierIds) {
-        await deleteSupplier(id);
-      }
-      setSelectedSupplierIds(new Set());
-      refetchSuppliers();
-      notificationService.success(`${selectedSupplierIds.size} supplier(s) deleted`);
-    } catch (error) {
-      notificationService.apiError("Bulk delete", error);
     }
   };
 
@@ -608,106 +447,6 @@ const CustomerManagement = () => {
       notificationService.success("Customer archived successfully");
     } catch (error) {
       notificationService.apiError("Archive customer", error);
-    }
-  };
-
-  // Supplier CRUD
-  const [newSupplier, setNewSupplier] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    address: "",
-    company: "",
-    status: "active",
-    trn_number: "",
-    payment_terms: "",
-    default_currency: "AED",
-    contact_name: "",
-    contact_email: "",
-    contact_phone: "",
-    is_designated_zone: false, // UAE VAT: Supplier in Free Zone
-  });
-
-  const handleAddSupplier = async () => {
-    const trnErr = validateTRN(newSupplier.trn_number);
-    if (trnErr) {
-      notificationService.error(trnErr);
-      return;
-    }
-
-    // Check for duplicate name
-    const duplicateName = suppliers.find(
-      (s) => s.name?.toLowerCase().trim() === newSupplier.name?.toLowerCase().trim()
-    );
-    if (duplicateName) {
-      const proceed = await confirm({
-        title: "Duplicate Supplier Name",
-        message: `A supplier named "${duplicateName.name}" already exists. Do you want to create another supplier with the same name?`,
-        confirmText: "Create Anyway",
-        variant: "warning",
-      });
-      if (!proceed) return;
-    }
-
-    try {
-      const data = { ...newSupplier };
-      await createSupplier(data);
-      setNewSupplier({
-        name: "",
-        email: "",
-        phone: "",
-        address: "",
-        company: "",
-        status: "active",
-        trn_number: "",
-        payment_terms: "",
-        default_currency: "AED",
-        contact_name: "",
-        contact_email: "",
-        contact_phone: "",
-        is_designated_zone: false,
-      });
-      setShowAddSupplierModal(false);
-      refetchSuppliers();
-      notificationService.createSuccess("Supplier");
-    } catch (e) {
-      notificationService.createError("Supplier", e);
-    }
-  };
-
-  const handleEditSupplier = async () => {
-    const trnErr = validateTRN(selectedSupplier?.trn_number);
-    if (trnErr) {
-      notificationService.error(trnErr);
-      return;
-    }
-    try {
-      await updateSupplier(selectedSupplier.id, selectedSupplier);
-      setShowEditSupplierModal(false);
-      setSelectedSupplier(null);
-      refetchSuppliers();
-      notificationService.updateSuccess("Supplier");
-    } catch (e) {
-      notificationService.updateError("Supplier", e);
-    }
-  };
-
-  const handleDeleteSupplier = async (id) => {
-    const confirmed = await confirm({
-      title: "Delete Supplier?",
-      message: "Are you sure you want to delete this supplier? This action cannot be undone.",
-      confirmText: "Delete",
-      variant: "danger",
-    });
-
-    if (!confirmed) return;
-
-    try {
-      await deleteSupplier(id);
-      refetchSuppliers();
-      notificationService.deleteSuccess("Supplier");
-    } catch (e) {
-      notificationService.deleteError("Supplier", e);
     }
   };
 
@@ -1772,530 +1511,6 @@ const CustomerManagement = () => {
               >
                 <FaSave />
                 {creatingCustomer ? "Adding..." : "Add Customer"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Add Supplier Modal */}
-      {showAddSupplierModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className={`rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto ${cardClasses}`}>
-            <div
-              className={`flex items-center justify-between p-6 border-b ${isDarkMode ? "border-[#37474F]" : "border-[#E0E0E0]"}`}
-            >
-              <h2 className={`text-xl font-semibold ${textPrimary}`}>Add Supplier</h2>
-              <button
-                type="button"
-                onClick={() => setShowAddSupplierModal(false)}
-                className={`${textMuted} ${hoverTextSecondary}`}
-              >
-                <FaTimes className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="newSupplierName" className={`block text-sm font-medium mb-1 ${textSecondary}`}>
-                  Name
-                </label>
-                <input
-                  type="text"
-                  id="newSupplierName"
-                  value={newSupplier.name}
-                  onChange={(e) => setNewSupplier({ ...newSupplier, name: e.target.value })}
-                  className={inputClasses}
-                />
-              </div>
-              <div>
-                <label htmlFor="newSupplierCompany" className={`block text-sm font-medium mb-1 ${textSecondary}`}>
-                  Company
-                </label>
-                <input
-                  type="text"
-                  id="newSupplierCompany"
-                  value={newSupplier.company}
-                  onChange={(e) => setNewSupplier({ ...newSupplier, company: e.target.value })}
-                  className={inputClasses}
-                />
-              </div>
-              <div>
-                <label htmlFor="newSupplierEmail" className={`block text-sm font-medium mb-1 ${textSecondary}`}>
-                  Email
-                </label>
-                <input
-                  type="email"
-                  id="newSupplierEmail"
-                  value={newSupplier.email}
-                  onChange={(e) => setNewSupplier({ ...newSupplier, email: e.target.value })}
-                  className={inputClasses}
-                />
-              </div>
-              <div>
-                <PhoneInput
-                  label="Phone"
-                  value={newSupplier.phone}
-                  onChange={(val) => setNewSupplier({ ...newSupplier, phone: val })}
-                  isDarkMode={isDarkMode}
-                />
-              </div>
-              <div className="md:col-span-2">
-                <label htmlFor="newSupplierAddress" className={`block text-sm font-medium mb-1 ${textSecondary}`}>
-                  Address
-                </label>
-                <input
-                  type="text"
-                  id="newSupplierAddress"
-                  value={newSupplier.address}
-                  onChange={(e) => setNewSupplier({ ...newSupplier, address: e.target.value })}
-                  className={inputClasses}
-                />
-              </div>
-              <div>
-                <label htmlFor="newSupplierTRN" className={`block text-sm font-medium mb-1 ${textSecondary}`}>
-                  TRN Number
-                </label>
-                <input
-                  type="text"
-                  id="newSupplierTRN"
-                  inputMode="numeric"
-                  pattern="\\d*"
-                  maxLength={15}
-                  placeholder="100234567890003"
-                  value={newSupplier.trn_number}
-                  onChange={(e) =>
-                    setNewSupplier({
-                      ...newSupplier,
-                      trn_number: e.target.value.replace(/\D/g, "").slice(0, 15),
-                    })
-                  }
-                  className={inputClasses}
-                />
-                {validateTRN(newSupplier.trn_number) ? (
-                  <p className="text-xs text-red-600 mt-1">{validateTRN(newSupplier.trn_number)}</p>
-                ) : (
-                  <p className={`text-xs mt-1 ${textMuted}`}>15 digits; must start with 100</p>
-                )}
-              </div>
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="newSupplierDesignatedZone"
-                  checked={newSupplier.is_designated_zone || false}
-                  onChange={(e) =>
-                    setNewSupplier({
-                      ...newSupplier,
-                      is_designated_zone: e.target.checked,
-                    })
-                  }
-                  className="w-4 h-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
-                />
-                <label htmlFor="newSupplierDesignatedZone" className={`text-sm font-medium ${textSecondary}`}>
-                  Designated Zone (Free Zone) Supplier
-                </label>
-              </div>
-              <div>
-                <label htmlFor="newSupplierPaymentTerms" className={`block text-sm font-medium mb-1 ${textSecondary}`}>
-                  Payment Terms
-                </label>
-                <input
-                  type="text"
-                  id="newSupplierPaymentTerms"
-                  placeholder="e.g., Net 30"
-                  value={newSupplier.payment_terms}
-                  onChange={(e) =>
-                    setNewSupplier({
-                      ...newSupplier,
-                      payment_terms: e.target.value,
-                    })
-                  }
-                  className={inputClasses}
-                />
-              </div>
-              <div>
-                <label htmlFor="newSupplierCurrency" className={`block text-sm font-medium mb-1 ${textSecondary}`}>
-                  Default Currency
-                </label>
-                <select
-                  id="newSupplierCurrency"
-                  value={newSupplier.default_currency}
-                  onChange={(e) =>
-                    setNewSupplier({
-                      ...newSupplier,
-                      default_currency: e.target.value,
-                    })
-                  }
-                  className={inputClasses}
-                >
-                  <option value="AED">AED</option>
-                  <option value="USD">USD</option>
-                  <option value="INR">INR</option>
-                  <option value="EUR">EUR</option>
-                </select>
-              </div>
-              <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label htmlFor="newSupplierContactName" className={`block text-sm font-medium mb-1 ${textSecondary}`}>
-                    Contact Name
-                  </label>
-                  <input
-                    type="text"
-                    id="newSupplierContactName"
-                    value={newSupplier.contact_name}
-                    onChange={(e) =>
-                      setNewSupplier({
-                        ...newSupplier,
-                        contact_name: e.target.value,
-                      })
-                    }
-                    className={inputClasses}
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="newSupplierContactEmail"
-                    className={`block text-sm font-medium mb-1 ${textSecondary}`}
-                  >
-                    Contact Email
-                  </label>
-                  <input
-                    type="email"
-                    id="newSupplierContactEmail"
-                    value={newSupplier.contact_email}
-                    onChange={(e) =>
-                      setNewSupplier({
-                        ...newSupplier,
-                        contact_email: e.target.value,
-                      })
-                    }
-                    className={inputClasses}
-                  />
-                </div>
-                <div>
-                  <PhoneInput
-                    label="Contact Phone"
-                    value={newSupplier.contact_phone}
-                    onChange={(val) =>
-                      setNewSupplier({
-                        ...newSupplier,
-                        contact_phone: val,
-                      })
-                    }
-                    isDarkMode={isDarkMode}
-                  />
-                </div>
-              </div>
-              <div>
-                <label htmlFor="newSupplierStatus" className={`block text-sm font-medium mb-1 ${textSecondary}`}>
-                  Status
-                </label>
-                <select
-                  id="newSupplierStatus"
-                  value={newSupplier.status}
-                  onChange={(e) => setNewSupplier({ ...newSupplier, status: e.target.value })}
-                  className={inputClasses}
-                >
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                </select>
-              </div>
-            </div>
-            <div
-              className={`flex justify-end gap-3 p-6 border-t ${isDarkMode ? "border-[#37474F]" : "border-[#E0E0E0]"}`}
-            >
-              <button
-                type="button"
-                onClick={() => setShowAddSupplierModal(false)}
-                className={`px-4 py-2 rounded-lg ${isDarkMode ? "text-gray-300 hover:bg-gray-700" : "text-gray-700 hover:bg-gray-100"}`}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleAddSupplier}
-                disabled={creatingSupplier || !!validateTRN(newSupplier.trn_number)}
-                className="px-4 py-2 bg-linear-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg disabled:opacity-50"
-              >
-                <FaSave /> {creatingSupplier ? "Adding..." : "Add Supplier"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Edit Supplier Modal */}
-      {showEditSupplierModal && selectedSupplier && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className={`rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto ${cardClasses}`}>
-            <div
-              className={`flex items-center justify-between p-6 border-b ${isDarkMode ? "border-[#37474F]" : "border-[#E0E0E0]"}`}
-            >
-              <h2 className={`text-xl font-semibold ${textPrimary}`}>Edit Supplier</h2>
-              <button
-                type="button"
-                onClick={() => setShowEditSupplierModal(false)}
-                className={`${textMuted} ${hoverTextSecondary}`}
-              >
-                <FaTimes className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="editSupplierName" className={`block text-sm font-medium mb-1 ${textSecondary}`}>
-                  Name
-                </label>
-                <input
-                  type="text"
-                  id="editSupplierName"
-                  value={selectedSupplier.name}
-                  onChange={(e) =>
-                    setSelectedSupplier({
-                      ...selectedSupplier,
-                      name: e.target.value,
-                    })
-                  }
-                  className={inputClasses}
-                />
-              </div>
-              <div>
-                <label htmlFor="editSupplierCompany" className={`block text-sm font-medium mb-1 ${textSecondary}`}>
-                  Company
-                </label>
-                <input
-                  type="text"
-                  id="editSupplierCompany"
-                  value={selectedSupplier.company || ""}
-                  onChange={(e) =>
-                    setSelectedSupplier({
-                      ...selectedSupplier,
-                      company: e.target.value,
-                    })
-                  }
-                  className={inputClasses}
-                />
-              </div>
-              <div>
-                <label htmlFor="editSupplierEmail" className={`block text-sm font-medium mb-1 ${textSecondary}`}>
-                  Email
-                </label>
-                <input
-                  type="email"
-                  id="editSupplierEmail"
-                  value={selectedSupplier.email || ""}
-                  onChange={(e) =>
-                    setSelectedSupplier({
-                      ...selectedSupplier,
-                      email: e.target.value,
-                    })
-                  }
-                  className={inputClasses}
-                />
-              </div>
-              <div>
-                <PhoneInput
-                  label="Phone"
-                  value={selectedSupplier.phone || ""}
-                  onChange={(val) =>
-                    setSelectedSupplier({
-                      ...selectedSupplier,
-                      phone: val,
-                    })
-                  }
-                  isDarkMode={isDarkMode}
-                />
-              </div>
-              <div className="md:col-span-2">
-                <label htmlFor="editSupplierAddress" className={`block text-sm font-medium mb-1 ${textSecondary}`}>
-                  Address
-                </label>
-                <input
-                  type="text"
-                  id="editSupplierAddress"
-                  value={formatAddress(selectedSupplier.address)}
-                  onChange={(e) =>
-                    setSelectedSupplier({
-                      ...selectedSupplier,
-                      address: e.target.value,
-                    })
-                  }
-                  className={inputClasses}
-                  placeholder="Street, City, State, Postal Code, Country"
-                />
-              </div>
-              <div>
-                <label htmlFor="editSupplierTRN" className={`block text-sm font-medium mb-1 ${textSecondary}`}>
-                  TRN Number
-                </label>
-                <input
-                  type="text"
-                  id="editSupplierTRN"
-                  inputMode="numeric"
-                  pattern="\\d*"
-                  maxLength={15}
-                  placeholder="100234567890003"
-                  value={selectedSupplier.trn_number || ""}
-                  onChange={(e) =>
-                    setSelectedSupplier({
-                      ...selectedSupplier,
-                      trn_number: e.target.value.replace(/\D/g, "").slice(0, 15),
-                    })
-                  }
-                  className={inputClasses}
-                />
-                {validateTRN(selectedSupplier.trn_number) ? (
-                  <p className="text-xs text-red-600 mt-1">{validateTRN(selectedSupplier.trn_number)}</p>
-                ) : (
-                  <p className={`text-xs mt-1 ${textMuted}`}>15 digits; must start with 100</p>
-                )}
-              </div>
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="editSupplierDesignatedZone"
-                  checked={selectedSupplier.is_designated_zone || false}
-                  onChange={(e) =>
-                    setSelectedSupplier({
-                      ...selectedSupplier,
-                      is_designated_zone: e.target.checked,
-                    })
-                  }
-                  className="w-4 h-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
-                />
-                <label htmlFor="editSupplierDesignatedZone" className={`text-sm font-medium ${textSecondary}`}>
-                  Designated Zone (Free Zone) Supplier
-                </label>
-              </div>
-              <div>
-                <label htmlFor="editSupplierPaymentTerms" className={`block text-sm font-medium mb-1 ${textSecondary}`}>
-                  Payment Terms
-                </label>
-                <input
-                  type="text"
-                  id="editSupplierPaymentTerms"
-                  placeholder="e.g., Net 30"
-                  value={selectedSupplier.paymentTerms || ""}
-                  onChange={(e) =>
-                    setSelectedSupplier({
-                      ...selectedSupplier,
-                      payment_terms: e.target.value,
-                    })
-                  }
-                  className={inputClasses}
-                />
-              </div>
-              <div>
-                <label htmlFor="editSupplierCurrency" className={`block text-sm font-medium mb-1 ${textSecondary}`}>
-                  Default Currency
-                </label>
-                <select
-                  id="editSupplierCurrency"
-                  value={selectedSupplier.defaultCurrency || "AED"}
-                  onChange={(e) =>
-                    setSelectedSupplier({
-                      ...selectedSupplier,
-                      default_currency: e.target.value,
-                    })
-                  }
-                  className={inputClasses}
-                >
-                  <option value="AED">AED</option>
-                  <option value="USD">USD</option>
-                  <option value="INR">INR</option>
-                  <option value="EUR">EUR</option>
-                </select>
-              </div>
-              <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label
-                    htmlFor="editSupplierContactName"
-                    className={`block text-sm font-medium mb-1 ${textSecondary}`}
-                  >
-                    Contact Name
-                  </label>
-                  <input
-                    type="text"
-                    id="editSupplierContactName"
-                    value={selectedSupplier.contactName || ""}
-                    onChange={(e) =>
-                      setSelectedSupplier({
-                        ...selectedSupplier,
-                        contact_name: e.target.value,
-                      })
-                    }
-                    className={inputClasses}
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="editSupplierContactEmail"
-                    className={`block text-sm font-medium mb-1 ${textSecondary}`}
-                  >
-                    Contact Email
-                  </label>
-                  <input
-                    type="email"
-                    id="editSupplierContactEmail"
-                    value={selectedSupplier.contactEmail || ""}
-                    onChange={(e) =>
-                      setSelectedSupplier({
-                        ...selectedSupplier,
-                        contact_email: e.target.value,
-                      })
-                    }
-                    className={inputClasses}
-                  />
-                </div>
-                <div>
-                  <PhoneInput
-                    label="Contact Phone"
-                    value={selectedSupplier.contactPhone || ""}
-                    onChange={(val) =>
-                      setSelectedSupplier({
-                        ...selectedSupplier,
-                        contact_phone: val,
-                      })
-                    }
-                    isDarkMode={isDarkMode}
-                  />
-                </div>
-              </div>
-              <div>
-                <label htmlFor="editSupplierStatus" className={`block text-sm font-medium mb-1 ${textSecondary}`}>
-                  Status
-                </label>
-                <select
-                  id="editSupplierStatus"
-                  value={selectedSupplier.status || "active"}
-                  onChange={(e) =>
-                    setSelectedSupplier({
-                      ...selectedSupplier,
-                      status: e.target.value,
-                    })
-                  }
-                  className={inputClasses}
-                >
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                </select>
-              </div>
-            </div>
-            <div
-              className={`flex justify-end gap-3 p-6 border-t ${isDarkMode ? "border-[#37474F]" : "border-[#E0E0E0]"}`}
-            >
-              <button
-                type="button"
-                onClick={() => setShowEditSupplierModal(false)}
-                className={`px-4 py-2 rounded-lg ${isDarkMode ? "text-gray-300 hover:bg-gray-700" : "text-gray-700 hover:bg-gray-100"}`}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleEditSupplier}
-                disabled={updatingSupplier || !!validateTRN(selectedSupplier.trn_number)}
-                className="px-4 py-2 bg-linear-to-r from-[#008B8B] to-[#00695C] text-white rounded-lg disabled:opacity-50"
-              >
-                <FaSave /> {updatingSupplier ? "Saving..." : "Save Changes"}
               </button>
             </div>
           </div>
