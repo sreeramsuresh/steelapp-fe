@@ -27,6 +27,7 @@ import {
   Settings,
   Ship,
   ShoppingCart,
+  Building2,
   Truck,
   Users,
   Warehouse,
@@ -305,6 +306,13 @@ const CoreSidebar = ({ isOpen, onToggle }) => {
           icon: Users,
           description: "Manage customer records",
           requiredPermission: "customers.read",
+        },
+        {
+          name: "Suppliers",
+          path: "/app/suppliers",
+          icon: Building2,
+          description: "Manage supplier records",
+          requiredPermission: "suppliers.read",
         },
         {
           name: "Products",

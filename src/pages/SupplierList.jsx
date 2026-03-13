@@ -22,6 +22,7 @@ export function SupplierList() {
   const [page, setPage] = useState(1);
   const [filterLocation, setFilterLocation] = useState("ALL");
   const [filterMill, setFilterMill] = useState("ALL");
+  const [filterCountry, setFilterCountry] = useState("ALL");
   const itemsPerPage = 20;
 
   const loadSuppliers = useCallback(async () => {
@@ -97,6 +98,10 @@ export function SupplierList() {
     if (filterMill === "TRADER" && isMill) {
       return false;
     }
+    const country = supplier.primaryCountry || supplier.primary_country || "UAE";
+    if (filterCountry !== "ALL" && country !== filterCountry) {
+      return false;
+    }
     return true;
   });
 
@@ -149,6 +154,29 @@ export function SupplierList() {
                 <option value="ALL">All Types</option>
                 <option value="MILL">Mills Only</option>
                 <option value="TRADER">Traders Only</option>
+              </select>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className={`text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>Country:</span>
+              <select
+                id="supplier-country-filter"
+                name="country"
+                value={filterCountry}
+                onChange={(e) => {
+                  setFilterCountry(e.target.value);
+                  setPage(1);
+                }}
+                className={`px-3 py-1.5 border rounded-md text-sm ${isDarkMode ? "bg-gray-700 border-gray-600 text-gray-100" : ""}`}
+                aria-label="Filter by country"
+              >
+                <option value="ALL">All Countries</option>
+                {[...new Set(suppliers.map((s) => s.primaryCountry || s.primary_country || "UAE"))]
+                  .sort()
+                  .map((country) => (
+                    <option key={country} value={country}>
+                      {country}
+                    </option>
+                  ))}
               </select>
             </div>
             <div className={`text-sm ml-auto ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
