@@ -7,13 +7,15 @@ import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 
 const __vite_dirname = dirname(fileURLToPath(import.meta.url));
-// Read version from backend package.json (bumped by semantic-release)
-let appVersion = "0.0.0";
-try {
-  const backendPkg = JSON.parse(readFileSync(resolve(__vite_dirname, "../steelapprnp/package.json"), "utf-8"));
-  appVersion = backendPkg.version;
-} catch {
-  // Backend package.json not available (e.g. Docker build) — use fallback
+// Version priority: VITE_APP_VERSION env var (set by CI) > backend package.json > fallback
+let appVersion = process.env.VITE_APP_VERSION || "0.0.0";
+if (!process.env.VITE_APP_VERSION) {
+  try {
+    const backendPkg = JSON.parse(readFileSync(resolve(__vite_dirname, "../steelapprnp/package.json"), "utf-8"));
+    appVersion = backendPkg.version;
+  } catch {
+    // Backend package.json not available (e.g. Docker build) — use fallback
+  }
 }
 
 function createProxy() {

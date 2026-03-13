@@ -152,7 +152,7 @@ describe("Login", () => {
       fireEvent.submit(form);
 
       await waitFor(() => {
-        expect(mockLogin).toHaveBeenCalledWith("test@example.com", "password123");
+        expect(mockLogin).toHaveBeenCalledWith("test@example.com", "password123", null);
       });
     });
 

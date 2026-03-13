@@ -486,7 +486,7 @@ describe("InvoiceTotalsSection", () => {
     it("should have totals box with proper styling", () => {
       const { container } = renderWithProviders(<InvoiceTotalsSection {...defaultProps} />);
 
-      const totalsBox = container.querySelector("div[style*='width: 300px']");
+      const totalsBox = container.querySelector("div[style*='width: 280px']");
       expect(totalsBox).toBeInTheDocument();
     });
 
