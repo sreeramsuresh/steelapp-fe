@@ -942,7 +942,14 @@ const InvoiceForm = ({ onSave }) => {
         reservationExpiresAt: lineItemData.expiresAt,
         // Weight info (calculated)
         unitWeightKg: lineItemData.product?.unitWeightKg || 1,
-        theoreticalWeightKg: parseFloat(lineItemData.quantity),
+        theoreticalWeightKg:
+          lineItemData.unit === "PCS" && lineItemData.product?.unitWeightKg
+            ? parseFloat(lineItemData.quantity) * (lineItemData.product.unitWeightKg || 0)
+            : null, // For coils (MT), actual weight is in actualWeightMt — not theoretical
+        // Explicit coil fields
+        displayPcs: lineItemData.displayPcs || null,
+        actualWeightMt: lineItemData.actualWeightMt || null,
+        weightBasis: lineItemData.weightBasis || null,
         // VAT (default 5% for standard supply)
         supplyType: "standard",
         vatRate: 5,
@@ -955,7 +962,10 @@ const InvoiceForm = ({ onSave }) => {
     });
 
     // Show success notification
-    notificationService.success(`Added: ${lineItemData.name} (${lineItemData.quantity} ${lineItemData.unit})`);
+    const displayMsg = lineItemData.displayPcs
+      ? `${lineItemData.displayPcs} PCS (${parseFloat(lineItemData.quantity).toFixed(3)} MT)`
+      : `${lineItemData.quantity} ${lineItemData.unit}`;
+    notificationService.success(`Added: ${lineItemData.name} (${displayMsg})`);
 
     // Trigger recalculation of totals
   }, []);
@@ -2787,7 +2797,9 @@ const InvoiceForm = ({ onSave }) => {
                               </td>
                               {/* Qty */}
                               <td className="px-2 py-2 text-center text-sm">
-                                {item.quantity || 0} {item.quantityUom || "KG"}
+                                {item.displayPcs
+                                  ? `${item.displayPcs} PCS (${Number(item.quantity).toFixed(3)} MT)`
+                                  : `${item.quantity || 0} ${item.quantityUom || "PCS"}`}
                                 {item.stockQty != null && (
                                   <div className="text-xs text-gray-500 mt-1">
                                     ≈ {Number(item.stockQty).toFixed(3)} {item.primaryUom || "KG"} in stock basis

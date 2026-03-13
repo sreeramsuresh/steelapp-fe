@@ -54,11 +54,8 @@ const InvoiceHeader = ({ company, invoice, isFirstPage, primaryColor, template =
         </div>
       )}
 
-      <div
-        className={`flex ${headerStyle === "centered" ? "flex-col items-center text-center" : "justify-between items-start"}`}
-        style={{ marginBottom: "15px" }}
-      >
-        <div className={headerStyle === "centered" ? "mb-3" : ""} style={{ flex: 1 }}>
+      <div className="flex justify-between items-start" style={{ marginBottom: "15px" }}>
+        <div style={{ flex: 1, textAlign: "left" }}>
           <h1
             style={{
               fontSize: "16pt",
@@ -96,7 +93,7 @@ const InvoiceHeader = ({ company, invoice, isFirstPage, primaryColor, template =
         </div>
 
         {showLogo && companyLogo && (
-          <div className={headerStyle === "centered" ? "mb-3" : ""} style={{ marginLeft: "20px" }}>
+          <div style={{ marginLeft: "20px", flexShrink: 0, textAlign: "right" }}>
             <img src={companyLogo} alt="Company Logo" style={{ maxHeight: "100px", maxWidth: "300px" }} />
           </div>
         )}

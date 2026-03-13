@@ -60,7 +60,7 @@ const InvoiceSignatureSection = ({ company, template = null }) => {
             />
             <p
               style={{
-                fontSize: "9px",
+                fontSize: "9pt",
                 color: secondaryColor,
                 opacity: 0.6,
               }}
@@ -81,7 +81,7 @@ const InvoiceSignatureSection = ({ company, template = null }) => {
         >
           <p
             style={{
-              fontSize: "9px",
+              fontSize: "9pt",
               color: secondaryColor,
               opacity: 0.6,
               marginBottom: "30px",
@@ -99,7 +99,7 @@ const InvoiceSignatureSection = ({ company, template = null }) => {
           <div style={{ textAlign: "center" }}>
             <p
               style={{
-                fontSize: "9px",
+                fontSize: "9pt",
                 fontWeight: "bold",
                 lineHeight: 1.5,
                 color: primaryColor,
@@ -109,7 +109,7 @@ const InvoiceSignatureSection = ({ company, template = null }) => {
             </p>
             <p
               style={{
-                fontSize: "9px",
+                fontSize: "9pt",
                 fontWeight: "bold",
                 lineHeight: 1.5,
                 color: primaryColor,

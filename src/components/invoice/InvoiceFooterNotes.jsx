@@ -34,7 +34,7 @@ const InvoiceFooterNotes = ({ invoice, template = null }) => {
         >
           <h3
             style={{
-              fontSize: "14px",
+              fontSize: "11pt",
               fontWeight: "bold",
               marginBottom: "8px",
               color: primaryColor,
@@ -45,7 +45,7 @@ const InvoiceFooterNotes = ({ invoice, template = null }) => {
 
           <div
             style={{
-              fontSize: "11px",
+              fontSize: "10pt",
               lineHeight: 1.6,
               color: textColor,
               marginBottom: "20px",
@@ -84,7 +84,7 @@ const InvoiceFooterNotes = ({ invoice, template = null }) => {
         >
           <h4
             style={{
-              fontSize: "11px",
+              fontSize: "10pt",
               fontWeight: "bold",
               marginBottom: "8px",
               color: primaryColor,
@@ -94,7 +94,7 @@ const InvoiceFooterNotes = ({ invoice, template = null }) => {
           </h4>
           <div
             style={{
-              fontSize: "11px",
+              fontSize: "10pt",
               lineHeight: 1.6,
               whiteSpace: "pre-wrap",
               color: textColor,
@@ -109,7 +109,7 @@ const InvoiceFooterNotes = ({ invoice, template = null }) => {
         <div style={{ marginBottom: "20px" }}>
           <h3
             style={{
-              fontSize: "14px",
+              fontSize: "11pt",
               fontWeight: "bold",
               marginBottom: "8px",
               color: primaryColor,
@@ -130,7 +130,7 @@ const InvoiceFooterNotes = ({ invoice, template = null }) => {
                   style={{
                     padding: "12px 10px",
                     textAlign: "left",
-                    fontSize: "10.5px",
+                    fontSize: "10pt",
                     fontWeight: "bold",
                   }}
                 >
@@ -140,7 +140,7 @@ const InvoiceFooterNotes = ({ invoice, template = null }) => {
                   style={{
                     padding: "12px 10px",
                     textAlign: "left",
-                    fontSize: "10.5px",
+                    fontSize: "10pt",
                     fontWeight: "bold",
                   }}
                 >
@@ -150,7 +150,7 @@ const InvoiceFooterNotes = ({ invoice, template = null }) => {
                   style={{
                     padding: "12px 10px",
                     textAlign: "left",
-                    fontSize: "10.5px",
+                    fontSize: "10pt",
                     fontWeight: "bold",
                   }}
                 >
@@ -160,7 +160,7 @@ const InvoiceFooterNotes = ({ invoice, template = null }) => {
                   style={{
                     padding: "12px 10px",
                     textAlign: "left",
-                    fontSize: "10.5px",
+                    fontSize: "10pt",
                     fontWeight: "bold",
                   }}
                 >
@@ -170,7 +170,7 @@ const InvoiceFooterNotes = ({ invoice, template = null }) => {
                   style={{
                     padding: "12px 10px",
                     textAlign: "right",
-                    fontSize: "10.5px",
+                    fontSize: "10pt",
                     fontWeight: "bold",
                   }}
                 >
@@ -189,7 +189,7 @@ const InvoiceFooterNotes = ({ invoice, template = null }) => {
                   <td
                     style={{
                       padding: "12px 10px",
-                      fontSize: "10px",
+                      fontSize: "10pt",
                       color: textColor,
                     }}
                   >
@@ -198,7 +198,7 @@ const InvoiceFooterNotes = ({ invoice, template = null }) => {
                   <td
                     style={{
                       padding: "12px 10px",
-                      fontSize: "10px",
+                      fontSize: "10pt",
                       color: textColor,
                     }}
                   >
@@ -207,7 +207,7 @@ const InvoiceFooterNotes = ({ invoice, template = null }) => {
                   <td
                     style={{
                       padding: "12px 10px",
-                      fontSize: "10px",
+                      fontSize: "10pt",
                       color: textColor,
                     }}
                   >
@@ -216,7 +216,7 @@ const InvoiceFooterNotes = ({ invoice, template = null }) => {
                   <td
                     style={{
                       padding: "12px 10px",
-                      fontSize: "10px",
+                      fontSize: "10pt",
                       color: textColor,
                     }}
                   >
@@ -225,7 +225,7 @@ const InvoiceFooterNotes = ({ invoice, template = null }) => {
                   <td
                     style={{
                       padding: "12px 10px",
-                      fontSize: "10px",
+                      fontSize: "10pt",
                       textAlign: "right",
                       color: textColor,
                     }}

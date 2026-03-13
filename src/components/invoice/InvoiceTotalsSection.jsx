@@ -50,8 +50,8 @@ const InvoiceTotalsSection = ({ invoice, primaryColor, template = null }) => {
       >
         <div
           style={{
-            width: "300px",
-            padding: "15px",
+            width: "280px",
+            padding: "8px 10px",
             backgroundColor: "#f9fafb",
             borderRadius: "4px",
           }}
@@ -61,9 +61,9 @@ const InvoiceTotalsSection = ({ invoice, primaryColor, template = null }) => {
             style={{
               display: "flex",
               justifyContent: "space-between",
-              marginBottom: "12px",
-              fontSize: "10.5pt",
-              padding: "5px 0",
+              marginBottom: "4px",
+              fontSize: "10pt",
+              padding: "2px 0",
             }}
           >
             <span style={{ color: "#555", fontWeight: 500 }}>SubTotal</span>
@@ -78,9 +78,9 @@ const InvoiceTotalsSection = ({ invoice, primaryColor, template = null }) => {
               style={{
                 display: "flex",
                 justifyContent: "space-between",
-                marginBottom: "12px",
-                fontSize: "10.5pt",
-                padding: "5px 0",
+                marginBottom: "4px",
+                fontSize: "10pt",
+                padding: "2px 0",
               }}
             >
               <span style={{ color: "#555", fontWeight: 500 }}>Discount</span>
@@ -95,9 +95,9 @@ const InvoiceTotalsSection = ({ invoice, primaryColor, template = null }) => {
             style={{
               display: "flex",
               justifyContent: "space-between",
-              marginBottom: "12px",
-              fontSize: "10.5pt",
-              padding: "5px 0",
+              marginBottom: "4px",
+              fontSize: "10pt",
+              padding: "2px 0",
             }}
           >
             <span style={{ color: "#555", fontWeight: 500 }}>VAT</span>
@@ -112,9 +112,9 @@ const InvoiceTotalsSection = ({ invoice, primaryColor, template = null }) => {
               display: "flex",
               justifyContent: "space-between",
               borderTop: `2px solid ${colors.primary || color}`,
-              paddingTop: "12px",
-              marginTop: "10px",
-              fontSize: "13pt",
+              paddingTop: "6px",
+              marginTop: "4px",
+              fontSize: "10pt",
               fontWeight: "bold",
             }}
           >
@@ -130,9 +130,9 @@ const InvoiceTotalsSection = ({ invoice, primaryColor, template = null }) => {
                   display: "flex",
                   justifyContent: "space-between",
                   borderTop: "2px solid #d1d5db",
-                  paddingTop: "10px",
-                  marginTop: "10px",
-                  fontSize: "11pt",
+                  paddingTop: "6px",
+                  marginTop: "4px",
+                  fontSize: "10pt",
                   color: colors.primary || color,
                 }}
               >
@@ -144,8 +144,8 @@ const InvoiceTotalsSection = ({ invoice, primaryColor, template = null }) => {
                 style={{
                   display: "flex",
                   justifyContent: "space-between",
-                  marginTop: "8px",
-                  fontSize: "12pt",
+                  marginTop: "4px",
+                  fontSize: "10pt",
                   fontWeight: "bold",
                   color: balanceDue > 0 ? "#dc2626" : "#059669",
                 }}

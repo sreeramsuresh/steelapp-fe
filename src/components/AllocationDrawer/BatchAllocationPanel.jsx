@@ -24,16 +24,15 @@ const BatchAllocationPanel = ({
   productId,
   warehouseId,
   draftInvoiceId,
-  _lineItemTempId,
-  requiredQuantity, // Now interpreted as PCS (integer)
-  unit = "PCS", // Default to PCS (industry standard)
-  _companyId,
-  _onAllocationsChange,
+  requiredQuantity, // PCS (integer)
+  unit = "PCS", // PCS or MT (coils)
   reserveFIFO,
   reserveManual,
   allocations = [],
   loading = false,
   error = null,
+  isCoilProduct = false,
+  coilWeightMt = 0,
 }) => {
   const [batches, setBatches] = useState([]);
   const [manualAllocations, setManualAllocations] = useState({});
@@ -108,7 +107,7 @@ const BatchAllocationPanel = ({
       errors.push("• Quantity: Please enter a quantity greater than 0.");
     }
     if (!unit) {
-      errors.push("• Unit: Please select a unit (KG/PCS/MT/M).");
+      errors.push("• Unit: Unit not determined. Please re-select the product.");
     }
 
     if (errors.length > 0) {
@@ -321,9 +320,18 @@ const BatchAllocationPanel = ({
                           </span>
                           <span className="pcs-label">PCS</span>
                         </div>
-                        {batch.weightKgAvailable && (
+                        {isCoilProduct && batch.weightKgAvailable ? (
+                          <div className="coil-weight-per-piece" style={{ fontSize: "0.8em", color: "#666" }}>
+                            {(
+                              parseFloat(batch.weightKgAvailable) /
+                              Math.max(parseInt(batch.pcsAvailable || 1, 10), 1) /
+                              1000
+                            ).toFixed(3)}{" "}
+                            MT/pc
+                          </div>
+                        ) : batch.weightKgAvailable ? (
                           <div className="weight-derived">≈ {parseFloat(batch.weightKgAvailable).toFixed(1)} KG</div>
-                        )}
+                        ) : null}
                       </td>
                       <td className="qty-cell">
                         {/* PCS-CENTRIC: Show reserved PCS */}
@@ -406,6 +414,9 @@ const BatchAllocationPanel = ({
               <span>Allocated:</span>
               <strong>
                 {Math.floor(totalAllocated)} / {Math.floor(requiredQuantity)} PCS
+                {isCoilProduct && coilWeightMt > 0 && (
+                  <span style={{ fontWeight: "normal", color: "#666" }}> ({coilWeightMt.toFixed(3)} MT)</span>
+                )}
               </strong>
             </div>
           </div>
@@ -427,16 +438,15 @@ BatchAllocationPanel.propTypes = {
   productId: PropTypes.number.isRequired,
   warehouseId: PropTypes.number.isRequired,
   draftInvoiceId: PropTypes.number,
-  lineItemTempId: PropTypes.string.isRequired,
   requiredQuantity: PropTypes.number,
   unit: PropTypes.string,
-  companyId: PropTypes.number,
-  onAllocationsChange: PropTypes.func,
   reserveFIFO: PropTypes.func.isRequired,
   reserveManual: PropTypes.func.isRequired,
   allocations: PropTypes.array,
   loading: PropTypes.bool,
   error: PropTypes.string,
+  isCoilProduct: PropTypes.bool,
+  coilWeightMt: PropTypes.number,
 };
 
 export default BatchAllocationPanel;

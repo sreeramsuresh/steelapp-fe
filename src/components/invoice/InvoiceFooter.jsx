@@ -34,7 +34,7 @@ const InvoiceFooter = ({ company, pageNumber, totalPages, primaryColor, template
         <p
           style={{
             textAlign: "center",
-            fontSize: "11px",
+            fontSize: "9pt",
             lineHeight: 1.6,
             color: textColor,
           }}
@@ -45,7 +45,7 @@ const InvoiceFooter = ({ company, pageNumber, totalPages, primaryColor, template
         <p
           style={{
             textAlign: "center",
-            fontSize: "10px",
+            fontSize: "9pt",
             marginTop: "4px",
             fontStyle: "italic",
             color: textColor,
@@ -56,7 +56,7 @@ const InvoiceFooter = ({ company, pageNumber, totalPages, primaryColor, template
         <p
           style={{
             textAlign: "center",
-            fontSize: "10px",
+            fontSize: "9pt",
             marginTop: "8px",
             color: textColor,
           }}

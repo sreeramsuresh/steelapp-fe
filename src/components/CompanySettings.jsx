@@ -349,6 +349,11 @@ const CompanySettings = () => {
   const [uploadingBrandmark, setUploadingBrandmark] = useState(false);
   const [uploadingSeal, setUploadingSeal] = useState(false);
 
+  // Display-only error flags — never erase persisted URLs on load failure
+  const [logoLoadError, setLogoLoadError] = useState(false);
+  const [brandmarkLoadError, setBrandmarkLoadError] = useState(false);
+  const [sealLoadError, setSealLoadError] = useState(false);
+
   const logoInputRef = useRef(null);
   const brandmarkInputRef = useRef(null);
   const sealInputRef = useRef(null);
@@ -426,9 +431,11 @@ const CompanySettings = () => {
         },
       };
 
-      // console.log('Mapped company profile:', mappedData);
-      // console.log('Logo URL:', mappedData.logoUrl);
       setCompanyProfile(mappedData);
+      // Reset image load error flags when data refreshes
+      setLogoLoadError(false);
+      setBrandmarkLoadError(false);
+      setSealLoadError(false);
     }
   }, [companyData]);
 
@@ -549,10 +556,6 @@ const CompanySettings = () => {
         email: companyProfile.email || "",
         website: companyProfile.website || "",
         vat_number: "104858252000003",
-        logo_url: companyProfile.logoUrl || null,
-        brandmark_url: companyProfile.brandmarkUrl || null,
-        pdf_logo_url: companyProfile.pdfLogoUrl || null,
-        pdf_seal_url: companyProfile.pdfSealUrl || null,
         bankDetails: companyProfile.bankDetails || {
           bankName: "",
           accountNumber: "",
@@ -639,47 +642,8 @@ const CompanySettings = () => {
     }
 
     try {
-      const response = await uploadLogo(file);
-
-      // Handle different possible response structures
-      const logoUrl = response?.logo_url || response?.logoUrl || response?.url || response?.path;
-
-      if (!logoUrl) {
-        console.error("No logo URL found in response. Response structure:", response);
-        throw new Error("Invalid response from server - no logo URL received");
-      }
-
-      // Update company profile with new logo URL
-      let newLogoUrl = logoUrl;
-      if (logoUrl.includes("localhost:5000")) {
-        const baseUrl = import.meta.env.VITE_API_BASE_URL.replace("/api", "");
-        newLogoUrl = logoUrl.replace("http://localhost:3000", baseUrl);
-      }
-      setCompanyProfile((prev) => ({ ...prev, logoUrl: newLogoUrl }));
-
-      // Save to database
-      const logoUpdateData = {
-        name: companyProfile.name,
-        address: {
-          street: companyProfile.address,
-          city: companyProfile.city,
-          country: companyProfile.country,
-        },
-        phone: companyProfile.phone,
-        email: companyProfile.email,
-        vat_number: companyProfile.vatNumber,
-        logo_url: newLogoUrl,
-        pdf_logo_url: companyProfile.useLogoInPdf ? newLogoUrl : companyProfile.pdfLogoUrl,
-        brandmark_url: companyProfile.brandmarkUrl,
-        pdf_seal_url: companyProfile.pdfSealUrl,
-        bankDetails: companyProfile.bankDetails || {
-          bankName: "",
-          accountNumber: "",
-          iban: "",
-        },
-      };
-      await updateCompany(logoUpdateData);
-
+      // Dedicated upload endpoint saves URL to DB — no redundant updateCompany needed
+      await uploadLogo(file);
       notificationService.success("Logo uploaded successfully!");
       refetchCompany();
     } catch (error) {
@@ -703,36 +667,11 @@ const CompanySettings = () => {
     if (!companyProfile.logoUrl) return;
 
     try {
-      // Extract filename from URL
       const filename = companyProfile.logoUrl.split("/").pop();
-
       if (filename) {
+        // Dedicated delete endpoint clears URL in DB — no redundant updateCompany needed
         await deleteLogo(filename);
       }
-
-      // Update company profile
-      setCompanyProfile((prev) => ({ ...prev, logoUrl: null }));
-
-      // Save to database
-      const logoDeleteData = {
-        name: companyProfile.name,
-        address: {
-          street: companyProfile.address,
-          city: companyProfile.city,
-          country: companyProfile.country,
-        },
-        phone: companyProfile.phone,
-        email: companyProfile.email,
-        vat_number: companyProfile.vatNumber,
-        logo_url: null,
-        bankDetails: companyProfile.bankDetails || {
-          bankName: "",
-          accountNumber: "",
-          iban: "",
-        },
-      };
-      await updateCompany(logoDeleteData);
-
       notificationService.success("Logo deleted successfully!");
       refetchCompany();
     } catch (error) {
@@ -763,52 +702,8 @@ const CompanySettings = () => {
 
     try {
       setUploadingBrandmark(true);
-      const response = await companyService.uploadBrandmark(file);
-
-      // Handle different possible response structures
-      const brandmarkUrl = response?.brandmarkUrl || response?.pdf_brandmark_url || response?.url || response?.path;
-
-      if (!brandmarkUrl) {
-        console.error("No brandmark URL found in response. Response structure:", response);
-        throw new Error("Invalid response from server - no brandmark URL received");
-      }
-
-      // console.log('[Brandmark Upload] Brandmark URL from server:', brandmarkUrl);
-
-      // Save only the relative path to database (not the full URL)
-      const relativeBrandmarkUrl = brandmarkUrl.startsWith("/uploads/")
-        ? brandmarkUrl
-        : brandmarkUrl.replace(/^https?:\/\/[^/]+/, "");
-
-      // console.log('[Brandmark Upload] Relative path for database:', relativeBrandmarkUrl);
-
-      // Update company profile immediately with relative path
-      setCompanyProfile((prev) => ({
-        ...prev,
-        brandmarkUrl: relativeBrandmarkUrl,
-      }));
-
-      // Save to database (store relative path only)
-      const brandmarkUpdateData = {
-        name: companyProfile.name,
-        address: {
-          street: companyProfile.address,
-          city: companyProfile.city,
-          country: companyProfile.country,
-        },
-        phone: companyProfile.phone,
-        email: companyProfile.email,
-        vat_number: companyProfile.vatNumber,
-        logo_url: companyProfile.logoUrl,
-        brandmark_url: relativeBrandmarkUrl,
-        bankDetails: companyProfile.bankDetails || {
-          bankName: "",
-          accountNumber: "",
-          iban: "",
-        },
-      };
-      await updateCompany(brandmarkUpdateData);
-
+      // Dedicated upload endpoint saves URL to DB — no redundant updateCompany needed
+      await companyService.uploadBrandmark(file);
       notificationService.success("Brandmark uploaded successfully!");
       refetchCompany();
     } catch (error) {
@@ -834,39 +729,10 @@ const CompanySettings = () => {
     if (!companyProfile.brandmarkUrl) return;
 
     try {
-      // Extract filename from URL
       const filename = companyProfile.brandmarkUrl.split("/").pop();
-
       if (filename) {
         await deleteBrandmark(filename);
       }
-
-      // Update company profile
-      setCompanyProfile((prev) => ({ ...prev, brandmarkUrl: null }));
-
-      // Save to database
-      const brandmarkDeleteData = {
-        name: companyProfile.name,
-        address: {
-          street: companyProfile.address,
-          city: companyProfile.city,
-          country: companyProfile.country,
-        },
-        phone: companyProfile.phone,
-        email: companyProfile.email,
-        vat_number: companyProfile.vatNumber,
-        logo_url: companyProfile.logoUrl,
-        brandmark_url: null,
-        pdf_logo_url: companyProfile.pdfLogoUrl,
-        pdf_seal_url: companyProfile.pdfSealUrl,
-        bankDetails: companyProfile.bankDetails || {
-          bankName: "",
-          accountNumber: "",
-          iban: "",
-        },
-      };
-      await updateCompany(brandmarkDeleteData);
-
       notificationService.success("Brandmark deleted successfully!");
       refetchCompany();
     } catch (error) {
@@ -896,64 +762,13 @@ const CompanySettings = () => {
     }
 
     try {
-      // console.log('[Seal Upload] Uploading file:', file.name, 'Size:', file.size, 'Type:', file.type);
       setUploadingSeal(true);
-      const response = await companyService.uploadSeal(file);
-      // console.log('[Seal Upload] Response received:', response);
-
-      // Handle different possible response structures
-      const sealUrl = response?.pdfSealUrl || response?.pdf_seal_url || response?.url || response?.path;
-
-      if (!sealUrl) {
-        console.error("No seal URL found in response. Response structure:", response);
-        throw new Error("Invalid response from server - no seal URL received");
-      }
-
-      // console.log('[Seal Upload] Seal URL from server:', sealUrl);
-
-      // Save only the relative path to database (not the full URL)
-      // This ensures consistency when fetching from database later
-      const relativeSealUrl = sealUrl.startsWith("/uploads/") ? sealUrl : sealUrl.replace(/^https?:\/\/[^/]+/, "");
-
-      // console.log('[Seal Upload] Relative path for database:', relativeSealUrl);
-
-      // Update company profile immediately with relative path
-      setCompanyProfile((prev) => ({ ...prev, pdfSealUrl: relativeSealUrl }));
-
-      // Save to database (store relative path only)
-      const sealUpdateData = {
-        name: companyProfile.name,
-        address: {
-          street: companyProfile.address,
-          city: companyProfile.city,
-          country: companyProfile.country,
-        },
-        phone: companyProfile.phone,
-        email: companyProfile.email,
-        vat_number: companyProfile.vatNumber,
-        logo_url: companyProfile.logoUrl,
-        brandmark_url: companyProfile.brandmarkUrl,
-        pdf_logo_url: companyProfile.pdfLogoUrl,
-        pdf_seal_url: relativeSealUrl,
-        bankDetails: companyProfile.bankDetails || {
-          bankName: "",
-          accountNumber: "",
-          iban: "",
-        },
-      };
-      await updateCompany(sealUpdateData);
-
+      // Dedicated upload endpoint saves URL to DB — no redundant updateCompany needed
+      await companyService.uploadSeal(file);
       notificationService.success("Company seal uploaded successfully!");
       refetchCompany();
     } catch (error) {
-      console.error("=== SEAL UPLOAD ERROR ===");
-      console.error("Error object:", error);
-      console.error("Error message:", error.message);
-      console.error("Error response status:", error.response?.status);
-      console.error("Error response data:", error.response?.data);
-      console.error("Error response headers:", error.response?.headers);
-      console.error("Request config:", error.config);
-      console.error("========================");
+      console.error("Error uploading seal:", error);
       notificationService.error(`Failed to upload seal: ${error.message}`);
     } finally {
       setUploadingSeal(false);
@@ -975,39 +790,10 @@ const CompanySettings = () => {
     if (!companyProfile.pdfSealUrl) return;
 
     try {
-      // Extract filename from URL
       const filename = companyProfile.pdfSealUrl.split("/").pop();
-
       if (filename) {
         await deleteSeal(filename);
       }
-
-      // Update company profile
-      setCompanyProfile((prev) => ({ ...prev, pdfSealUrl: null }));
-
-      // Save to database
-      const sealDeleteData = {
-        name: companyProfile.name,
-        address: {
-          street: companyProfile.address,
-          city: companyProfile.city,
-          country: companyProfile.country,
-        },
-        phone: companyProfile.phone,
-        email: companyProfile.email,
-        vat_number: companyProfile.vatNumber,
-        logo_url: companyProfile.logoUrl,
-        brandmark_url: companyProfile.brandmarkUrl,
-        pdf_logo_url: companyProfile.pdfLogoUrl,
-        pdf_seal_url: null,
-        bankDetails: companyProfile.bankDetails || {
-          bankName: "",
-          accountNumber: "",
-          iban: "",
-        },
-      };
-      await updateCompany(sealDeleteData);
-
       notificationService.success("Company seal deleted successfully!");
       refetchCompany();
     } catch (error) {
@@ -1354,27 +1140,30 @@ const CompanySettings = () => {
                         ) : companyProfile.logoUrl ? (
                           <div className="relative w-full h-full">
                             {/* {console.log('Rendering logo with URL:', companyProfile.logoUrl)} */}
-                            <img
-                              src={`${companyProfile.logoUrl.startsWith("/") ? (import.meta.env.VITE_API_BASE_URL?.replace("/api", "") || "http://localhost:3000") + companyProfile.logoUrl : companyProfile.logoUrl}?t=${Date.now()}`}
-                              alt="Company Logo"
-                              className="w-full h-full object-contain rounded-lg"
-                              crossOrigin="anonymous"
-                              onError={(e) => {
-                                if (e.target.src.includes("?t=")) {
-                                  const baseUrl =
-                                    import.meta.env.VITE_API_BASE_URL?.replace("/api", "") || "http://localhost:3000";
-                                  e.target.src = companyProfile.logoUrl.startsWith("/")
-                                    ? baseUrl + companyProfile.logoUrl
-                                    : companyProfile.logoUrl;
-                                } else {
-                                  setCompanyProfile((prev) => ({
-                                    ...prev,
-                                    logoUrl: null,
-                                  }));
-                                }
-                              }}
-                              style={{ maxWidth: "100%", maxHeight: "100%" }}
-                            />
+                            {logoLoadError ? (
+                              <div className="flex flex-col items-center justify-center w-full h-full space-y-1">
+                                <Camera size={24} className="text-red-400" />
+                                <span className="text-xs text-red-400">Failed to load</span>
+                              </div>
+                            ) : (
+                              <img
+                                src={`${companyProfile.logoUrl.startsWith("/") ? (import.meta.env.VITE_API_BASE_URL?.replace("/api", "") || "http://localhost:3000") + companyProfile.logoUrl : companyProfile.logoUrl}?t=${Date.now()}`}
+                                alt="Company Logo"
+                                className="w-full h-full object-contain rounded-lg"
+                                onError={(e) => {
+                                  if (e.target.src.includes("?t=")) {
+                                    const baseUrl =
+                                      import.meta.env.VITE_API_BASE_URL?.replace("/api", "") || "http://localhost:3000";
+                                    e.target.src = companyProfile.logoUrl.startsWith("/")
+                                      ? baseUrl + companyProfile.logoUrl
+                                      : companyProfile.logoUrl;
+                                  } else {
+                                    setLogoLoadError(true);
+                                  }
+                                }}
+                                style={{ maxWidth: "100%", maxHeight: "100%" }}
+                              />
+                            )}
                             <button
                               type="button"
                               className="absolute top-1 right-1 p-1 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors"
@@ -1424,14 +1213,23 @@ const CompanySettings = () => {
                         <label className="flex items-center">
                           <input
                             type="checkbox"
-                            checked={companyProfile.useLogoInPdf || false}
-                            onChange={(e) => {
-                              const useInPdf = e.target.checked;
+                            checked={!!companyProfile.pdfLogoUrl}
+                            onChange={async (e) => {
+                              const newPdfLogoUrl = e.target.checked ? companyProfile.logoUrl : null;
                               setCompanyProfile((prev) => ({
                                 ...prev,
-                                useLogoInPdf: useInPdf,
-                                pdfLogoUrl: useInPdf ? prev.logoUrl : null,
+                                pdfLogoUrl: newPdfLogoUrl,
                               }));
+                              try {
+                                await updateCompany({
+                                  name: companyProfile.name,
+                                  pdfLogoUrl: newPdfLogoUrl,
+                                });
+                              } catch (err) {
+                                console.error("Failed to persist PDF logo toggle:", err);
+                                notificationService.error("Failed to save PDF logo setting");
+                                refetchCompany();
+                              }
                             }}
                             className="mr-2"
                           />
@@ -1459,27 +1257,30 @@ const CompanySettings = () => {
                           </div>
                         ) : companyProfile.brandmarkUrl ? (
                           <div className="relative w-full h-full">
-                            <img
-                              src={`${companyProfile.brandmarkUrl.startsWith("/") ? (import.meta.env.VITE_API_BASE_URL?.replace("/api", "") || "http://localhost:3000") + companyProfile.brandmarkUrl : companyProfile.brandmarkUrl}?t=${Date.now()}`}
-                              alt="Company Brandmark"
-                              className="w-full h-full object-contain rounded-lg"
-                              crossOrigin="anonymous"
-                              onError={(e) => {
-                                if (e.target.src.includes("?t=")) {
-                                  const baseUrl =
-                                    import.meta.env.VITE_API_BASE_URL?.replace("/api", "") || "http://localhost:3000";
-                                  e.target.src = companyProfile.brandmarkUrl.startsWith("/")
-                                    ? baseUrl + companyProfile.brandmarkUrl
-                                    : companyProfile.brandmarkUrl;
-                                } else {
-                                  setCompanyProfile((prev) => ({
-                                    ...prev,
-                                    brandmarkUrl: null,
-                                  }));
-                                }
-                              }}
-                              style={{ maxWidth: "100%", maxHeight: "100%" }}
-                            />
+                            {brandmarkLoadError ? (
+                              <div className="flex flex-col items-center justify-center w-full h-full space-y-1">
+                                <Camera size={24} className="text-red-400" />
+                                <span className="text-xs text-red-400">Failed to load</span>
+                              </div>
+                            ) : (
+                              <img
+                                src={`${companyProfile.brandmarkUrl.startsWith("/") ? (import.meta.env.VITE_API_BASE_URL?.replace("/api", "") || "http://localhost:3000") + companyProfile.brandmarkUrl : companyProfile.brandmarkUrl}?t=${Date.now()}`}
+                                alt="Company Brandmark"
+                                className="w-full h-full object-contain rounded-lg"
+                                onError={(e) => {
+                                  if (e.target.src.includes("?t=")) {
+                                    const baseUrl =
+                                      import.meta.env.VITE_API_BASE_URL?.replace("/api", "") || "http://localhost:3000";
+                                    e.target.src = companyProfile.brandmarkUrl.startsWith("/")
+                                      ? baseUrl + companyProfile.brandmarkUrl
+                                      : companyProfile.brandmarkUrl;
+                                  } else {
+                                    setBrandmarkLoadError(true);
+                                  }
+                                }}
+                                style={{ maxWidth: "100%", maxHeight: "100%" }}
+                              />
+                            )}
                             <button
                               type="button"
                               className="absolute top-1 right-1 p-1 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors"
@@ -1546,27 +1347,30 @@ const CompanySettings = () => {
                           </div>
                         ) : companyProfile.pdfSealUrl ? (
                           <div className="relative w-full h-full">
-                            <img
-                              src={`${companyProfile.pdfSealUrl.startsWith("/") ? (import.meta.env.VITE_API_BASE_URL?.replace("/api", "") || "http://localhost:3000") + companyProfile.pdfSealUrl : companyProfile.pdfSealUrl}?t=${Date.now()}`}
-                              alt="Company Seal"
-                              className="w-full h-full object-contain rounded-lg"
-                              crossOrigin="anonymous"
-                              onError={(e) => {
-                                if (e.target.src.includes("?t=")) {
-                                  const baseUrl =
-                                    import.meta.env.VITE_API_BASE_URL?.replace("/api", "") || "http://localhost:3000";
-                                  e.target.src = companyProfile.pdfSealUrl.startsWith("/")
-                                    ? baseUrl + companyProfile.pdfSealUrl
-                                    : companyProfile.pdfSealUrl;
-                                } else {
-                                  setCompanyProfile((prev) => ({
-                                    ...prev,
-                                    pdfSealUrl: null,
-                                  }));
-                                }
-                              }}
-                              style={{ maxWidth: "100%", maxHeight: "100%" }}
-                            />
+                            {sealLoadError ? (
+                              <div className="flex flex-col items-center justify-center w-full h-full space-y-1">
+                                <Camera size={24} className="text-red-400" />
+                                <span className="text-xs text-red-400">Failed to load</span>
+                              </div>
+                            ) : (
+                              <img
+                                src={`${companyProfile.pdfSealUrl.startsWith("/") ? (import.meta.env.VITE_API_BASE_URL?.replace("/api", "") || "http://localhost:3000") + companyProfile.pdfSealUrl : companyProfile.pdfSealUrl}?t=${Date.now()}`}
+                                alt="Company Seal"
+                                className="w-full h-full object-contain rounded-lg"
+                                onError={(e) => {
+                                  if (e.target.src.includes("?t=")) {
+                                    const baseUrl =
+                                      import.meta.env.VITE_API_BASE_URL?.replace("/api", "") || "http://localhost:3000";
+                                    e.target.src = companyProfile.pdfSealUrl.startsWith("/")
+                                      ? baseUrl + companyProfile.pdfSealUrl
+                                      : companyProfile.pdfSealUrl;
+                                  } else {
+                                    setSealLoadError(true);
+                                  }
+                                }}
+                                style={{ maxWidth: "100%", maxHeight: "100%" }}
+                              />
+                            )}
                             <button
                               type="button"
                               className="absolute top-1 right-1 p-1 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors"
