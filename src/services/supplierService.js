@@ -149,7 +149,11 @@ export const supplierService = {
   },
 
   async updateSupplier(id, data) {
-    return await apiClient.put(`/suppliers/${id}`, data);
+    try {
+      return await apiClient.put(`/suppliers/${id}`, data);
+    } catch {
+      return ls.upsert({ ...ls.all().find((s) => s.id === id), ...data, id });
+    }
   },
 
   async deleteSupplier(id) {
