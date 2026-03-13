@@ -16,6 +16,10 @@ const devService = {
   dismissPr(number, repo) {
     return api.post(`/dev/dependabot/${number}/dismiss`, { repo });
   },
+
+  getDependencyAudit() {
+    return api.get("/dev/dependency-audit");
+  },
 };
 
 export default devService;
