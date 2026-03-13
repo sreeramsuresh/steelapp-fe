@@ -186,6 +186,50 @@ describe("companyService", () => {
     });
   });
 
+  describe("upload FormData field names", () => {
+    it("should use 'logo' field name for logo upload", async () => {
+      const mockFile = new File(["logo"], "logo.png", { type: "image/png" });
+      let capturedFormData;
+      vi.spyOn(apiService, "upload").mockImplementation((_url, formData) => {
+        capturedFormData = formData;
+        return Promise.resolve({ filename: "logo.png" });
+      });
+
+      await companyService.uploadLogo(mockFile);
+
+      expect(capturedFormData.get("logo")).toBeTruthy();
+      expect(capturedFormData.get("logo").name).toBe("logo.png");
+    });
+
+    it("should use 'brandmark' field name for brandmark upload", async () => {
+      const mockFile = new File(["brand"], "brand.png", { type: "image/png" });
+      let capturedFormData;
+      vi.spyOn(apiService, "upload").mockImplementation((_url, formData) => {
+        capturedFormData = formData;
+        return Promise.resolve({ filename: "brand.png" });
+      });
+
+      await companyService.uploadBrandmark(mockFile);
+
+      expect(capturedFormData.get("brandmark")).toBeTruthy();
+      expect(capturedFormData.get("brandmark").name).toBe("brand.png");
+    });
+
+    it("should use 'seal' field name for seal upload", async () => {
+      const mockFile = new File(["seal"], "seal.png", { type: "image/png" });
+      let capturedFormData;
+      vi.spyOn(apiService, "upload").mockImplementation((_url, formData) => {
+        capturedFormData = formData;
+        return Promise.resolve({ filename: "seal.png" });
+      });
+
+      await companyService.uploadSeal(mockFile);
+
+      expect(capturedFormData.get("seal")).toBeTruthy();
+      expect(capturedFormData.get("seal").name).toBe("seal.png");
+    });
+  });
+
   describe("authentication in uploads", () => {
     it("should call apiService.upload for file uploads", async () => {
       const mockFile = new File(["test"], "test.png", { type: "image/png" });
