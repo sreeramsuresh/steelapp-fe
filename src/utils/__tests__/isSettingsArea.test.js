@@ -7,8 +7,6 @@ describe("isSettingsArea", () => {
     ["/app/settings/financial", true],
     ["/app/settings/gl-mapping", true],
     ["/app/users", true],
-    ["/app/roles", true],
-    ["/app/permissions-matrix", true],
     ["/app/audit-logs", true],
     ["/app/feedback", true],
   ])("returns true for settings path %s", (path, expected) => {

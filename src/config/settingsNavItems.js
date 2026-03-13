@@ -1,15 +1,4 @@
-import {
-  ArrowLeft,
-  BookOpen,
-  Building2,
-  Code,
-  Grid3X3,
-  Layers,
-  MessageSquare,
-  Shield,
-  ShieldCheck,
-  Users,
-} from "lucide-react";
+import { ArrowLeft, BookOpen, Building2, Code, Layers, MessageSquare, Package, Shield, Users } from "lucide-react";
 
 export const SETTINGS_NAV_ITEMS = [
   {
@@ -64,20 +53,6 @@ export const SETTINGS_NAV_ITEMS = [
         requiredPermission: "users.read",
       },
       {
-        name: "Roles",
-        path: "/app/roles",
-        icon: ShieldCheck,
-        description: "Manage roles and role assignments",
-        requiredPermission: "roles.read",
-      },
-      {
-        name: "Permissions Matrix",
-        path: "/app/permissions-matrix",
-        icon: Grid3X3,
-        description: "View and manage permission assignments",
-        requiredPermission: "roles.read",
-      },
-      {
         name: "Audit Trail",
         path: "/app/audit-logs",
         icon: Shield,
@@ -101,6 +76,13 @@ export const SETTINGS_NAV_ITEMS = [
         path: "/app/settings/dependabot",
         icon: Code,
         description: "View and manage Dependabot pull requests",
+        requiredRoles: ["admin"],
+      },
+      {
+        name: "Dependency Audit",
+        path: "/app/settings/dependency-audit",
+        icon: Package,
+        description: "Audit all package versions and security vulnerabilities",
         requiredRoles: ["admin"],
       },
     ],

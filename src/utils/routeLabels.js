@@ -33,8 +33,6 @@ const coreRouteLabels = {
   "/app/settings/financial": "Financial Settings",
   "/app/settings/gl-mapping": "GL Mapping Rules",
   "/app/users": "User Management",
-  "/app/roles": "Roles",
-  "/app/permissions-matrix": "Permissions Matrix",
   "/app/audit-logs": "Audit Trail",
   "/app/audit-hub": "Audit Hub",
   "/app/base-prices": "Base Prices",

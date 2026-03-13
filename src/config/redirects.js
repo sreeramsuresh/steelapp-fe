@@ -61,7 +61,6 @@ export const REDIRECTS = {
 
   // Settings (operational → /app)
   "/settings": "/app/settings",
-  "/roles": "/app/roles",
   "/audit-logs": "/app/audit-logs",
 
   // Analytics redirects (reports/dashboards → /analytics)

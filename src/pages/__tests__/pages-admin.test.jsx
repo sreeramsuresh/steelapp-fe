@@ -1,6 +1,6 @@
 /**
  * Page Tests: Admin & Settings Pages
- * Lightweight render tests for user management, roles, settings, feedback, opex
+ * Lightweight render tests for user management, settings, feedback, opex
  */
 
 import { render, screen } from "@testing-library/react";
@@ -44,81 +44,6 @@ describe("UserManagementPage", () => {
     expect(screen.getByText("User Management")).toBeInTheDocument();
     expect(screen.getByText("Add User")).toBeInTheDocument();
     expect(screen.getByText("John Admin")).toBeInTheDocument();
-  });
-});
-
-describe("RolesPage", () => {
-  it("renders roles list with permissions", () => {
-    const MockRoles = () => (
-      <div>
-        <h1>Roles</h1>
-        <button type="button">Create Role</button>
-        <table>
-          <thead>
-            <tr>
-              <th>Role</th>
-              <th>Users</th>
-              <th>Permissions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Admin</td>
-              <td>3</td>
-              <td>Full Access</td>
-            </tr>
-            <tr>
-              <td>Sales Agent</td>
-              <td>5</td>
-              <td>Invoices, Quotations</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    );
-
-    render(<MockRoles />);
-    expect(screen.getByText("Roles")).toBeInTheDocument();
-    expect(screen.getByText("Admin")).toBeInTheDocument();
-    expect(screen.getByText("Sales Agent")).toBeInTheDocument();
-  });
-});
-
-describe("PermissionsMatrix", () => {
-  it("renders permissions matrix grid", () => {
-    const MockPermissions = () => (
-      <div>
-        <h1>Permissions Matrix</h1>
-        <table>
-          <thead>
-            <tr>
-              <th>Permission</th>
-              <th>Admin</th>
-              <th>Sales</th>
-              <th>Warehouse</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Create Invoice</td>
-              <td>Yes</td>
-              <td>Yes</td>
-              <td>No</td>
-            </tr>
-            <tr>
-              <td>View Stock</td>
-              <td>Yes</td>
-              <td>Yes</td>
-              <td>Yes</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    );
-
-    render(<MockPermissions />);
-    expect(screen.getByText("Permissions Matrix")).toBeInTheDocument();
-    expect(screen.getByText("Create Invoice")).toBeInTheDocument();
   });
 });
 

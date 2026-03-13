@@ -73,7 +73,6 @@ describe("SettingsSidebar", () => {
     expect(container.querySelector('a[href="/app/settings/financial"]')).toBeInTheDocument();
     expect(container.querySelector('a[href="/app/settings/gl-mapping"]')).toBeInTheDocument();
     expect(container.querySelector('a[href="/app/users"]')).toBeInTheDocument();
-    expect(container.querySelector('a[href="/app/roles"]')).toBeInTheDocument();
     expect(container.querySelector('a[href="/app/audit-logs"]')).toBeInTheDocument();
     expect(container.querySelector('a[href="/app/feedback"]')).toBeInTheDocument();
   });

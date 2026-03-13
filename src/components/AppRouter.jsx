@@ -33,6 +33,7 @@ const CompanySettings = lazy(() => import("./CompanySettings"));
 const FinancialSettings = lazy(() => import("../pages/settings/FinancialSettings"));
 const GLMappingRules = lazy(() => import("../pages/settings/GLMappingRules"));
 const DependabotDashboard = lazy(() => import("./settings/DependabotDashboardTab"));
+const DependencyAuditTab = lazy(() => import("./settings/DependencyAuditTab"));
 const SearchResults = lazy(() => import("./SearchResults"));
 const InventoryList = lazy(() => import("../pages/inventory/StockLevelsDashboard"));
 const DeliveryNoteList = lazy(() => import("../pages/DeliveryNoteList"));
@@ -172,9 +173,7 @@ const CertificateAuditReport = lazy(() => import("../pages/reports/CertificateAu
 // Feedback Management
 const FeedbackManagement = lazy(() => import("../pages/FeedbackManagement"));
 
-// Admin Components - Roles & Permissions
-const RolesPage = lazy(() => import("../pages/RolesPage"));
-const PermissionsMatrix = lazy(() => import("../pages/PermissionsMatrix"));
+// Admin Components
 const UserManagementPage = lazy(() => import("../pages/UserManagementPage"));
 
 // Phase 3: Pricing Components
@@ -363,7 +362,6 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
 
           {/* Settings */}
           <Route path="/settings" element={<LegacyRedirect />} />
-          <Route path="/roles" element={<LegacyRedirect />} />
           <Route path="/audit-logs" element={<LegacyRedirect />} />
 
           {/* Reports */}
@@ -1375,26 +1373,18 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
               }
             />
             <Route
+              path="settings/dependency-audit"
+              element={
+                <ProtectedRoute user={user} requiredRoles={["admin"]}>
+                  <DependencyAuditTab />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="users"
               element={
                 <ProtectedRoute user={user} requiredPermission="users.read">
                   <UserManagementPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="roles"
-              element={
-                <ProtectedRoute user={user} requiredPermission="roles.read">
-                  <RolesPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="permissions-matrix"
-              element={
-                <ProtectedRoute user={user} requiredPermission="roles.read">
-                  <PermissionsMatrix />
                 </ProtectedRoute>
               }
             />

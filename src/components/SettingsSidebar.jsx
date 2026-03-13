@@ -1,6 +1,6 @@
 /**
  * SettingsSidebar.jsx
- * Sidebar for Settings area (/app/settings/*, /app/users, /app/roles, etc.)
+ * Sidebar for Settings area (/app/settings/*, /app/users, etc.)
  * Rendered by CoreERPLayout when isSettingsArea() returns true
  */
 // TODO: Extract shared SidebarShell component (shared with CoreSidebar + AnalyticsSidebar)
