@@ -53,9 +53,17 @@ const InvoiceSignatureSection = ({ company, template = null }) => {
               src={companySeal}
               alt="Company Seal"
               style={{
-                width: "80px",
-                height: "80px",
+                width: "160px",
+                height: "160px",
                 objectFit: "contain",
+              }}
+              onError={(e) => {
+                const img = e.currentTarget;
+                if (!img.dataset.retried) {
+                  img.dataset.retried = "1";
+                  const bust = `${companySeal}${companySeal.includes("?") ? "&" : "?"}t=${Date.now()}`;
+                  img.src = bust;
+                }
               }}
             />
             <p

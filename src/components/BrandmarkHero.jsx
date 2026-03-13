@@ -72,7 +72,18 @@ const BrandmarkHero = () => {
         {/* Logo Section */}
         <div className="flex justify-center mb-8">
           <div className="brandmark-logo cursor-pointer">
-            <img src="/assets/brandmark.jpeg" alt="Ultimate Steels Brandmark" className="h-16 md:h-20 w-auto" />
+            <img
+              src="/assets/brandmark.jpeg"
+              alt="Ultimate Steels Brandmark"
+              className="h-16 md:h-20 w-auto"
+              onError={(e) => {
+                const img = e.currentTarget;
+                if (!img.dataset.retried) {
+                  img.dataset.retried = "1";
+                  img.src = `/assets/brandmark.jpeg?t=${Date.now()}`;
+                }
+              }}
+            />
           </div>
         </div>
 

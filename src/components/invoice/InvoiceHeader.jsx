@@ -94,7 +94,19 @@ const InvoiceHeader = ({ company, invoice, isFirstPage, primaryColor, template =
 
         {showLogo && companyLogo && (
           <div style={{ marginLeft: "20px", flexShrink: 0, textAlign: "right" }}>
-            <img src={companyLogo} alt="Company Logo" style={{ maxHeight: "100px", maxWidth: "300px" }} />
+            <img
+              src={companyLogo}
+              alt="Company Logo"
+              style={{ maxHeight: "100px", maxWidth: "300px" }}
+              onError={(e) => {
+                const img = e.currentTarget;
+                if (!img.dataset.retried) {
+                  img.dataset.retried = "1";
+                  const bust = `${companyLogo}${companyLogo.includes("?") ? "&" : "?"}t=${Date.now()}`;
+                  img.src = bust;
+                }
+              }}
+            />
           </div>
         )}
       </div>
