@@ -40,12 +40,11 @@ class AuthService {
   }
 
   // Login user (supporting both response formats)
-  async login(email, password) {
+  async login(email, password, captchaToken = null) {
     try {
-      const response = await apiService.post("/auth/login", {
-        email,
-        password,
-      });
+      const payload = { email, password };
+      if (captchaToken) payload.captchaToken = captchaToken;
+      const response = await apiService.post("/auth/login", payload);
 
       // Handle 2FA challenge — server returns requires2FA instead of tokens
       if (response.requires2FA) {
@@ -87,6 +86,14 @@ class AuthService {
         throw err;
       }
 
+      // Handle CAPTCHA required (400 from middleware or flag on 401)
+      if (data?.errorCode === "CAPTCHA_REQUIRED" || data?.captchaRequired) {
+        const err = new Error(data?.message || "Please complete the security challenge");
+        err.code = "CAPTCHA_REQUIRED";
+        err.captchaRequired = true;
+        throw err;
+      }
+
       // Handle error messages
       const details = Array.isArray(data?.errors)
         ? data.errors.map((e) => e.msg).join(", ")
@@ -94,7 +101,9 @@ class AuthService {
 
       const msg = details || (status === 400 ? "Invalid input. Check email and password." : "Login failed");
 
-      throw new Error(msg);
+      const loginErr = new Error(msg);
+      if (data?.captchaRequired) loginErr.captchaRequired = true;
+      throw loginErr;
     }
   }
 

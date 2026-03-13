@@ -278,6 +278,9 @@ const RBACTestPanel = ({ onLoginSuccess, isDarkMode }) => {
   );
 };
 
+// Turnstile site key — set via env or leave empty to disable
+const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY || "";
+
 const Login = ({ onLoginSuccess }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -287,6 +290,13 @@ const Login = ({ onLoginSuccess }) => {
   });
   const [error, setError] = useState("");
   const [lockoutMinutes, setLockoutMinutes] = useState(0);
+
+  // CAPTCHA state
+  const [captchaRequired, setCaptchaRequired] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState(null);
+  const turnstileRef = useRef(null);
+  const turnstileWidgetId = useRef(null);
+  const { isDarkMode } = useTheme();
 
   // 2FA state
   const [requires2FA, setRequires2FA] = useState(false);
@@ -306,6 +316,48 @@ const Login = ({ onLoginSuccess }) => {
   const [passkeyLoading, setPasskeyLoading] = useState(false);
   const isPasskeySupported = typeof window !== "undefined" && window.PublicKeyCredential !== undefined;
   const passkeyAbortRef = useRef(null);
+
+  // Load Turnstile script when CAPTCHA becomes required
+  useEffect(() => {
+    if (!captchaRequired || !TURNSTILE_SITE_KEY) return;
+    if (document.getElementById("cf-turnstile-script")) return;
+
+    const script = document.createElement("script");
+    script.id = "cf-turnstile-script";
+    script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+    script.async = true;
+    script.onload = () => {
+      if (turnstileRef.current && window.turnstile) {
+        turnstileWidgetId.current = window.turnstile.render(turnstileRef.current, {
+          sitekey: TURNSTILE_SITE_KEY,
+          callback: (token) => setCaptchaToken(token),
+          "expired-callback": () => setCaptchaToken(null),
+          theme: isDarkMode ? "dark" : "light",
+        });
+      }
+    };
+    document.head.appendChild(script);
+
+    return () => {
+      if (turnstileWidgetId.current != null && window.turnstile) {
+        window.turnstile.remove(turnstileWidgetId.current);
+        turnstileWidgetId.current = null;
+      }
+    };
+  }, [captchaRequired, isDarkMode]);
+
+  // Render Turnstile if script is already loaded
+  useEffect(() => {
+    if (!captchaRequired || !TURNSTILE_SITE_KEY || !window.turnstile || !turnstileRef.current) return;
+    if (turnstileWidgetId.current != null) return;
+
+    turnstileWidgetId.current = window.turnstile.render(turnstileRef.current, {
+      sitekey: TURNSTILE_SITE_KEY,
+      callback: (token) => setCaptchaToken(token),
+      "expired-callback": () => setCaptchaToken(null),
+      theme: isDarkMode ? "dark" : "light",
+    });
+  }, [captchaRequired, isDarkMode]);
 
   // Conditional UI: start passkey autofill on mount (Google-recommended pattern)
   const startConditionalUI = useCallback(async () => {
@@ -424,7 +476,7 @@ const Login = ({ onLoginSuccess }) => {
     setError("");
 
     try {
-      const response = await authService.login(formData.email, formData.password);
+      const response = await authService.login(formData.email, formData.password, captchaToken);
 
       // Handle 2FA challenge
       if (response.requires2FA) {
@@ -444,7 +496,15 @@ const Login = ({ onLoginSuccess }) => {
         setError(
           `Account locked due to too many failed attempts. Try again in ${loginError.remainingMinutes || 15} minutes.`
         );
+      } else if (loginError.code === "CAPTCHA_REQUIRED" || loginError.captchaRequired) {
+        setCaptchaRequired(true);
+        setCaptchaToken(null);
+        if (turnstileWidgetId.current != null && window.turnstile) {
+          window.turnstile.reset(turnstileWidgetId.current);
+        }
+        setError(loginError.message || "Please complete the security challenge");
       } else {
+        if (loginError.captchaRequired) setCaptchaRequired(true);
         setError(loginError.message || "Authentication failed");
       }
     } finally {
@@ -559,8 +619,6 @@ const Login = ({ onLoginSuccess }) => {
       setPasskeyLoading(false);
     }
   };
-
-  const { isDarkMode } = useTheme();
 
   return (
     <div
@@ -794,12 +852,19 @@ const Login = ({ onLoginSuccess }) => {
                 </div>
               )}
 
+              {/* Turnstile CAPTCHA (shown after repeated failures) */}
+              {captchaRequired && TURNSTILE_SITE_KEY && (
+                <div className="flex justify-center">
+                  <div ref={turnstileRef} />
+                </div>
+              )}
+
               {/* Submit Button */}
               <Button
                 type="submit"
                 variant="primary"
                 size="lg"
-                disabled={loading || lockoutMinutes > 0}
+                disabled={loading || lockoutMinutes > 0 || (captchaRequired && TURNSTILE_SITE_KEY && !captchaToken)}
                 className={`w-full mt-6 font-semibold ${loading ? "loading" : ""}`}
                 startIcon={
                   loading ? (
