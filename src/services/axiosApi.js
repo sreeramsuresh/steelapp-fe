@@ -108,15 +108,18 @@ let isRefreshing = false;
 let refreshSubscribers = [];
 
 function onRefreshed() {
-  refreshSubscribers.forEach((cb) => {
-    cb();
-  });
+  for (const { resolve } of refreshSubscribers) resolve();
+  refreshSubscribers = [];
+}
+
+function onRefreshFailed(error) {
+  for (const { reject } of refreshSubscribers) reject(error);
   refreshSubscribers = [];
 }
 
 function subscribeToRefresh() {
-  return new Promise((resolve) => {
-    refreshSubscribers.push(resolve);
+  return new Promise((resolve, reject) => {
+    refreshSubscribers.push({ resolve, reject });
   });
 }
 
@@ -179,7 +182,7 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshError) {
         tokenUtils.clearSession();
-        refreshSubscribers = [];
+        onRefreshFailed(refreshError);
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
