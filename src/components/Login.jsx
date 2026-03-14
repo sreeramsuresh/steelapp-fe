@@ -23,7 +23,7 @@ const Button = ({
 
   const getVariantClasses = () => {
     if (variant === "primary") {
-      return `bg-linear-to-br from-teal-600 to-teal-700 text-white hover:from-teal-500 hover:to-teal-600 hover:-translate-y-0.5 focus:ring-teal-500 ${
+      return `bg-linear-to-br from-teal-500 to-teal-600 text-white hover:from-teal-400 hover:to-teal-500 hover:-translate-y-0.5 focus:ring-teal-400 ${
         isDarkMode ? "disabled:bg-gray-600 focus:ring-offset-gray-800" : "disabled:bg-gray-400 focus:ring-offset-white"
       } disabled:hover:translate-y-0 shadow-xs hover:shadow-md before:absolute before:top-0 before:-left-full before:w-full before:h-full before:bg-linear-to-r before:from-transparent before:via-white/10 before:to-transparent before:transition-all before:duration-500 hover:before:left-full`;
     } else {
@@ -679,9 +679,9 @@ const Login = ({ onLoginSuccess }) => {
               />
             </div>
           )}
-          <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-            {requires2FA ? "Verify your identity" : "Sign in to your account"}
-          </p>
+          {requires2FA && (
+            <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Verify your identity</p>
+          )}
         </div>
 
         {/* 2FA Verification Step */}
