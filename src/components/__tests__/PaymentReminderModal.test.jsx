@@ -1,12 +1,25 @@
 /**
  * PaymentReminderModal Component Tests
  */
+import { waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../test/component-setup";
 
+// Stable mock references — must NOT create new identities per render
+const mockNavigate = vi.fn();
+const mockLocation = { pathname: "/" };
+const mockAuthValue = {
+  user: { id: 1, name: "Test User", role: "admin", companyId: 1 },
+  isAuthenticated: true,
+};
+const mockGet = vi.fn().mockResolvedValue([]);
+const mockPost = vi.fn().mockResolvedValue({});
+const mockPut = vi.fn().mockResolvedValue({});
+const mockDelete = vi.fn().mockResolvedValue({});
+
 vi.mock("react-router-dom", () => ({
-  useNavigate: () => vi.fn(),
-  useLocation: () => ({ pathname: "/" }),
+  useNavigate: () => mockNavigate,
+  useLocation: () => mockLocation,
 }));
 
 vi.mock("../../contexts/ThemeContext", () => ({
@@ -16,16 +29,16 @@ vi.mock("../../contexts/ThemeContext", () => ({
 
 vi.mock("../../services/axiosApi", () => ({
   default: {
-    get: vi.fn().mockResolvedValue({ data: [] }),
-    post: vi.fn().mockResolvedValue({ data: {} }),
-    put: vi.fn().mockResolvedValue({ data: {} }),
-    delete: vi.fn().mockResolvedValue({ data: {} }),
+    get: (...args) => mockGet(...args),
+    post: (...args) => mockPost(...args),
+    put: (...args) => mockPut(...args),
+    delete: (...args) => mockDelete(...args),
   },
   apiService: {
-    get: vi.fn().mockResolvedValue({ data: [] }),
-    post: vi.fn().mockResolvedValue({ data: {} }),
-    put: vi.fn().mockResolvedValue({ data: {} }),
-    delete: vi.fn().mockResolvedValue({ data: {} }),
+    get: (...args) => mockGet(...args),
+    post: (...args) => mockPost(...args),
+    put: (...args) => mockPut(...args),
+    delete: (...args) => mockDelete(...args),
   },
   tokenUtils: {
     getToken: vi.fn().mockReturnValue("mock-token"),
@@ -45,20 +58,37 @@ vi.mock("../../utils/invoiceUtils", () => ({
 
 vi.mock("../../hooks/useEscapeKey", () => ({ default: vi.fn() }));
 
+vi.mock("../../utils/timezone", () => ({
+  formatBusinessDate: (val) => val || "",
+  toUAETime: (val) => val || "",
+}));
+
 vi.mock("../../contexts/AuthContext", () => ({
-  useAuth: () => ({
-    user: { id: 1, name: "Test User", role: "admin", companyId: 1 },
-    isAuthenticated: true,
-  }),
+  useAuth: () => mockAuthValue,
+}));
+
+vi.mock("../ConfirmDialog", () => ({
+  default: () => null,
 }));
 
 import PaymentReminderModal from "../PaymentReminderModal";
 
 describe("PaymentReminderModal", () => {
-  it("renders without crashing", () => {
+  it("returns null when closed", () => {
+    const { container } = renderWithProviders(<PaymentReminderModal isOpen={false} onClose={vi.fn()} />);
+    expect(container.querySelector(".fixed")).not.toBeInTheDocument();
+  });
+
+  it("renders when open with invoice", async () => {
+    const mockInvoice = { id: 1, invoiceNumber: "INV-001", totalAmount: 1000 };
     const { container } = renderWithProviders(
-      <PaymentReminderModal invoiceId={1} isOpen={true} onClose={vi.fn()} isDarkMode={false} />
+      <PaymentReminderModal invoice={mockInvoice} isOpen={true} onClose={vi.fn()} />
     );
-    expect(container).toBeTruthy();
+
+    await waitFor(() => {
+      expect(container.textContent).toContain("Payment Reminder Calls");
+    });
+
+    expect(mockGet).toHaveBeenCalledWith("/invoices/1/payment-reminders");
   });
 });

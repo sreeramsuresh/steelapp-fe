@@ -14,6 +14,13 @@ vi.mock("../../services/axiosApi", () => ({
   },
 }));
 
+vi.mock("../../contexts/AuthContext", () => ({
+  useAuth: () => ({
+    user: { id: 1, name: "Test User", role: "admin", companyId: 1 },
+    isAuthenticated: true,
+  }),
+}));
+
 import { apiClient as mockApiClient } from "../../services/api";
 import { useInvoicePresence } from "../useInvoicePresence";
 

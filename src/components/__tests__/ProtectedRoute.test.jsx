@@ -25,19 +25,14 @@ vi.mock("react-router-dom", () => ({
   Navigate: ({ to }) => <div data-testid="navigate" data-to={to} />,
 }));
 
-// Mock auth service
-const mockIsAuthenticated = vi.fn();
+// Mock useAuth — ProtectedRoute now reads from AuthContext, not authService
+const mockUser = { id: 1, name: "Test", role: "admin", roleNames: ["admin"] };
 const mockHasRole = vi.fn();
 const mockHasPermission = vi.fn();
-const mockGetUserRole = vi.fn();
+const mockUseAuth = vi.fn();
 
-vi.mock("../../services/axiosAuthService", () => ({
-  authService: {
-    isAuthenticated: (...args) => mockIsAuthenticated(...args),
-    hasRole: (...args) => mockHasRole(...args),
-    hasPermission: (...args) => mockHasPermission(...args),
-    getUserRole: (...args) => mockGetUserRole(...args),
-  },
+vi.mock("../../contexts/AuthContext", () => ({
+  useAuth: (...args) => mockUseAuth(...args),
 }));
 
 import ProtectedRoute from "../ProtectedRoute";
@@ -45,16 +40,21 @@ import ProtectedRoute from "../ProtectedRoute";
 describe("ProtectedRoute", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockIsAuthenticated.mockReturnValue(true);
     mockHasRole.mockReturnValue(true);
     mockHasPermission.mockReturnValue(true);
-    mockGetUserRole.mockReturnValue("admin");
+    mockUseAuth.mockReturnValue({
+      user: mockUser,
+      isAuthenticated: true,
+      hasRole: mockHasRole,
+      hasPermission: mockHasPermission,
+      role: "admin",
+    });
   });
 
   describe("Authentication", () => {
     it("should render children when user is authenticated", () => {
       const { container } = renderWithProviders(
-        <ProtectedRoute user={{ id: 1, name: "Test" }}>
+        <ProtectedRoute>
           <div data-testid="protected-content">Protected Content</div>
         </ProtectedRoute>
       );
@@ -63,10 +63,16 @@ describe("ProtectedRoute", () => {
     });
 
     it("should redirect to /login when not authenticated", () => {
-      mockIsAuthenticated.mockReturnValue(false);
+      mockUseAuth.mockReturnValue({
+        user: null,
+        isAuthenticated: false,
+        hasRole: mockHasRole,
+        hasPermission: mockHasPermission,
+        role: null,
+      });
 
       const { container } = renderWithProviders(
-        <ProtectedRoute user={null}>
+        <ProtectedRoute>
           <div>Protected Content</div>
         </ProtectedRoute>
       );
@@ -77,10 +83,16 @@ describe("ProtectedRoute", () => {
     });
 
     it("should redirect to custom fallbackPath when not authenticated", () => {
-      mockIsAuthenticated.mockReturnValue(false);
+      mockUseAuth.mockReturnValue({
+        user: null,
+        isAuthenticated: false,
+        hasRole: mockHasRole,
+        hasPermission: mockHasPermission,
+        role: null,
+      });
 
       const { container } = renderWithProviders(
-        <ProtectedRoute user={null} fallbackPath="/custom-login">
+        <ProtectedRoute fallbackPath="/custom-login">
           <div>Protected Content</div>
         </ProtectedRoute>
       );
@@ -90,14 +102,23 @@ describe("ProtectedRoute", () => {
       expect(navigate.getAttribute("data-to")).toBe("/custom-login");
     });
 
-    it("should show loading state when authenticated but no user object", () => {
+    it("should redirect when user is null (no loading state — App.jsx gates bootstrap)", () => {
+      mockUseAuth.mockReturnValue({
+        user: null,
+        isAuthenticated: false,
+        hasRole: mockHasRole,
+        hasPermission: mockHasPermission,
+        role: null,
+      });
+
       const { container } = renderWithProviders(
-        <ProtectedRoute user={null}>
+        <ProtectedRoute>
           <div>Protected Content</div>
         </ProtectedRoute>
       );
 
-      expect(container.textContent).toContain("Loading...");
+      const navigate = container.querySelector('[data-testid="navigate"]');
+      expect(navigate).toBeInTheDocument();
     });
   });
 
@@ -106,7 +127,7 @@ describe("ProtectedRoute", () => {
       mockHasRole.mockReturnValue(true);
 
       const { container } = renderWithProviders(
-        <ProtectedRoute user={{ id: 1, name: "Test" }} requiredRole="admin">
+        <ProtectedRoute requiredRole="admin">
           <div>Admin Content</div>
         </ProtectedRoute>
       );
@@ -118,7 +139,7 @@ describe("ProtectedRoute", () => {
       mockHasRole.mockReturnValue(false);
 
       const { container } = renderWithProviders(
-        <ProtectedRoute user={{ id: 1, name: "Test" }} requiredRole="admin">
+        <ProtectedRoute requiredRole="admin">
           <div>Admin Content</div>
         </ProtectedRoute>
       );
@@ -131,7 +152,7 @@ describe("ProtectedRoute", () => {
       mockHasRole.mockImplementation((role) => role === "manager");
 
       const { container } = renderWithProviders(
-        <ProtectedRoute user={{ id: 1, name: "Test" }} requiredRoles={["admin", "manager"]}>
+        <ProtectedRoute requiredRoles={["admin", "manager"]}>
           <div>Manager Content</div>
         </ProtectedRoute>
       );
@@ -143,7 +164,7 @@ describe("ProtectedRoute", () => {
       mockHasRole.mockReturnValue(false);
 
       const { container } = renderWithProviders(
-        <ProtectedRoute user={{ id: 1, name: "Test" }} requiredRoles={["admin", "manager"]}>
+        <ProtectedRoute requiredRoles={["admin", "manager"]}>
           <div>Content</div>
         </ProtectedRoute>
       );
@@ -153,10 +174,16 @@ describe("ProtectedRoute", () => {
 
     it("should display required and current role info on access denied", () => {
       mockHasRole.mockReturnValue(false);
-      mockGetUserRole.mockReturnValue("viewer");
+      mockUseAuth.mockReturnValue({
+        user: mockUser,
+        isAuthenticated: true,
+        hasRole: mockHasRole,
+        hasPermission: mockHasPermission,
+        role: "viewer",
+      });
 
       const { container } = renderWithProviders(
-        <ProtectedRoute user={{ id: 1, name: "Test" }} requiredRole="admin">
+        <ProtectedRoute requiredRole="admin">
           <div>Content</div>
         </ProtectedRoute>
       );
@@ -171,7 +198,7 @@ describe("ProtectedRoute", () => {
       mockHasPermission.mockReturnValue(true);
 
       const { container } = renderWithProviders(
-        <ProtectedRoute user={{ id: 1, name: "Test" }} requiredPermission="invoices.read">
+        <ProtectedRoute requiredPermission="invoices.read">
           <div>Invoice Content</div>
         </ProtectedRoute>
       );
@@ -183,7 +210,7 @@ describe("ProtectedRoute", () => {
       mockHasPermission.mockReturnValue(false);
 
       const { container } = renderWithProviders(
-        <ProtectedRoute user={{ id: 1, name: "Test" }} requiredPermission="invoices.delete">
+        <ProtectedRoute requiredPermission="invoices.delete">
           <div>Content</div>
         </ProtectedRoute>
       );
@@ -197,7 +224,7 @@ describe("ProtectedRoute", () => {
       mockHasRole.mockReturnValue(false);
 
       const { container } = renderWithProviders(
-        <ProtectedRoute user={{ id: 1, name: "Test" }} requiredRole="admin">
+        <ProtectedRoute requiredRole="admin">
           <div>Content</div>
         </ProtectedRoute>
       );

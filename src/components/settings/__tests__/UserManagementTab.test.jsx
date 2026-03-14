@@ -21,6 +21,15 @@ vi.mock("../../../services/axiosAuthService", () => ({
   },
 }));
 
+vi.mock("../../../contexts/AuthContext", () => ({
+  useAuth: () => ({
+    user: { id: 1, name: "Test Admin", role: "admin", companyId: 1, roleNames: ["admin"] },
+    isAuthenticated: true,
+    hasPermission: vi.fn().mockReturnValue(true),
+    hasRole: vi.fn().mockReturnValue(true),
+  }),
+}));
+
 vi.mock("../../../services/notificationService", () => ({
   notificationService: {
     success: vi.fn(),

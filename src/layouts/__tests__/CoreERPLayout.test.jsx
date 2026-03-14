@@ -19,14 +19,14 @@ vi.mock("react-router-dom", () => ({
   ),
 }));
 
-vi.mock("../../services/axiosAuthService", () => ({
-  authService: {
-    isAuthenticated: vi.fn().mockReturnValue(true),
-    getUser: vi.fn().mockReturnValue({ id: 1, name: "Test" }),
+vi.mock("../../contexts/AuthContext", () => ({
+  useAuth: () => ({
+    user: { id: 1, name: "Test", role: "admin", roleNames: ["admin"] },
+    isAuthenticated: true,
     hasRole: vi.fn().mockReturnValue(true),
     hasPermission: vi.fn().mockReturnValue(true),
-    logout: vi.fn(),
-  },
+    onLogout: vi.fn(),
+  }),
 }));
 
 vi.mock("../../components/FeedbackWidget", () => ({
