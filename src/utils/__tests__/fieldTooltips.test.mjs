@@ -7,7 +7,7 @@ test("fieldTooltips - Constants", async (t) => {
     assert.ok(fieldTooltips.customerName);
     assert.ok(fieldTooltips.customerEmail);
     assert.ok(fieldTooltips.customerPhone);
-    assert.ok(fieldTooltips.vatNumber);
+    assert.ok(fieldTooltips.trn);
     assert.ok(fieldTooltips.creditLimit);
     assert.ok(fieldTooltips.paymentTerms);
   });
@@ -88,7 +88,7 @@ test("getFieldTooltip", async (t) => {
       "customerName",
       "customerEmail",
       "customerPhone",
-      "vatNumber",
+      "trn",
       "creditLimit",
       "paymentTerms",
     ];
@@ -136,7 +136,7 @@ test("getAvailableTooltipFields", async (t) => {
     assert.ok(fields.includes("customerName"));
     assert.ok(fields.includes("customerEmail"));
     assert.ok(fields.includes("customerPhone"));
-    assert.ok(fields.includes("vatNumber"));
+    assert.ok(fields.includes("trn"));
     assert.ok(fields.includes("creditLimit"));
     assert.ok(fields.includes("paymentTerms"));
   });

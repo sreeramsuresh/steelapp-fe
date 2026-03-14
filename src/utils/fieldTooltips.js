@@ -9,7 +9,7 @@ export const fieldTooltips = {
   customerName: "The primary name for the customer in your business records",
   customerEmail: "Customer email address for invoicing and communication",
   customerPhone: "Primary contact phone number",
-  vatNumber: "VAT registration number (TRN) for UAE tax compliance",
+  trn: "Tax Registration Number (TRN) for UAE tax compliance",
   creditLimit: "Maximum credit amount the customer can have outstanding at any time",
   paymentTerms: "Number of days the customer has to pay (e.g., 30 days)",
 

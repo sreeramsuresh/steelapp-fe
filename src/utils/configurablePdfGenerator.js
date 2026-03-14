@@ -94,7 +94,7 @@ export function buildConfigurableDocumentStructure(invoice, company) {
       phone: comp.phone || "",
       email: comp.email || "",
       website: comp.website || "",
-      trn: comp.vatNumber || "",
+      trn: comp.trn || "",
     },
     customer: {
       name: cust.name || "",
@@ -105,7 +105,7 @@ export function buildConfigurableDocumentStructure(invoice, company) {
       },
       email: cust.email || "",
       phone: cust.phone || "",
-      trn: cust.vatNumber || "",
+      trn: cust.trn || "",
     },
     items: items,
     payments: payments,
@@ -209,7 +209,7 @@ export const generateConfigurablePDF = async (invoice, company, options = {}) =>
   // VAT Number
   if (branding.showVATNumber) {
     pdf.setFont(typography.fontFamily, "bold");
-    pdf.text("VAT Reg No: 104858252000003", layout.marginLeft, currentY);
+    pdf.text(`TRN: ${company?.trn || ""}`, layout.marginLeft, currentY);
     currentY += 2;
   }
 

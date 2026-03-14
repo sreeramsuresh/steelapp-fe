@@ -32,6 +32,7 @@ import vatRateService from "../services/vatRateService";
 import ConfirmDialog from "./ConfirmDialog";
 import ProductNamingHelpPanel from "./ProductNamingHelpPanel";
 import PhoneInput from "./shared/PhoneInput";
+import TRNInput from "./TRNInput";
 import VATRulesHelpPanel from "./VATRulesHelpPanel";
 
 // Lazy-loaded heavy tab components (code-split into separate chunks)
@@ -366,7 +367,7 @@ const CompanySettings = () => {
     phone: "",
     email: "",
     website: "",
-    vatNumber: "",
+    trn: "",
     logo: null,
     bankDetails: {
       bankName: "",
@@ -555,7 +556,7 @@ const CompanySettings = () => {
         phone: companyProfile.phone || "",
         email: companyProfile.email || "",
         website: companyProfile.website || "",
-        vat_number: "104858252000003",
+        trn: companyProfile.trn || "",
         bankDetails: companyProfile.bankDetails || {
           bankName: "",
           accountNumber: "",
@@ -1030,20 +1031,19 @@ const CompanySettings = () => {
             </div>
           </SettingsCard>
 
-          {/* VAT Registration */}
+          {/* Tax Registration */}
           <SettingsCard>
             <div className="p-4">
               <h3 className={`text-lg font-semibold mb-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                VAT Registration
+                Tax Registration
               </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <TextField
-                  label="VAT REG NO (TRN)"
-                  value="104858252000003"
-                  readOnly
-                  placeholder="VAT Registration Number"
-                  helperText="Read-only. Contact admin to update."
+                <TRNInput
+                  value={companyProfile.trn || ""}
+                  onChange={(value) => setCompanyProfile({ ...companyProfile, trn: value })}
+                  label="Tax Registration Number (TRN)"
+                  required={false}
                 />
               </div>
             </div>

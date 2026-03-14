@@ -22,7 +22,7 @@ describe("buildConfigurableDocumentStructure (Layer 1 - Unit Tests)", () => {
         phone: "+971-4-1234567",
         email: "info@ultimatesteels.com",
         website: "www.ultimatesteels.com",
-        vatNumber: "104858252000003",
+        trn: "104858252000003",
       };
 
       const result = buildConfigurableDocumentStructure({}, company);
@@ -88,7 +88,7 @@ describe("buildConfigurableDocumentStructure (Layer 1 - Unit Tests)", () => {
           },
           email: "contact@abctrading.ae",
           phone: "+971-2-1234567",
-          vatNumber: "200000000000002",
+          trn: "200000000000002",
         },
       };
 
@@ -443,7 +443,7 @@ describe("buildConfigurableDocumentStructure (Layer 1 - Unit Tests)", () => {
 
       const company = {
         name: "Company",
-        vatNumber: "TRN123",
+        trn: "TRN123",
       };
 
       const result = buildConfigurableDocumentStructure(invoice, company);

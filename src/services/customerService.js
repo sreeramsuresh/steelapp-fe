@@ -14,7 +14,6 @@ export const transformCustomerFromServer = (serverData) => {
     address: serverData.address, // JSONB object
     phone: serverData.phone || "",
     email: serverData.email || "",
-    trn: serverData.trn || "",
     paymentTerms: serverData.paymentTerms || serverData.payment_terms || 0,
     creditLimit: parseFloat(serverData.creditLimit || serverData.credit_limit) || 0,
     currentBalance: parseFloat(serverData.currentBalance || serverData.current_balance) || 0,
@@ -25,7 +24,7 @@ export const transformCustomerFromServer = (serverData) => {
     alternatePhone: serverData.alternatePhone || serverData.alternate_phone || "",
     contactPerson: serverData.contactPerson || serverData.contact_person || "",
     website: serverData.website || "",
-    vatNumber: serverData.vatNumber || serverData.vat_number || "",
+    trn: serverData.trn || serverData.trnNumber || serverData.trn_number || "",
     panNumber: serverData.panNumber || serverData.pan_number || "",
     pricelistId: serverData.pricelistId || serverData.pricelist_id,
     // Compliance fields

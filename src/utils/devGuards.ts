@@ -273,7 +273,6 @@ const ALLOWED_CUSTOMER_KEYS = new Set<string>([
   "address",
 
   // Tax & Compliance
-  "vatNumber",
   "trn",
 
   // Financial
@@ -333,7 +332,6 @@ const ALLOWED_SUPPLIER_KEYS = new Set<string>([
   "category",
   "country",
   "countryId",
-  "vatNumber",
   "businessLicense",
   "taxId",
   "bankDetails",

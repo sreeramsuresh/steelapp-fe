@@ -227,7 +227,6 @@ describe("CustomerFormSchema", () => {
         state: "Sharjah",
         postalCode: "12345",
         country: "AE",
-        vatNumber: "100123456700003",
         trn: "100123456700003",
         creditLimit: 50000,
         paymentTermsDays: 30,

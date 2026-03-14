@@ -4,7 +4,7 @@
  * Manages customer details including Phase 5 credit management fields
  * Features:
  * - Basic customer information (name, email, phone, address)
- * - Tax/VAT compliance (VAT number, TRN)
+ * - Tax/VAT compliance (TRN)
  * - Credit management with CustomerCreditPanel integration
  *
  * UX Patterns (Tier 2 - Medium):
@@ -335,7 +335,6 @@ const CustomerForm = () => {
     state: "",
     postalCode: "",
     country: "AE", // Default to UAE (ISO alpha-2)
-    vatNumber: "",
     trn: "",
     creditLimit: 0,
     paymentTermsDays: 0,
@@ -426,7 +425,6 @@ const CustomerForm = () => {
         state: addressParsed.state || "",
         postalCode: addressParsed.postalCode || "",
         country: normalizeCountryCode(customer.country || addressParsed.country || "AE"),
-        vatNumber: String(customer.vatNumber || ""),
         trn: customer.trn || "",
         creditLimit: customer.creditLimit || 0,
         paymentTermsDays: customer.paymentTermsDays || 0,
@@ -533,7 +531,6 @@ const CustomerForm = () => {
           postalCode: formData.postalCode || "",
           country: formData.country || "AE",
         },
-        vatNumber: formData.vatNumber,
         trn: formData.trn,
         creditLimit: parseFloat(formData.creditLimit) || 0,
         paymentTermsDays: parseInt(formData.paymentTermsDays, 10) || 0,
@@ -898,24 +895,6 @@ const CustomerForm = () => {
                 </div>
 
                 <div className="grid grid-cols-12 gap-3">
-                  {/* VAT Number */}
-                  <div className="col-span-12 md:col-span-6">
-                    <label htmlFor="customer-vat-number" className={`block text-xs ${textMuted} mb-1.5`}>
-                      VAT Number
-                    </label>
-                    <input
-                      id="customer-vat-number"
-                      type="text"
-                      name="vatNumber"
-                      value={formData.vatNumber}
-                      onChange={handleInputChange}
-                      disabled={!isEditMode}
-                      placeholder="123456789012345"
-                      className={`w-full py-2.5 px-3 rounded-xl border text-sm ${inputBg} ${inputBorder} ${textPrimary} ${placeholderCls} outline-hidden ${inputFocus} disabled:opacity-80 disabled:cursor-default`}
-                      data-testid="customer-vat-number"
-                    />
-                  </div>
-
                   {/* TRN */}
                   <div className="col-span-12 md:col-span-6">
                     <TRNInput

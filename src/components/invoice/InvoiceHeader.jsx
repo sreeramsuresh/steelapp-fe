@@ -88,7 +88,7 @@ const InvoiceHeader = ({ company, invoice, isFirstPage, primaryColor, template =
                 <strong>Email:</strong> {company.email}
               </p>
             )}
-            <p style={{ fontWeight: 600, marginTop: "4px" }}>VAT Reg No: 104858252000003</p>
+            {company?.trn && <p style={{ fontWeight: 600, marginTop: "4px" }}>TRN: {company.trn}</p>}
           </div>
         </div>
 
@@ -173,7 +173,7 @@ const InvoiceHeader = ({ company, invoice, isFirstPage, primaryColor, template =
                 </p>
               )}
               {invoice.customer?.phone && <p>Phone: {invoice.customer.phone}</p>}
-              {invoice.customer?.vatNumber && <p>TRN: {invoice.customer.vatNumber}</p>}
+              {invoice.customer?.trn && <p>TRN: {invoice.customer.trn}</p>}
             </div>
           </div>
 

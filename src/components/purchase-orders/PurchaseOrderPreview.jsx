@@ -131,7 +131,7 @@ const PurchaseOrderPreview = ({ purchaseOrder, company, onClose }) => {
                       {[supplierAddress.city, supplierAddress.emirate].filter(Boolean).join(", ")}
                     </p>
                   )}
-                  {supplierDetails.vatNumber && <p className="text-sm mt-1">VAT: {supplierDetails.vatNumber}</p>}
+                  {supplierDetails.trn && <p className="text-sm mt-1">TRN: {supplierDetails.trn}</p>}
                 </div>
                 <div className="text-right">
                   <div className="mb-2">

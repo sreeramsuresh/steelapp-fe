@@ -477,7 +477,6 @@ export function SupplierForm() {
     // Tax & Compliance
     taxId: "",
     trnNumber: "",
-    vatNumber: "",
     tradeLicenseNumber: "",
     tradeLicenseExpiry: "",
     isDesignatedZone: false,
@@ -618,7 +617,6 @@ export function SupplierForm() {
           // Tax & Compliance
           taxId: supplier.taxId || supplier.tax_id || "",
           trnNumber: supplier.trnNumber || supplier.trn_number || "",
-          vatNumber: supplier.vatNumber || supplier.vat_number || "",
           tradeLicenseNumber: supplier.tradeLicenseNumber || supplier.trade_license_number || "",
           tradeLicenseExpiry: supplier.tradeLicenseExpiry || supplier.trade_license_expiry || "",
           isDesignatedZone: supplier.isDesignatedZone ?? supplier.is_designated_zone ?? false,
@@ -777,10 +775,6 @@ export function SupplierForm() {
     }
 
     // Tax & Compliance validation
-    if (formData.vatNumber && !/^[A-Z0-9]{15}$/.test(formData.vatNumber)) {
-      newErrors.vatNumber = "VAT number must be 15 alphanumeric characters";
-    }
-
     if (formData.trnNumber && !/^\d{15}$/.test(formData.trnNumber)) {
       newErrors.trnNumber = "TRN must be 15 digits";
     }
@@ -1199,22 +1193,6 @@ export function SupplierForm() {
             {expandedSections.taxCompliance && (
               <div className="px-6 pb-6 space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="supplier-vat-number" className={labelClasses}>
-                      VAT Number
-                    </label>
-                    <input
-                      id="supplier-vat-number"
-                      type="text"
-                      value={formData.vatNumber}
-                      onChange={(e) => handleChange("vatNumber", e.target.value.toUpperCase())}
-                      className={`${inputClasses} ${errors.vatNumber ? "border-red-500" : ""}`}
-                      placeholder="15 alphanumeric characters"
-                      maxLength={15}
-                    />
-                    {errors.vatNumber && <p className="text-red-500 text-sm mt-1">{errors.vatNumber}</p>}
-                  </div>
-
                   <TRNInput
                     value={formData.trnNumber}
                     onChange={(value) => handleChange("trnNumber", value)}

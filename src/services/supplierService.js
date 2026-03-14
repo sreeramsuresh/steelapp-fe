@@ -22,7 +22,7 @@ export const transformSupplierFromServer = (serverData) => {
     contactEmail: serverData.contactEmail || serverData.contact_email || "",
     contactPhone: serverData.contactPhone || serverData.contact_phone || "",
     website: serverData.website || "",
-    vatNumber: serverData.vatNumber || serverData.vat_number || "",
+    trn: serverData.trn || serverData.trnNumber || serverData.trn_number || "",
     trnNumber: serverData.trnNumber || serverData.trn_number || "",
     tradeLicenseNumber: serverData.tradeLicenseNumber || serverData.trade_license_number || "",
     tradeLicenseExpiry: serverData.tradeLicenseExpiry || serverData.trade_license_expiry,

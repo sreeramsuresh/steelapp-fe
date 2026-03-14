@@ -328,7 +328,7 @@ describe("customerService", () => {
       const serverData = {
         id: 1,
         trn: "UAE123456789012",
-        vat_number: "VAT-123",
+        trn_number: "UAE123456789012",
         pan_number: "PAN-456",
         cin_number: "CIN-789",
         trade_license_number: "TL-2024-001",
@@ -338,7 +338,6 @@ describe("customerService", () => {
       const result = transformCustomerFromServer(serverData);
 
       expect(result.trn).toBe("UAE123456789012");
-      expect(result.vatNumber).toBe("VAT-123");
       expect(result.panNumber).toBe("PAN-456");
       expect(result.cinNumber).toBe("CIN-789");
       expect(result.tradeLicenseNumber).toBe("TL-2024-001");

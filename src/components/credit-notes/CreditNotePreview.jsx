@@ -112,9 +112,7 @@ const CreditNotePreview = ({ creditNote, company, onClose }) => {
                     );
                   })()}
                   {company?.phone && <p className="text-sm text-white/80">{company.phone}</p>}
-                  {company?.vatNumber && (
-                    <p className="text-sm text-white/80 font-semibold mt-1">TRN: {company.vatNumber}</p>
-                  )}
+                  {company?.trn && <p className="text-sm text-white/80 font-semibold mt-1">TRN: {company.trn}</p>}
                 </div>
               </div>
             </div>

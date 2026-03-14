@@ -284,7 +284,7 @@ const QuotationForm = () => {
         emirate: "",
         country: "UAE",
       },
-      vatNumber: "",
+      trn: "",
     },
     quotationDate: new Date().toISOString().split("T")[0],
     validUntil: "",
@@ -380,7 +380,7 @@ const QuotationForm = () => {
       .forEach((k) => {
         try {
           const draft = JSON.parse(localStorage.getItem(k));
-          if (draft?.customerDetails?.email || draft?.customerDetails?.phone || draft?.customerDetails?.vatNumber) {
+          if (draft?.customerDetails?.email || draft?.customerDetails?.phone || draft?.customerDetails?.trn) {
             const cleaned = { ...draft, customerDetails: { name: draft.customerDetails?.name } };
             localStorage.setItem(k, JSON.stringify(cleaned));
           }
@@ -569,7 +569,7 @@ const QuotationForm = () => {
               emirate: "",
               country: "UAE",
             },
-            vatNumber: "",
+            trn: "",
           };
 
           let parsedCustomerDetails = defaultCustomerDetails;
@@ -838,7 +838,7 @@ const QuotationForm = () => {
               emirate: "",
               country: "UAE",
             },
-            vatNumber: customer.vatNumber || customer.vat_number || "",
+            trn: customer.trn || "",
           },
         }));
 
@@ -883,7 +883,7 @@ const QuotationForm = () => {
             emirate: "",
             country: "UAE",
           },
-          vatNumber: customer.vatNumber || customer.vat_number || "",
+          trn: customer.trn || "",
         },
       }));
 
@@ -921,7 +921,7 @@ const QuotationForm = () => {
             emirate: "",
             country: "UAE",
           },
-          vatNumber: "",
+          trn: "",
         },
       }));
       setSelectedPricelistId(null);
@@ -2073,7 +2073,7 @@ const QuotationForm = () => {
                       email: c.email,
                       phone: c.phone,
                       address: c.address,
-                      vatNumber: c.vatNumber,
+                      trn: c.trn,
                       pricelistId: c.pricelistId,
                       pricelist_id: c.pricelist_id,
                     }))}
@@ -3214,18 +3214,18 @@ const QuotationForm = () => {
 
               <div>
                 <label htmlFor="qt-customer-vat" className={LABEL_CLASSES(isDarkMode)}>
-                  VAT Number
+                  TRN
                 </label>
                 <input
                   id="qt-customer-vat"
                   type="text"
-                  value={formData.customerDetails.vatNumber}
+                  value={formData.customerDetails.trn}
                   onChange={(e) =>
                     setFormData((prev) => ({
                       ...prev,
                       customerDetails: {
                         ...prev.customerDetails,
-                        vatNumber: e.target.value,
+                        trn: e.target.value,
                       },
                     }))
                   }

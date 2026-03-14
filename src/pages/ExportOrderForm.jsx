@@ -1519,8 +1519,8 @@ const ExportOrderForm = () => {
           customer_contact_name: customer.contact_name || "",
           customer_contact_email: customer.contact_email || customer.email || "",
           customer_contact_phone: customer.contact_phone || customer.phone || "",
-          customer_vat_id: customer.vat_number || customer.trn_number || "",
-          customer_trn: customer.trn_number || customer.vat_number || "",
+          customer_vat_id: customer.trn || "",
+          customer_trn: customer.trn || "",
           destination_country: customer.country || "",
         }));
         setShowCustomerDropdown(false);

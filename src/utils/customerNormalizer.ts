@@ -38,9 +38,7 @@ export function normalizeCustomer(rawCustomer: unknown, source = "unknown"): unk
       address: rawCustomer.address || undefined,
 
       // Tax & Compliance
-      vatNumber:
-        rawCustomer.vatNumber || rawCustomer.vat_number || rawCustomer.gstNumber || rawCustomer.gst_number || undefined,
-      trn: rawCustomer.trn || rawCustomer.tax_registration_number || undefined,
+      trn: rawCustomer.trn ?? rawCustomer.trn_number ?? rawCustomer.trnNumber ?? undefined,
       isDesignatedZone: rawCustomer.isDesignatedZone || rawCustomer.is_designated_zone || false,
 
       // Financial

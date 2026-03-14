@@ -484,8 +484,8 @@ export const generatePaymentReminder = async (invoice, company) => {
       pdf.text(`Ph: ${company.phone} | Email: ${company.email}`, margin, yPos);
       yPos += 5;
     }
-    if (company.vatNumber) {
-      pdf.text(`VAT Reg No: ${company.vatNumber}`, margin, yPos);
+    if (company.trn) {
+      pdf.text(`TRN: ${company.trn}`, margin, yPos);
       yPos += 10;
     }
 

@@ -99,7 +99,6 @@ export const CustomerFormSchema = z.object({
   postalCode: z.string().max(20).optional().default(""),
   country: z.string().length(2, "Country must be a 2-letter ISO code (e.g., AE)").optional().default("AE"),
   // Tax fields
-  vatNumber: z.string().max(50).optional().default(""),
   trn: z.string().max(50).optional().default(""),
   // Financial fields
   creditLimit: z.number().nonnegative().optional().default(0),

@@ -55,7 +55,7 @@ describe("InvoiceHeader", () => {
         name: "Test Customer LLC",
         email: "customer@test.com",
         phone: "+971501234567",
-        vatNumber: "98765432109876",
+        trn: "98765432109876",
         address: {
           street: "456 Customer Road",
           city: "Abu Dhabi",
@@ -104,10 +104,10 @@ describe("InvoiceHeader", () => {
       expect(container.textContent).toContain("Email");
     });
 
-    it("should display VAT registration number", () => {
+    it("should display TRN", () => {
       const { container } = renderWithProviders(<InvoiceHeader {...defaultProps} />);
 
-      expect(container.textContent).toContain("VAT Reg No");
+      expect(container.textContent).toContain("TRN:");
     });
 
     it("should use default company name when missing", () => {

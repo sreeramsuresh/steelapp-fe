@@ -1175,6 +1175,7 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
       supplierContactName: found.contactName || "",
       supplierContactEmail: found.contactEmail || found.email || "",
       supplierContactPhone: found.contactPhone || found.phone || "",
+      supplierTRN: found.trn || "",
     }));
   };
 

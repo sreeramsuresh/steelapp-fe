@@ -17,7 +17,7 @@ export const createCustomer = () => ({
     poBox: "",
     country: "UAE",
   },
-  vatNumber: "", // TRN Number
+  trn: "", // TRN Number
   panNumber: "",
   cinNumber: "",
   tradeLicenseNumber: "",
@@ -155,7 +155,7 @@ export const createCompany = () => ({
   },
   phone: "+971 50 123 4567",
   email: "info@steeltrading.com",
-  vatNumber: "100000000000003", // TRN Number
+  trn: "100000000000003", // TRN Number
 });
 
 export const STEEL_UNITS = ["kg", "ton", "piece", "meter", "feet"];

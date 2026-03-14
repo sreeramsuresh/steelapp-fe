@@ -403,7 +403,7 @@ const InvoiceTemplateSettingsComponent = ({ company, onSave }) => {
           name: "Sample Customer LLC",
           email: "customer@example.com",
           phone: "+971 50 123 4567",
-          vatNumber: "100123456700003",
+          trn: "100123456700003",
           address: {
             street: "123 Business Street",
             city: "Dubai",

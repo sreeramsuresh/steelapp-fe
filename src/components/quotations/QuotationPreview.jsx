@@ -140,7 +140,7 @@ const QuotationPreview = ({ quotation, company, onClose }) => {
                       {[customerAddress.city, customerAddress.emirate].filter(Boolean).join(", ")}
                     </p>
                   )}
-                  {customerDetails.vatNumber && <p className="text-sm mt-1">VAT: {customerDetails.vatNumber}</p>}
+                  {customerDetails.trn && <p className="text-sm mt-1">TRN: {customerDetails.trn}</p>}
                 </div>
                 <div className="text-right">
                   <div className="mb-2">

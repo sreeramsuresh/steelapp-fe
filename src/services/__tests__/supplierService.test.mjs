@@ -238,7 +238,7 @@ describe("supplierService", () => {
         name: "ABC Supplier",
         contact_name: "John Doe",
         contact_email: "john@supplier.com",
-        vat_number: "AE123456789",
+        trn: "AE123456789",
         trn_number: "100123456789012",
         supplier_type: "WHOLESALE",
         payment_terms: 30,
@@ -251,7 +251,7 @@ describe("supplierService", () => {
       assert.ok(transformed.companyId);
       assert.ok(transformed.contactName);
       assert.ok(transformed.contactEmail);
-      assert.ok(transformed.vatNumber);
+      assert.ok(transformed.trn);
       assert.ok(transformed.trnNumber);
       assert.ok(transformed.supplierType);
       assert.ok(transformed.paymentTerms);

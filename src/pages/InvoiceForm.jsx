@@ -783,12 +783,13 @@ const InvoiceForm = ({ onSave }) => {
             email: selectedCustomer.email || "",
             phone: selectedCustomer.phone || "",
             // Use TRN number from customer data
-            vatNumber: selectedCustomer.trnNumber || selectedCustomer.vatNumber || "",
+            trn: selectedCustomer.trn || selectedCustomer.trnNumber || "",
             address: {
               street: selectedCustomer.address?.street || "",
               city: selectedCustomer.address?.city || "",
               emirate: selectedCustomer.address?.emirate || "",
               poBox: selectedCustomer.address?.poBox || "",
+              country: selectedCustomer.address?.country || "UAE",
             },
           },
         }));
@@ -2176,7 +2177,7 @@ const InvoiceForm = ({ onSave }) => {
                           <span className="font-medium">Phone:</span> {invoice.customer.phone || ""}
                         </p>
                         <p>
-                          <span className="font-medium">TRN:</span> {invoice.customer.vatNumber || ""}
+                          <span className="font-medium">TRN:</span> {invoice.customer.trn || ""}
                         </p>
                         <p>
                           <span className="font-medium">Address:</span>{" "}

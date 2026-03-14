@@ -232,7 +232,7 @@ describe("supplierService", () => {
         name: "ABC Supplier",
         contact_name: "John Doe",
         contact_email: "john@supplier.com",
-        vat_number: "AE123456789",
+        trn: "AE123456789",
         trn_number: "100123456789012",
         supplier_type: "WHOLESALE",
         payment_terms: 30,
@@ -245,7 +245,7 @@ describe("supplierService", () => {
       expect(transformed.companyId).toBeTruthy();
       expect(transformed.contactName).toBeTruthy();
       expect(transformed.contactEmail).toBeTruthy();
-      expect(transformed.vatNumber).toBeTruthy();
+      expect(transformed.trn).toBeTruthy();
       expect(transformed.trnNumber).toBeTruthy();
       expect(transformed.supplierType).toBeTruthy();
       expect(transformed.paymentTerms).toBeTruthy();

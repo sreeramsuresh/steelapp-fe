@@ -860,11 +860,11 @@ const ImportOrderForm = () => {
         supplier_id: supplierId,
         supplier_name: supplier?.name || supplier?.company_name || "",
         // Auto-populate supplier TRN if available
-        supplier_trn: supplier?.trn_number || supplier?.vat_number || "",
+        supplier_trn: supplier?.trn || "",
         // Determine supplier VAT status based on country
         supplier_vat_status:
           supplier?.country === "UAE"
-            ? supplier?.trn_number
+            ? supplier?.trn
               ? "uae_registered"
               : "non_vat_registered"
             : supplier?.country && ["Saudi Arabia", "Bahrain", "Oman", "Kuwait", "Qatar"].includes(supplier.country)

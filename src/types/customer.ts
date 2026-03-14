@@ -22,7 +22,6 @@ export interface Customer {
   address?: string;
 
   // Tax & Compliance
-  vatNumber?: string;
   trn?: string; // Tax registration number
 
   // Financial & Credit Management

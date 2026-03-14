@@ -331,7 +331,7 @@ describe("customerService", () => {
       const serverData = {
         id: 1,
         trn: "UAE123456789012",
-        vat_number: "VAT-123",
+        trn_number: "UAE123456789012",
         pan_number: "PAN-456",
         cin_number: "CIN-789",
         trade_license_number: "TL-2024-001",
@@ -341,7 +341,6 @@ describe("customerService", () => {
       const result = transformCustomerFromServer(serverData);
 
       assert.strictEqual(result.trn, "UAE123456789012");
-      assert.strictEqual(result.vatNumber, "VAT-123");
       assert.strictEqual(result.panNumber, "PAN-456");
       assert.strictEqual(result.cinNumber, "CIN-789");
       assert.strictEqual(result.tradeLicenseNumber, "TL-2024-001");

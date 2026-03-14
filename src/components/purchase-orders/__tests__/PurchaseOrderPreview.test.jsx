@@ -37,7 +37,7 @@ const purchaseOrder = {
   supplierDetails: {
     company: "ABC Steel Co.",
     address: { street: "123 Industrial St", city: "Dubai", emirate: "Dubai" },
-    vatNumber: "TRN-123456",
+    trn: "TRN-123456",
   },
   items: [
     { id: 1, name: "Steel Rod", quantity: 100, unit: "KG", rate: 50, vatRate: 5, amount: 5000 },
