@@ -203,9 +203,9 @@ export default function PasskeyManagement() {
         <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Loading passkeys...</p>
       ) : credentials.length === 0 ? (
         <div
-          className={`text-center py-8 rounded-lg border ${isDarkMode ? "border-gray-700 bg-gray-800/50" : "border-gray-200 bg-gray-50"}`}
+          className={`flex items-center gap-3 px-4 py-3 rounded-lg border ${isDarkMode ? "border-gray-700 bg-gray-800/50" : "border-gray-200 bg-gray-50"}`}
         >
-          <Fingerprint size={40} className={`mx-auto mb-3 ${isDarkMode ? "text-gray-600" : "text-gray-300"}`} />
+          <Fingerprint size={20} className={`shrink-0 ${isDarkMode ? "text-gray-600" : "text-gray-300"}`} />
           <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
             No passkeys registered yet. Add one to enable passwordless sign-in.
           </p>
