@@ -85,7 +85,9 @@ export default function PasskeyManagement() {
       setNewDeviceName("");
       await loadCredentials();
     } catch (err) {
-      if (err.name === "NotAllowedError") {
+      if (err.name === "InvalidStateError") {
+        notificationService.warning("This device already has a passkey registered for your account");
+      } else if (err.name === "NotAllowedError") {
         notificationService.warning("Passkey registration was cancelled");
       } else {
         notificationService.error(err.message || "Failed to register passkey");
