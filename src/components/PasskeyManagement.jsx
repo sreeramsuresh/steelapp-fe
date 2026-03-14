@@ -17,9 +17,12 @@ export default function PasskeyManagement() {
   const [editingId, setEditingId] = useState(null);
   const [editLabel, setEditLabel] = useState("");
   const [deletingId, setDeletingId] = useState(null);
+  const [naming, setNaming] = useState(false);
+  const [newDeviceName, setNewDeviceName] = useState("");
 
   const isSupported = typeof window !== "undefined" && window.PublicKeyCredential !== undefined;
   const editInputRef = useRef(null);
+  const nameInputRef = useRef(null);
 
   const loadCredentials = useCallback(async () => {
     try {
@@ -41,7 +44,20 @@ export default function PasskeyManagement() {
     if (editingId) editInputRef.current?.focus();
   }, [editingId]);
 
-  const handleRegister = async () => {
+  const startNaming = () => {
+    setNewDeviceName("");
+    setNaming(true);
+    setTimeout(() => nameInputRef.current?.focus(), 50);
+  };
+
+  const cancelNaming = () => {
+    setNaming(false);
+    setNewDeviceName("");
+  };
+
+  const handleRegister = async (deviceLabel) => {
+    if (!deviceLabel?.trim()) return;
+    setNaming(false);
     setRegistering(true);
     try {
       // Step 1: Get registration options + ceremonyId from server
@@ -52,9 +68,10 @@ export default function PasskeyManagement() {
       const { startRegistration } = await import("@simplewebauthn/browser");
       const credential = await startRegistration({ optionsJSON });
 
-      // Step 3: Send to server for verification with ceremonyId
-      await authService.passkeyRegisterFinish(credential, ceremonyId);
+      // Step 3: Send to server for verification with ceremonyId + device label
+      await authService.passkeyRegisterFinish(credential, ceremonyId, deviceLabel.trim());
       notificationService.success("Passkey registered successfully");
+      setNewDeviceName("");
       await loadCredentials();
     } catch (err) {
       if (err.name === "NotAllowedError") {
@@ -122,8 +139,8 @@ export default function PasskeyManagement() {
         </div>
         <button
           type="button"
-          onClick={handleRegister}
-          disabled={registering}
+          onClick={startNaming}
+          disabled={registering || naming}
           className={`flex items-center justify-center gap-2 min-w-[160px] h-10 px-4 text-sm rounded-lg font-medium transition-colors ${
             isDarkMode ? "bg-teal-600 text-white hover:bg-teal-700" : "bg-teal-500 text-white hover:bg-teal-600"
           } disabled:opacity-60`}
@@ -141,6 +158,46 @@ export default function PasskeyManagement() {
           )}
         </button>
       </div>
+
+      {naming && (
+        <div
+          className={`flex items-center gap-2 mb-4 p-3 rounded-lg border ${
+            isDarkMode ? "border-teal-700 bg-teal-900/20" : "border-teal-200 bg-teal-50"
+          }`}
+        >
+          <input
+            ref={nameInputRef}
+            type="text"
+            value={newDeviceName}
+            onChange={(e) => setNewDeviceName(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleRegister(newDeviceName)}
+            placeholder='e.g. "Office Laptop", "My iPhone"'
+            maxLength={100}
+            className={`flex-1 px-3 py-2 rounded-lg border text-sm ${
+              isDarkMode
+                ? "bg-gray-800 border-gray-600 text-white placeholder-gray-500"
+                : "bg-white border-gray-300 text-gray-900 placeholder-gray-400"
+            } focus:outline-hidden focus:ring-1 focus:ring-teal-500`}
+          />
+          <button
+            type="button"
+            onClick={() => handleRegister(newDeviceName)}
+            disabled={!newDeviceName.trim()}
+            className={`px-4 py-2 text-sm rounded-lg font-medium transition-colors ${
+              isDarkMode ? "bg-teal-600 text-white hover:bg-teal-700" : "bg-teal-500 text-white hover:bg-teal-600"
+            } disabled:opacity-40`}
+          >
+            Continue
+          </button>
+          <button
+            type="button"
+            onClick={cancelNaming}
+            className={`px-3 py-2 text-sm rounded-lg ${isDarkMode ? "text-gray-400 hover:bg-gray-700" : "text-gray-500 hover:bg-gray-200"}`}
+          >
+            Cancel
+          </button>
+        </div>
+      )}
 
       {loading ? (
         <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Loading passkeys...</p>

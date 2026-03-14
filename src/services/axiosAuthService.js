@@ -292,9 +292,9 @@ class AuthService {
     }
   }
 
-  async passkeyRegisterFinish(credential, ceremonyId) {
+  async passkeyRegisterFinish(credential, ceremonyId, deviceLabel) {
     try {
-      const response = await apiService.post("/auth/passkey/register/finish", { credential, ceremonyId });
+      const response = await apiService.post("/auth/passkey/register/finish", { credential, ceremonyId, deviceLabel });
       return response;
     } catch (error) {
       throw new Error(error.response?.data?.message || "Failed to complete passkey registration");
