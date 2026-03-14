@@ -16,8 +16,6 @@ import { apiClient } from "./api.js";
  * TRN Format patterns for client-side validation
  * Mirrors backend validation for instant feedback
  */
-const UAE_TRN_ERROR = "TRN must be exactly 15 digits and start with 100";
-
 const TRN_FORMATS = {
   AE: {
     pattern: /^100\d{12}$/,
