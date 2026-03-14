@@ -93,6 +93,10 @@ function App() {
     setUser(userData);
   };
 
+  const handleLogout = () => {
+    setUser(null);
+  };
+
   // Set global app ready flag for E2E tests (resilient to DOM restructuring)
   useEffect(() => {
     if (!loading) {
@@ -114,7 +118,7 @@ function App() {
   return (
     <ThemeProvider>
       <div data-testid="app-ready">
-        <AuthProvider user={user}>
+        <AuthProvider user={user} onLogout={handleLogout}>
           <AuditHubProvider>
             <ApiHealthProvider>
               <Router>

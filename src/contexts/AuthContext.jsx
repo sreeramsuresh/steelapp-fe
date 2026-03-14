@@ -6,7 +6,7 @@ export const AuthContext = createContext();
  * Auth Context Provider
  * Provides user information from App.jsx to child components
  */
-export function AuthProvider({ children, user }) {
+export function AuthProvider({ children, user, onLogout }) {
   const permissions = user?.permissions || {};
   const roleNames = user?.roleNames || [];
 
@@ -69,8 +69,9 @@ export function AuthProvider({ children, user }) {
       roleNames,
       hasPermission,
       hasRole,
+      onLogout,
     }),
-    [user, permissions, roleNames, hasPermission, hasRole]
+    [user, permissions, roleNames, hasPermission, hasRole, onLogout]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

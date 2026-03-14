@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PasskeyManagement from "../components/PasskeyManagement";
 import TwoFactorSetup from "../components/TwoFactorSetup";
+import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "../contexts/ThemeContext";
 import { authService } from "../services/axiosAuthService";
 import { notificationService } from "../services/notificationService";
@@ -10,6 +11,7 @@ import { userAdminAPI } from "../services/userAdminApi";
 
 export default function UserProfile() {
   const { isDarkMode } = useTheme();
+  const { onLogout } = useAuth();
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -160,11 +162,11 @@ export default function UserProfile() {
   const handleLogout = async () => {
     try {
       await authService.logout();
-      navigate("/login");
-      notificationService.success("Logged out successfully");
     } catch (error) {
       console.error("Logout error:", error);
-      // Still redirect even if logout fails
+    } finally {
+      // Clear React user state BEFORE navigating — prevents router redirect back to /app
+      onLogout?.();
       navigate("/login");
     }
   };
