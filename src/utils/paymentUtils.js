@@ -5,6 +5,8 @@
  * Supports unlimited installments with different payment modes
  */
 
+import { toUAEDateMedium } from "./timezone";
+
 // Payment mode configuration (UAE Standard Business Practices)
 export const PAYMENT_MODES = {
   cash: {
@@ -282,13 +284,9 @@ export const formatPaymentDisplay = (payment) => {
 
   try {
     if (dateValue) {
-      const dateObj = new Date(dateValue);
-      if (!Number.isNaN(dateObj.getTime())) {
-        formattedDate = dateObj.toLocaleDateString("en-AE", {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-        });
+      const result = toUAEDateMedium(dateValue);
+      if (result) {
+        formattedDate = result;
       }
     }
   } catch (e) {

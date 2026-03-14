@@ -22,6 +22,7 @@ import { useTheme } from "../contexts/ThemeContext";
 import { useConfirm } from "../hooks/useConfirm";
 import { customsDocumentService } from "../services/customsDocumentService";
 import { importOrderService } from "../services/importOrderService";
+import { toUAEDateMedium } from "../utils/timezone";
 
 // Document type options
 const DOCUMENT_TYPES = [
@@ -597,11 +598,7 @@ const CustomsDocumentList = () => {
   // Format date
   const formatDate = (dateString) => {
     if (!dateString) return "-";
-    return new Date(dateString).toLocaleDateString("en-GB", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    });
+    return toUAEDateMedium(dateString);
   };
 
   // Get document type label

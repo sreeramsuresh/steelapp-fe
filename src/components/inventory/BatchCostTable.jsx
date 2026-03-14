@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { useMemo, useState } from "react";
 import { useTheme } from "../../contexts/ThemeContext";
 import { formatCurrency } from "../../utils/invoiceUtils";
+import { toUAEDateMedium } from "../../utils/timezone";
 
 function getEffectiveCost(batch) {
   const isImported = batch.procurementChannel === "IMPORTED";
@@ -20,15 +21,7 @@ function getDaysAge(dateStr) {
 
 function formatDate(dateStr) {
   if (!dateStr) return "-";
-  try {
-    return new Date(dateStr).toLocaleDateString("en-GB", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    });
-  } catch {
-    return dateStr;
-  }
+  return toUAEDateMedium(dateStr) || dateStr;
 }
 
 const GRID_COLS = "grid-cols-[minmax(160px,1.5fr)_100px_100px_120px_130px_50px_100px]";

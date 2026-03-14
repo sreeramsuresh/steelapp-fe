@@ -4,6 +4,7 @@ import ConfirmDialog from "../components/ConfirmDialog";
 import { useTheme } from "../contexts/ThemeContext";
 import { useConfirm } from "../hooks/useConfirm";
 import { exchangeRateService } from "../services/exchangeRateService";
+import { toUAEDateMedium } from "../utils/timezone";
 
 const ExchangeRateList = () => {
   const { isDarkMode } = useTheme();
@@ -148,7 +149,7 @@ const ExchangeRateList = () => {
 
   const formatDate = (d) => {
     if (!d) return "—";
-    return new Date(d).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+    return toUAEDateMedium(d);
   };
 
   const cardClass = isDarkMode ? "bg-gray-800" : "bg-white";

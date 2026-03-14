@@ -1,6 +1,7 @@
 import { Pencil, Play, Plus, RefreshCw, Trash2, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { recurringExpenseService } from "../services/recurringExpenseService";
+import { formatBusinessDate, toUAEDateMedium } from "../utils/timezone";
 
 const FREQUENCIES = ["MONTHLY", "QUARTERLY", "ANNUAL"];
 
@@ -226,10 +227,10 @@ const RecurringExpenseList = () => {
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{item.frequency}</td>
                   <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
-                    {item.nextDueDate ? new Date(item.nextDueDate).toLocaleDateString() : "-"}
+                    {item.nextDueDate ? formatBusinessDate(item.nextDueDate) : "-"}
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
-                    {item.lastGeneratedAt ? new Date(item.lastGeneratedAt).toLocaleDateString() : "-"}
+                    {item.lastGeneratedAt ? toUAEDateMedium(item.lastGeneratedAt) : "-"}
                   </td>
                   <td className="px-4 py-3 text-sm">
                     <span

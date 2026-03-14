@@ -19,6 +19,7 @@ import { purchaseOrderSyncService } from "../services/purchaseOrderSyncService";
 import { stockMovementService } from "../services/stockMovementService";
 import { createStockMovement, FINISHES, MOVEMENT_TYPES, PRODUCT_TYPES, STEEL_GRADES } from "../types";
 import { getProductDisplayName } from "../utils/fieldAccessors";
+import { toUAEDateMedium } from "../utils/timezone";
 import ConfirmDialog from "./ConfirmDialog";
 
 const StockMovement = () => {
@@ -258,7 +259,7 @@ const StockMovement = () => {
   });
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString("en-AE");
+    return toUAEDateMedium(dateString);
   };
 
   if (loading) {

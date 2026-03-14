@@ -16,6 +16,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useTheme } from "../contexts/ThemeContext";
 import { stockBatchService } from "../services/stockBatchService";
 import { formatCurrency } from "../utils/invoiceUtils";
+import { toUAEDateMedium } from "../utils/timezone";
 
 /**
  * StockBatchViewer Component
@@ -106,15 +107,7 @@ const StockBatchViewer = ({ productId, companyId, channelFilter, onClose, isModa
   // Format date
   const formatDate = (dateStr) => {
     if (!dateStr) return "-";
-    try {
-      return new Date(dateStr).toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-      });
-    } catch {
-      return dateStr;
-    }
+    return toUAEDateMedium(dateStr) || dateStr;
   };
 
   const containerClasses = isModal ? `fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50` : "";

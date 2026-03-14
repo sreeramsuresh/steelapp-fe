@@ -34,7 +34,7 @@ export default function ForgotPassword() {
         {/* Header */}
         <div className="text-center mb-6">
           <h1 className="text-3xl font-bold mb-2 bg-linear-to-br from-teal-600 to-teal-700 bg-clip-text text-transparent">
-            ULTIMATE STEELS
+            Ultimate Steels
           </h1>
           <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
             {status === "success" ? "Check your email" : "Reset your password"}

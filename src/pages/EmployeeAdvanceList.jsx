@@ -2,6 +2,7 @@ import { Plus } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { employeeAdvanceService } from "../services/employeeAdvanceService";
+import { formatBusinessDate } from "../utils/timezone";
 
 const STATUS_BADGES = {
   PENDING: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
@@ -164,7 +165,7 @@ const EmployeeAdvanceList = () => {
                     {Number(adv.amount || 0).toLocaleString()}
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
-                    {adv.advanceDate ? new Date(adv.advanceDate).toLocaleDateString() : "-"}
+                    {adv.advanceDate ? formatBusinessDate(adv.advanceDate) : "-"}
                   </td>
                   <td className="px-4 py-3 text-sm">
                     <span

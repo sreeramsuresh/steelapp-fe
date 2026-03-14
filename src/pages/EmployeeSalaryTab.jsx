@@ -2,6 +2,7 @@ import { X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { employeeSalaryService } from "../services/employeeSalaryService";
 import { salaryStructureService } from "../services/salaryStructureService";
+import { formatBusinessDate } from "../utils/timezone";
 
 const EmployeeSalaryTab = ({ employeeId }) => {
   const [current, setCurrent] = useState(null);
@@ -156,7 +157,7 @@ const EmployeeSalaryTab = ({ employeeId }) => {
               <div>
                 <span className="text-gray-500">Effective Date:</span>{" "}
                 <span className="font-medium">
-                  {current.effectiveDate ? new Date(current.effectiveDate).toLocaleDateString() : "-"}
+                  {current.effectiveDate ? formatBusinessDate(current.effectiveDate) : "-"}
                 </span>
               </div>
             </div>
@@ -208,9 +209,7 @@ const EmployeeSalaryTab = ({ employeeId }) => {
             <tbody className="divide-y divide-gray-200">
               {history.map((h) => (
                 <tr key={h.id || `${h.effectiveDate}-${h.changeType}`}>
-                  <td className="px-3 py-2">
-                    {h.effectiveDate ? new Date(h.effectiveDate).toLocaleDateString() : "-"}
-                  </td>
+                  <td className="px-3 py-2">{h.effectiveDate ? formatBusinessDate(h.effectiveDate) : "-"}</td>
                   <td className="px-3 py-2">{h.structureName || "-"}</td>
                   <td className="px-3 py-2 text-right">
                     {h.baseAmount != null ? Number(h.baseAmount).toLocaleString() : "-"}

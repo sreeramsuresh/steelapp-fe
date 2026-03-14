@@ -8,6 +8,7 @@ import { ArrowLeft, ArrowRight, CheckCircle, Clock, MapPin, Package, RefreshCw, 
 import { useEffect, useState } from "react";
 import { useTheme } from "../../contexts/ThemeContext";
 import { stockMovementService } from "../../services/stockMovementService";
+import { toUAETime } from "../../utils/timezone";
 
 const statusConfig = {
   DRAFT: { color: "gray", label: "Draft" },
@@ -57,13 +58,7 @@ const TransferDetailView = ({ transfer, onBack }) => {
 
   const formatDate = (dateStr) => {
     if (!dateStr) return "-";
-    return new Date(dateStr).toLocaleDateString("en-GB", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    return toUAETime(dateStr, { format: "datetime" }) || "-";
   };
 
   const getStatusBadge = (statusKey) => {

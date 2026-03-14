@@ -10,14 +10,12 @@ import { AlertCircle, CheckCircle, Circle, Gift, Info, RefreshCw, Wallet } from 
 import { useCallback, useEffect, useState } from "react";
 import { useTheme } from "../../../../contexts/ThemeContext";
 import { commissionService } from "../../../../services/commissionService";
+import { toMonthYearLabel } from "../../../../utils/timezone";
 
 // Default empty state when no data is available
 const EMPTY_COMMISSION_DATA = {
   agentId: null,
-  period: new Date().toLocaleDateString("en-US", {
-    month: "long",
-    year: "numeric",
-  }),
+  period: toMonthYearLabel(new Date().getFullYear(), new Date().getMonth() + 1),
   summary: {
     baseCommission: 0,
     tier1Bonus: 0,

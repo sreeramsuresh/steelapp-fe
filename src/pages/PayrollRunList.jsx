@@ -2,6 +2,7 @@ import { Plus } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { payrollRunService } from "../services/payrollRunService";
+import { formatBusinessDate } from "../utils/timezone";
 
 const STATUS_BADGES = {
   DRAFT: "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400",
@@ -279,7 +280,7 @@ const PayrollRunList = () => {
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
                     {run.periodStart
-                      ? `${new Date(run.periodStart).toLocaleDateString()} - ${new Date(run.periodEnd).toLocaleDateString()}`
+                      ? `${formatBusinessDate(run.periodStart)} - ${formatBusinessDate(run.periodEnd)}`
                       : "-"}
                   </td>
                   <td className="px-4 py-3 text-sm">

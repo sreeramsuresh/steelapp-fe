@@ -10,6 +10,7 @@ import { AlertCircle, ArrowRight, BarChart3, Calendar, Clock, RefreshCw, Trendin
 import { useCallback, useEffect, useState } from "react";
 import { useTheme } from "../../../../contexts/ThemeContext";
 import { commissionService } from "../../../../services/commissionService";
+import { toMonthYearLabel } from "../../../../utils/timezone";
 
 const CommissionForecastWidget = ({ monthsBack = 6, onRefresh, onViewDetails }) => {
   const { isDarkMode } = useTheme();
@@ -74,11 +75,7 @@ const CommissionForecastWidget = ({ monthsBack = 6, onRefresh, onViewDetails }) 
 
   const formatMonth = (monthKey) => {
     const [year, month] = monthKey.split("-");
-    const date = new Date(parseInt(year, 10), parseInt(month, 10) - 1, 1);
-    return date.toLocaleDateString("en-US", {
-      month: "short",
-      year: "2-digit",
-    });
+    return toMonthYearLabel(parseInt(year, 10), parseInt(month, 10), "short");
   };
 
   // Loading state

@@ -1,5 +1,6 @@
 import { format } from "date-fns";
 import { ChevronRight, Download, Eye, Lock } from "lucide-react";
+import { toMonthYearLabel } from "../../utils/timezone";
 import PeriodStatusBadge from "./PeriodStatusBadge";
 
 /**
@@ -15,10 +16,7 @@ export default function PeriodCard({ period, onClose, onLock, onView, isClosing 
     const month = period.month || period.period_month;
 
     if (periodType === "MONTHLY") {
-      return new Date(year, month - 1).toLocaleDateString("en-US", {
-        month: "long",
-        year: "numeric",
-      });
+      return toMonthYearLabel(year, month);
     } else if (periodType === "QUARTERLY") {
       const q = Math.ceil(month / 3);
       return `Q${q} ${year}`;

@@ -485,28 +485,6 @@ const CustomerManagement = () => {
     }
   };
 
-  // Helper to format address object as string
-  const formatAddress = (address) => {
-    if (!address) return "";
-    if (typeof address === "string") {
-      // Try to parse JSON string
-      try {
-        const parsed = JSON.parse(address);
-        return formatAddress(parsed);
-      } catch {
-        return address;
-      }
-    }
-    // Format object as readable string
-    const parts = [];
-    if (address.street) parts.push(address.street);
-    if (address.city) parts.push(address.city);
-    if (address.state) parts.push(address.state);
-    if (address.postal_code || address.postalCode) parts.push(address.postal_code || address.postalCode);
-    if (address.country) parts.push(address.country);
-    return parts.filter(Boolean).join(", ");
-  };
-
   const calculateAnalytics = () => {
     const totalCustomers = customers.length;
     const activeCustomers = customers.filter((c) => normalizeStatus(c.status) === "active").length;

@@ -23,6 +23,7 @@ import { useTheme } from "../contexts/ThemeContext";
 import { useDashboardPermissions } from "../hooks/useDashboardPermissions";
 import { analyticsService } from "../services/analyticsService";
 import { dashboardService } from "../services/dashboardService";
+import { toMonthYearLabel } from "../utils/timezone";
 import { createHoverPreload, preloadByRole } from "./dashboard/preloadWidgets";
 import WidgetErrorBoundary from "./dashboard/WidgetErrorBoundary";
 import WidgetSkeleton from "./dashboard/WidgetSkeleton";
@@ -514,10 +515,7 @@ const DashboardV2 = () => {
           },
           // New Customer Widget data
           newCustomers: {
-            period: new Date().toLocaleDateString("en-US", {
-              month: "long",
-              year: "numeric",
-            }),
+            period: toMonthYearLabel(new Date().getFullYear(), new Date().getMonth() + 1),
             summary: {
               newCustomersCount: customerInsights.newCustomersThisMonth || 0,
               previousPeriodCount: Math.max(1, (customerInsights.newCustomersThisMonth || 0) - 2),

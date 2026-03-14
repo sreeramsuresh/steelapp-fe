@@ -10,21 +10,14 @@ import { useCallback, useEffect, useState } from "react";
 import { useTheme } from "../../contexts/ThemeContext";
 import { stockMovementService } from "../../services/stockMovementService";
 import { warehouseService } from "../../services/warehouseService";
+import { toUAEDateMedium } from "../../utils/timezone";
 
 /**
  * Format date for display
  */
 const formatDate = (dateValue) => {
   if (!dateValue) return "-";
-  const date =
-    typeof dateValue === "object" && dateValue.seconds ? new Date(dateValue.seconds * 1000) : new Date(dateValue);
-  return date.toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  return toUAEDateMedium(dateValue);
 };
 
 /**

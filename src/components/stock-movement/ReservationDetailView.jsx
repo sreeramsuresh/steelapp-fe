@@ -6,6 +6,7 @@
 
 import { ArrowLeft, Bookmark, Calendar, CheckCircle, Clock, Package, XCircle } from "lucide-react";
 import { useTheme } from "../../contexts/ThemeContext";
+import { toUAEDateMedium, toUAETime } from "../../utils/timezone";
 
 const statusConfig = {
   ACTIVE: { color: "blue", label: "Active" },
@@ -22,26 +23,12 @@ const ReservationDetailView = ({ reservation, onBack }) => {
 
   const formatDate = (dateVal) => {
     if (!dateVal) return "-";
-    const ts = dateVal.seconds ? dateVal.seconds * 1000 : new Date(dateVal).getTime();
-    if (Number.isNaN(ts)) return "-";
-    return new Date(ts).toLocaleDateString("en-GB", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    return toUAETime(dateVal, { format: "datetime" }) || "-";
   };
 
   const formatDateShort = (dateVal) => {
     if (!dateVal) return "-";
-    const ts = dateVal.seconds ? dateVal.seconds * 1000 : new Date(dateVal).getTime();
-    if (Number.isNaN(ts)) return "-";
-    return new Date(ts).toLocaleDateString("en-GB", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    });
+    return toUAEDateMedium(dateVal) || "-";
   };
 
   const getStatusBadge = (statusKey) => {

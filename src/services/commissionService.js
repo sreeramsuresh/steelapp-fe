@@ -1,3 +1,4 @@
+import { toMonthYearLabel } from "../utils/timezone";
 import api from "./api.js";
 
 const commissionService = {
@@ -309,10 +310,7 @@ const commissionService = {
 
       return {
         agentId: salesPersonId,
-        period: new Date().toLocaleDateString("en-US", {
-          month: "long",
-          year: "numeric",
-        }),
+        period: toMonthYearLabel(new Date().getFullYear(), new Date().getMonth() + 1),
         summary: {
           baseCommission: totalEarned,
           tier1Bonus: 0,

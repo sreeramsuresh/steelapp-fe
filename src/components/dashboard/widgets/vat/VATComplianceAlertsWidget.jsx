@@ -14,6 +14,7 @@
 import { AlertCircle, AlertTriangle, CheckCircle, ChevronRight, Info, RefreshCw, XCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTheme } from "../../../../contexts/ThemeContext";
+import { toUAEDateMedium } from "../../../../utils/timezone";
 
 const VATComplianceAlertsWidget = ({
   data = null,
@@ -112,7 +113,7 @@ const VATComplianceAlertsWidget = ({
 
     if (diffMins < 60) return `${diffMins} min ago`;
     if (diffMins < 1440) return `${Math.floor(diffMins / 60)} hours ago`;
-    return date.toLocaleDateString("en-AE", { day: "2-digit", month: "short" });
+    return toUAEDateMedium(date);
   };
 
   return (

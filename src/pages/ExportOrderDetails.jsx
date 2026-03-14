@@ -50,6 +50,7 @@ import { useTheme } from "../contexts/ThemeContext";
 import { useConfirm } from "../hooks/useConfirm";
 import { authService } from "../services/axiosAuthService";
 import { exportOrderService } from "../services/exportOrderService";
+import { toUAEDateMedium, toUAEDateProfessional, toUAETime } from "../utils/timezone";
 
 // ========================================
 // CONSTANTS & CONFIGURATION
@@ -393,40 +394,18 @@ const ExportOrderDetails = () => {
   // ========================================
   const formatDate = useCallback((dateString) => {
     if (!dateString) return "N/A";
-    try {
-      return new Date(dateString).toLocaleDateString("en-AE", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      });
-    } catch {
-      return "Invalid Date";
-    }
+    return toUAEDateProfessional(dateString) || "Invalid Date";
   }, []);
 
   const formatDateShort = useCallback((dateString) => {
     if (!dateString) return "N/A";
-    try {
-      return new Date(dateString).toLocaleDateString("en-AE", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      });
-    } catch {
-      return "Invalid Date";
-    }
+    return toUAEDateMedium(dateString) || "Invalid Date";
   }, []);
 
   const formatDateTime = useCallback((dateString) => {
     if (!dateString) return "N/A";
     try {
-      return new Date(dateString).toLocaleDateString("en-AE", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
+      return toUAETime(dateString, { format: "datetime" });
     } catch {
       return "Invalid Date";
     }

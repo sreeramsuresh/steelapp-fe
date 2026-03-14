@@ -27,6 +27,7 @@ import { useTheme } from "../contexts/ThemeContext";
 import { useConfirm } from "../hooks/useConfirm";
 import { importOrderService } from "../services/importOrderService";
 import { tradeFinanceService } from "../services/tradeFinanceService";
+import { toUAEDateMedium } from "../utils/timezone";
 
 // Document type options
 const DOCUMENT_TYPES = [
@@ -166,11 +167,7 @@ const getDaysUntilExpiry = (expiryDate) => {
 // Helper function to format date
 const formatDate = (dateString) => {
   if (!dateString) return "-";
-  return new Date(dateString).toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
+  return toUAEDateMedium(dateString);
 };
 
 // Helper function to format currency

@@ -16,6 +16,7 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import PhoneInput from "../components/shared/PhoneInput";
+import { toUAEDateMedium } from "../utils/timezone";
 
 // ==================== DESIGN TOKENS (Matched to Invoice Form) ====================
 
@@ -2030,9 +2031,7 @@ const PurchaseOrderForm = ({ workspaceMode = false }) => {
                         <span className="text-base">🔒</span>
                         <span>
                           <span className="font-semibold">Price locked</span>
-                          {purchaseOrder.confirmedAt
-                            ? ` ${new Date(purchaseOrder.confirmedAt).toLocaleDateString()}`
-                            : ""}
+                          {purchaseOrder.confirmedAt ? ` ${toUAEDateMedium(purchaseOrder.confirmedAt)}` : ""}
                           {" — commercial terms are binding. Contact admin to amend."}
                         </span>
                       </div>

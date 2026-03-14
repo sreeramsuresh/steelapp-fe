@@ -8,6 +8,7 @@ import { authService } from "../services/axiosAuthService";
 import { companyService } from "../services/companyService";
 import { deliveryNoteService } from "../services/deliveryNoteService";
 import { formatDate } from "../utils/invoiceUtils";
+import { toUAEDateMedium } from "../utils/timezone";
 
 const DeliveryNoteDetails = () => {
   const navigate = useNavigate();
@@ -135,11 +136,7 @@ const DeliveryNoteDetails = () => {
   };
 
   const _formatDateLocal = (dateString) => {
-    return new Date(dateString).toLocaleDateString("en-AE", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
+    return toUAEDateMedium(dateString);
   };
 
   const getTotalDeliveredPercentage = () => {

@@ -84,4 +84,4 @@ export function getRouteLabel(pathname) {
   return null;
 }
 
-export { coreRouteLabels, analyticsRouteLabels };
+export { analyticsRouteLabels, coreRouteLabels };

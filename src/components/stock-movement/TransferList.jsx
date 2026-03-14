@@ -12,19 +12,14 @@ import { useTheme } from "../../contexts/ThemeContext";
 import { authService } from "../../services/axiosAuthService";
 import { stockMovementService, TRANSFER_STATUSES } from "../../services/stockMovementService";
 import { warehouseService } from "../../services/warehouseService";
+import { toUAEDateMedium } from "../../utils/timezone";
 
 /**
  * Format date for display
  */
 const formatDate = (dateValue) => {
   if (!dateValue) return "-";
-  const date =
-    typeof dateValue === "object" && dateValue.seconds ? new Date(dateValue.seconds * 1000) : new Date(dateValue);
-  return date.toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
+  return toUAEDateMedium(dateValue);
 };
 
 /**

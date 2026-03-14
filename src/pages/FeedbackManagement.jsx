@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useTheme } from "../contexts/ThemeContext";
 import api from "../services/axiosApi";
+import { toUAEDateMedium } from "../utils/timezone";
 
 const STATUS_COLORS = {
   new: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
@@ -240,7 +241,7 @@ const FeedbackManagement = () => {
                     </div>
                   </td>
                   <td className={`px-3 py-2.5 whitespace-nowrap ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                    {new Date(item.createdAt).toLocaleDateString()}
+                    {toUAEDateMedium(item.createdAt)}
                   </td>
                   <td className="px-3 py-2.5 whitespace-nowrap">
                     {NEXT_STATUS[item.status]?.length > 0 ? (

@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useTheme } from "../contexts/ThemeContext";
 import { authService } from "../services/axiosAuthService";
 import { notificationService } from "../services/notificationService";
+import { toUAEDateMedium } from "../utils/timezone";
 
 /**
  * Passkey management panel for UserProfile.
@@ -91,11 +92,7 @@ export default function PasskeyManagement() {
 
   const formatDate = (dateStr) => {
     if (!dateStr) return "Never";
-    return new Date(dateStr).toLocaleDateString(undefined, {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
+    return toUAEDateMedium(dateStr) || "Never";
   };
 
   if (!isSupported) {

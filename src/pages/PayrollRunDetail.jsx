@@ -2,6 +2,7 @@ import { ArrowLeft, ChevronDown, ChevronRight } from "lucide-react";
 import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { payrollRunService } from "../services/payrollRunService";
+import { formatBusinessDate } from "../utils/timezone";
 
 const STATUS_BADGES = {
   DRAFT: "bg-gray-100 text-gray-800",
@@ -151,8 +152,7 @@ const PayrollRunDetail = () => {
             {run.month
               ? `${new Date(2000, run.month - 1).toLocaleString("default", { month: "long" })} ${run.year}`
               : ""}{" "}
-            {run.periodStart &&
-              `| ${new Date(run.periodStart).toLocaleDateString()} - ${new Date(run.periodEnd).toLocaleDateString()}`}
+            {run.periodStart && `| ${formatBusinessDate(run.periodStart)} - ${formatBusinessDate(run.periodEnd)}`}
           </p>
         </div>
         <span className={`px-3 py-1 rounded-full text-sm font-medium ${STATUS_BADGES[run.status] || "bg-gray-100"}`}>

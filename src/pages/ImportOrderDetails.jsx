@@ -40,6 +40,7 @@ import { useTheme } from "../contexts/ThemeContext";
 import { useConfirm } from "../hooks/useConfirm";
 import { authService } from "../services/axiosAuthService";
 import { importOrderService } from "../services/importOrderService";
+import { toUAEDateProfessional } from "../utils/timezone";
 
 // Status configuration
 const STATUS_CONFIG = {
@@ -215,11 +216,7 @@ const ImportOrderDetails = () => {
   // Format date
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
-    return new Date(dateString).toLocaleDateString("en-AE", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
+    return toUAEDateProfessional(dateString) || "N/A";
   };
 
   // Format currency

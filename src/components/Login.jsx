@@ -290,6 +290,7 @@ const Login = ({ onLoginSuccess }) => {
   });
   const [error, setError] = useState("");
   const [lockoutMinutes, setLockoutMinutes] = useState(0);
+  const [logoUrl, setLogoUrl] = useState(null);
 
   // CAPTCHA state
   const [captchaRequired, setCaptchaRequired] = useState(false);
@@ -470,6 +471,16 @@ const Login = ({ onLoginSuccess }) => {
     autoLogin();
   }, [onLoginSuccess]);
 
+  // Fetch company logo for login screen
+  useEffect(() => {
+    fetch("/api/public/branding")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.logoUrl) setLogoUrl(data.logoUrl);
+      })
+      .catch(() => {});
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -629,12 +640,18 @@ const Login = ({ onLoginSuccess }) => {
       >
         {/* Header */}
         <div className="text-center mb-6">
-          <h1
-            className={`text-3xl font-bold mb-2 bg-linear-to-br from-teal-600 to-teal-700 bg-clip-text text-transparent`}
-          >
-            ULTIMATE STEELS
+          {logoUrl && (
+            <div className="flex justify-center mb-3">
+              <img src={logoUrl} alt="Ultimate Steels" className="h-16 w-auto object-contain" />
+            </div>
+          )}
+          <h1 className={`text-3xl font-bold bg-linear-to-br from-teal-600 to-teal-700 bg-clip-text text-transparent`}>
+            Ultimate Steels
           </h1>
-          <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+          <p className={`text-xs mt-1 font-medium tracking-wide ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+            Trading Building Materials LLC
+          </p>
+          <p className={`text-sm mt-2 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
             {requires2FA ? "Verify your identity" : "Sign in to your account"}
           </p>
         </div>

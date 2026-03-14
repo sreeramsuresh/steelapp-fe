@@ -14,6 +14,7 @@
 import { Calendar, CheckCircle, Clock, ExternalLink, FileText, Info, XCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTheme } from "../../../../contexts/ThemeContext";
+import { toUAEDateMedium } from "../../../../utils/timezone";
 
 const VATReturnStatusWidget = ({
   data = null,
@@ -81,11 +82,7 @@ const VATReturnStatusWidget = ({
 
   const formatDate = (dateString) => {
     if (!dateString) return "-";
-    return new Date(dateString).toLocaleDateString("en-AE", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    });
+    return toUAEDateMedium(dateString);
   };
 
   const getStatusConfig = (status) => {

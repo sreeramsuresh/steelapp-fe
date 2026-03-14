@@ -36,6 +36,7 @@ import { FINISHES } from "../types";
 import { getProductDisplayName, getProductUniqueName } from "../utils/fieldAccessors";
 import { clearInventoryCache } from "../utils/inventorySyncUtils";
 import { getAllowedBases, getDefaultBasis, PRICING_BASIS_MICROCOPY } from "../utils/pricingBasisRules";
+import { toUAEDateMedium } from "../utils/timezone";
 import ConfirmDialog from "./ConfirmDialog";
 import ProductUpload from "./ProductUpload";
 import QuickPriceEditModal from "./pricing/QuickPriceEditModal";
@@ -1495,8 +1496,7 @@ const SteelProducts = () => {
       case "lastModified": {
         const dt = product.updatedAt || product.updated_at || product.audit?.updatedAt;
         if (!dt) return "-";
-        const d = new Date(dt);
-        return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
+        return toUAEDateMedium(dt);
       }
       default:
         return "-";

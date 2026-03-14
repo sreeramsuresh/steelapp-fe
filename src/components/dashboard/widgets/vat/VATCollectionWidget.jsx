@@ -14,6 +14,7 @@
 import { ArrowDownRight, ArrowUpRight, Calendar, Info, RefreshCw, TrendingDown, TrendingUp } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTheme } from "../../../../contexts/ThemeContext";
+import { toUAEDateMedium } from "../../../../utils/timezone";
 
 // Generate dynamic fallback data based on current date
 const generateFallbackVATData = () => {
@@ -260,12 +261,7 @@ const VATCollectionWidget = ({ data = null, onRefresh = null, onViewDetails = nu
           <div className="flex items-center gap-2">
             <Calendar size={14} className={isDarkMode ? "text-gray-400" : "text-gray-500"} />
             <span className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-              Payment Due:{" "}
-              {new Date(currentData.dueDate).toLocaleDateString("en-AE", {
-                day: "2-digit",
-                month: "short",
-                year: "numeric",
-              })}
+              Payment Due: {toUAEDateMedium(currentData.dueDate)}
             </span>
           </div>
           <span

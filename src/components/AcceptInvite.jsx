@@ -70,7 +70,7 @@ export default function AcceptInvite() {
         >
           <div className="text-center mb-6">
             <h1 className="text-3xl font-bold mb-2 bg-linear-to-br from-teal-600 to-teal-700 bg-clip-text text-transparent">
-              ULTIMATE STEELS
+              Ultimate Steels
             </h1>
           </div>
           <div
@@ -106,7 +106,7 @@ export default function AcceptInvite() {
         >
           <div className="text-center mb-6">
             <h1 className="text-3xl font-bold mb-2 bg-linear-to-br from-teal-600 to-teal-700 bg-clip-text text-transparent">
-              ULTIMATE STEELS
+              Ultimate Steels
             </h1>
           </div>
           <div

@@ -1,5 +1,6 @@
 import { Check, X } from "lucide-react";
 import { useTheme } from "../../contexts/ThemeContext";
+import { toUAEDateMedium } from "../../utils/timezone";
 
 /**
  * BasePriceRow - Table row component with inline price editing
@@ -114,13 +115,7 @@ export default function BasePriceRow({
 
       {/* Last Updated */}
       <td className={`px-4 py-3 text-sm ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
-        {item.updatedAt
-          ? new Date(item.updatedAt).toLocaleDateString("en-GB", {
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-            })
-          : "-"}
+        {item.updatedAt ? toUAEDateMedium(item.updatedAt) : "-"}
       </td>
     </tr>
   );

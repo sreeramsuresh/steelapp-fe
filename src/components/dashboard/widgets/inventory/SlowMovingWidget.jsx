@@ -2,6 +2,7 @@ import { Calendar, DollarSign, Megaphone, Search, Snail, Tag, Trash2 } from "luc
 import { useEffect, useState } from "react";
 import { useTheme } from "../../../../contexts/ThemeContext";
 import { getProductDisplayName } from "../../../../utils/fieldAccessors";
+import { toUAEDateMedium } from "../../../../utils/timezone";
 
 const SlowMovingWidget = ({ data, onNavigate, onProductClick, onAction }) => {
   const { isDarkMode } = useTheme();
@@ -109,12 +110,7 @@ const SlowMovingWidget = ({ data, onNavigate, onProductClick, onAction }) => {
   };
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-AE", {
-      month: "short",
-      day: "numeric",
-      year: "2-digit",
-    });
+    return toUAEDateMedium(dateString);
   };
 
   return (

@@ -2,6 +2,7 @@ import { ArrowLeft, Printer } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { payrollRunService } from "../services/payrollRunService";
+import { formatBusinessDate } from "../utils/timezone";
 
 const PayslipView = () => {
   const { id, entryId } = useParams();
@@ -117,7 +118,7 @@ const PayslipView = () => {
               <span className="text-gray-500">Period:</span>{" "}
               <span className="font-medium">
                 {run?.periodStart
-                  ? `${new Date(run.periodStart).toLocaleDateString()} - ${new Date(run.periodEnd).toLocaleDateString()}`
+                  ? `${formatBusinessDate(run.periodStart)} - ${formatBusinessDate(run.periodEnd)}`
                   : "-"}
               </span>
             </p>

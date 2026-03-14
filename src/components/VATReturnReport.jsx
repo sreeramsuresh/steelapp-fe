@@ -30,6 +30,7 @@ import supplierBillService from "../services/supplierBillService";
 import vatAmendmentService from "../services/vatAmendmentService";
 import vatReturnService from "../services/vatReturnService";
 import { formatCurrency, formatDateDMY, toUAEDateProfessional } from "../utils/invoiceUtils";
+import { toMonthYearLabel } from "../utils/timezone";
 import ConfirmDialog from "./ConfirmDialog";
 
 /**
@@ -404,10 +405,10 @@ const VATReturnReport = () => {
               <option value="">-- Select Period --</option>
               {periods.map((period, idx) => (
                 <option key={period.id || period.name || `period-${idx}`} value={JSON.stringify(period)}>
-                  {new Date(period.periodStart).toLocaleDateString("en-GB", {
-                    month: "long",
-                    year: "numeric",
-                  })}
+                  {(() => {
+                    const [y, m] = period.periodStart.substring(0, 7).split("-");
+                    return toMonthYearLabel(Number(y), Number(m));
+                  })()}
                   {" - "}
                   {period.invoiceCount} invoices
                 </option>

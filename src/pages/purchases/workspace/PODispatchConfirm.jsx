@@ -5,6 +5,7 @@ import { useWorkspace } from "../../../components/purchase-order/workspace/Works
 import { useTheme } from "../../../contexts/ThemeContext";
 import { notificationService } from "../../../services/notificationService";
 import { purchaseOrderService } from "../../../services/purchaseOrderService";
+import { formatBusinessDate } from "../../../utils/timezone";
 
 export default function PODispatchConfirm() {
   const { isDarkMode } = useTheme();
@@ -77,7 +78,7 @@ export default function PODispatchConfirm() {
               <div>
                 <div className={labelClass}>Dispatch Date</div>
                 <div className={`text-sm ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>
-                  {new Date(dispatch.dispatch_date).toLocaleDateString()}
+                  {formatBusinessDate(dispatch.dispatch_date)}
                 </div>
               </div>
             )}

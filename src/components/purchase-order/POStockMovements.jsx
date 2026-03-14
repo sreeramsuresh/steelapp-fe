@@ -11,20 +11,14 @@ import { useCallback, useEffect, useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useTheme } from "../../contexts/ThemeContext";
 import { MOVEMENT_TYPES, stockMovementService } from "../../services/stockMovementService";
+import { toUAEDateMedium } from "../../utils/timezone";
 
 /**
  * Format date for display
  */
 const formatDate = (dateValue) => {
   if (!dateValue) return "-";
-  const date = dateValue.seconds ? new Date(dateValue.seconds * 1000) : new Date(dateValue);
-  return date.toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  return toUAEDateMedium(dateValue);
 };
 
 /**

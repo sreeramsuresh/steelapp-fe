@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTheme } from "../../../../contexts/ThemeContext";
+import { toUAEDateMedium } from "../../../../utils/timezone";
 
 const VATReconciliationWidget = ({
   data = null,
@@ -92,12 +93,7 @@ const VATReconciliationWidget = ({
   };
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-AE", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    });
+    return toUAEDateMedium(dateString);
   };
 
   const formatLastReconciled = (dateString) => {

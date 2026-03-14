@@ -10,15 +10,11 @@ import { AlertTriangle, Calendar, CheckCircle, Loader2, Package, Sparkles, Trend
 import { useEffect, useState } from "react";
 import { useTheme } from "../../contexts/ThemeContext";
 import { batchReservationService } from "../../services/batchReservationService";
+import { toUAEDateMedium } from "../../utils/timezone";
 
 const formatDate = (dateStr) => {
   if (!dateStr) return "N/A";
-  const date = new Date(dateStr);
-  return date.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+  return toUAEDateMedium(dateStr);
 };
 
 const formatNumber = (num) => {

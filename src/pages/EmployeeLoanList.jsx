@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { employeeLoanService } from "../services/employeeLoanService";
+import { formatBusinessDate } from "../utils/timezone";
 
 const STATUS_BADGES = {
   ACTIVE: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
@@ -259,7 +260,7 @@ const EmployeeLoanList = () => {
                     {Number(loan.outstandingBalance || 0).toLocaleString()}
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
-                    {loan.startDate ? new Date(loan.startDate).toLocaleDateString() : "-"}
+                    {loan.startDate ? formatBusinessDate(loan.startDate) : "-"}
                   </td>
                   <td className="px-4 py-3 text-sm">
                     <span

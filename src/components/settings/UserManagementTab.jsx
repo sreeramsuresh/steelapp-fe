@@ -46,6 +46,7 @@ import { notificationService } from "../../services/notificationService";
 import { roleService } from "../../services/roleService";
 import { userAdminAPI } from "../../services/userAdminApi";
 import { formatDateDMY } from "../../utils/invoiceUtils";
+import { toUAEDateMedium } from "../../utils/timezone";
 import ConfirmDialog from "../ConfirmDialog";
 import RolesHelpPanel from "../RolesHelpPanel";
 
@@ -323,13 +324,7 @@ const UserManagementTab = () => {
   };
   const formatDateOnly = (value) => {
     if (!value) return "";
-    try {
-      const d = new Date(value);
-      if (Number.isNaN(d.getTime())) return String(value);
-      return d.toLocaleDateString("en-AE", { year: "numeric", month: "short", day: "2-digit" });
-    } catch {
-      return String(value);
-    }
+    return toUAEDateMedium(value) || String(value);
   };
 
   // Validation
@@ -1068,7 +1063,7 @@ const UserManagementTab = () => {
                         </div>
                         <div className="flex items-center gap-3 mt-1">
                           <span className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
-                            Invited {inv.createdAt ? new Date(inv.createdAt).toLocaleDateString() : ""}
+                            Invited {inv.createdAt ? toUAEDateMedium(inv.createdAt) : ""}
                             {inv.invitedByName ? ` by ${inv.invitedByName}` : ""}
                           </span>
                           {inv.expiresAt &&

@@ -10,6 +10,7 @@ import { useTheme } from "../../contexts/ThemeContext";
 import { suppliersAPI } from "../../services/api";
 import { tokenUtils } from "../../services/axiosApi";
 import { importContainerService } from "../../services/importContainerService";
+import { toUAEDateMedium } from "../../utils/timezone";
 import { ContainerForm } from "./ContainerForm";
 
 const CONTAINER_STATUSES = [
@@ -179,15 +180,7 @@ export function ContainerList() {
 
   const formatDate = (dateStr) => {
     if (!dateStr) return "-";
-    try {
-      return new Date(dateStr).toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-      });
-    } catch {
-      return dateStr;
-    }
+    return toUAEDateMedium(dateStr) || dateStr;
   };
 
   const formatCurrency = (amount) => {

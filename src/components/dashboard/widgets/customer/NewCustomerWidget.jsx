@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTheme } from "../../../../contexts/ThemeContext";
+import { toUAEDateMedium } from "../../../../utils/timezone";
 
 // Mock new customer data
 const MOCK_NEW_CUSTOMER_DATA = {
@@ -153,10 +154,7 @@ const NewCustomerWidget = ({ data: propData, onRefresh, onViewCustomer, onViewDe
   };
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString("en-AE", {
-      day: "numeric",
-      month: "short",
-    });
+    return toUAEDateMedium(dateString);
   };
 
   // Map source names to icons and colors (handles both mock data with icon/color references and real data without)

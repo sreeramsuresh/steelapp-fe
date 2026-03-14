@@ -12,6 +12,7 @@ import {
 import { useCallback, useEffect, useState } from "react";
 import { useTheme } from "../../contexts/ThemeContext";
 import { materialCertificateService } from "../../services/materialCertificateService";
+import { toUAEDateMedium } from "../../utils/timezone";
 
 const STATUS_CONFIG = {
   verified: { label: "Verified", icon: CheckCircle, cls: "text-green-600", bg: "bg-green-100 text-green-700" },
@@ -32,7 +33,7 @@ function StatusBadge({ status }) {
 
 function formatDate(d) {
   if (!d) return "-";
-  return new Date(d).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+  return toUAEDateMedium(d);
 }
 
 function isExpiringSoon(dateStr) {

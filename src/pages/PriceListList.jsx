@@ -23,6 +23,7 @@ import { authService } from "../services/authService";
 import { authService as axiosAuthService } from "../services/axiosAuthService";
 import { notificationService } from "../services/notificationService";
 import pricelistService from "../services/pricelistService";
+import { formatBusinessDate } from "../utils/timezone";
 
 // Custom Button component matching SteelProducts pattern
 const Button = ({
@@ -643,7 +644,7 @@ export default function PriceListList() {
                         <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Date Range</span>
                         <span className={`font-medium text-xs ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
                           {pricelist.effectiveFrom || pricelist.effectiveTo
-                            ? `${pricelist.effectiveFrom ? new Date(pricelist.effectiveFrom).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "—"} to ${pricelist.effectiveTo ? new Date(pricelist.effectiveTo).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "Ongoing"}`
+                            ? `${pricelist.effectiveFrom ? formatBusinessDate(pricelist.effectiveFrom) : "—"} to ${pricelist.effectiveTo ? formatBusinessDate(pricelist.effectiveTo) : "Ongoing"}`
                             : "No date range"}
                         </span>
                       </div>

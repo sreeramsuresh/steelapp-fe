@@ -7,6 +7,21 @@
  *
  * This utility provides consistent timezone handling across the entire frontend.
  * All date/time displays should use these functions.
+ *
+ * DATE HANDLING POLICY:
+ *
+ * TIMESTAMP fields (timestamptz columns: created_at, updated_at, approved_at, etc.)
+ *   → Use toUAETime(), toUAEDateMedium(), toUAEDateShort(), toUAEPaymentDateTime()
+ *   → These convert UTC → UAE (Asia/Dubai) for display
+ *
+ * BUSINESS_DATE fields (date columns: period_start, effective_date, due_date, etc.)
+ *   → Use formatBusinessDate()
+ *   → These display the calendar date exactly as stored, NO timezone conversion
+ *   → Converting these would shift dates near midnight boundaries
+ *
+ * PERIOD_LABEL fields (year + month numbers for display)
+ *   → Use toMonthYearLabel(year, month)
+ *   → No timezone needed — pure calendar labels
  */
 
 const UAE_TIMEZONE = "Asia/Dubai";
@@ -436,6 +451,77 @@ export const toUAEPaymentDateTime = (utcDate) => {
   return `${dateStr}, ${timeStr} GST`;
 };
 
+/**
+ * Format a BUSINESS DATE (date column) for display WITHOUT timezone conversion.
+ * Use for: period_start, period_end, effective_date, due_date, advance_date, dispatch_date, etc.
+ * NEVER use toUAETime/toUAEDateShort for date columns — they shift dates near midnight.
+ *
+ * @param {string|Date} dateValue - Date string ("2026-03-14" or "2026-03-14T00:00:00.000Z") or Date object
+ * @param {"short"|"medium"|"long"} format - "short" = DD/MM/YYYY, "medium" = 14 Mar 2026, "long" = 14 March 2026
+ * @returns {string} Formatted date string
+ */
+export const formatBusinessDate = (dateValue, format = "medium") => {
+  if (!dateValue) return "";
+  let dateStr;
+  if (typeof dateValue === "string") {
+    dateStr = dateValue.substring(0, 10);
+  } else if (dateValue instanceof Date) {
+    dateStr = dateValue.toISOString().substring(0, 10);
+  } else {
+    return "";
+  }
+  const [year, month, day] = dateStr.split("-").map(Number);
+  if (!year || !month || !day) return "";
+  // Build a date at noon UTC to avoid any DST edge cases
+  const d = new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
+  switch (format) {
+    case "short":
+      return d.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "UTC" });
+    case "medium":
+      return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+    case "long":
+      return d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+    default:
+      return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+  }
+};
+
+/**
+ * Format a TIMESTAMPTZ value as a medium date in UAE timezone.
+ * Produces "14 Mar 2026" format with UTC→UAE conversion.
+ * Use for: created_at, updated_at, approved_at, last_login, confirmed_at, etc.
+ *
+ * @param {string|Date|number|object} utcDate - UTC date
+ * @returns {string} Formatted date like "14 Mar 2026"
+ */
+export const toUAEDateMedium = (utcDate) => {
+  const date = parseToDate(utcDate);
+  if (!date) return "";
+  return date.toLocaleDateString("en-GB", {
+    timeZone: UAE_TIMEZONE,
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+};
+
+/**
+ * Format a period label from year + month numbers.
+ * No timezone conversion needed — pure calendar labels.
+ *
+ * @param {number} year - Full year (e.g. 2026)
+ * @param {number} month - Month 1-12
+ * @param {"short"|"long"} format - "short" = "Mar 2026", "long" = "March 2026"
+ * @returns {string} Formatted month-year label
+ */
+export const toMonthYearLabel = (year, month, format = "long") => {
+  const d = new Date(Date.UTC(year, month - 1, 15));
+  if (format === "short") {
+    return d.toLocaleDateString("en-GB", { month: "short", year: "numeric", timeZone: "UTC" });
+  }
+  return d.toLocaleDateString("en-GB", { month: "long", year: "numeric", timeZone: "UTC" });
+};
+
 // Default export for convenience
 export default {
   toUAETime,
@@ -456,4 +542,8 @@ export default {
   toUAEPaymentDateTime,
   TIMEZONE_DISCLAIMER,
   TIMEZONE_LABEL,
+  // Centralized date helpers
+  formatBusinessDate,
+  toUAEDateMedium,
+  toMonthYearLabel,
 };

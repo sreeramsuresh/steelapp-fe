@@ -19,6 +19,7 @@ import { useTheme } from "../contexts/ThemeContext";
 import { useConfirm } from "../hooks/useConfirm";
 import { authService } from "../services/axiosAuthService";
 import { exportOrderService } from "../services/exportOrderService";
+import { toUAEDateMedium } from "../utils/timezone";
 
 // GCC Country codes for flag display
 const GCC_COUNTRIES = {
@@ -308,11 +309,7 @@ const ExportOrderList = () => {
   // Format date
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
-    return new Date(dateString).toLocaleDateString("en-AE", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
+    return toUAEDateMedium(dateString);
   };
 
   // Format currency

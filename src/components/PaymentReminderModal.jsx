@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { apiService, tokenUtils } from "../services/axiosApi";
 import { notificationService } from "../services/notificationService";
 import { formatCurrency, formatDateTime } from "../utils/invoiceUtils";
+import { formatBusinessDate } from "../utils/timezone";
 import ConfirmDialog from "./ConfirmDialog";
 
 // Format a Date to local datetime-local input value (YYYY-MM-DDTHH:mm)
@@ -36,11 +37,7 @@ const formatPromisedDate = (dateString) => {
   // Check if date is valid
   if (Number.isNaN(date.getTime())) return null;
 
-  return date.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
+  return formatBusinessDate(dateString);
 };
 
 const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = false }) => {

@@ -28,6 +28,7 @@ import { useTheme } from "../contexts/ThemeContext";
 import { useConfirm } from "../hooks/useConfirm";
 import { importOrderService } from "../services/importOrderService";
 import { materialCertificateService } from "../services/materialCertificateService";
+import { toUAEDateMedium } from "../utils/timezone";
 
 // Certificate Type Configuration
 const CERTIFICATE_TYPES = [
@@ -548,11 +549,7 @@ const MaterialCertificateList = () => {
   // Format date
   const formatDate = (dateStr) => {
     if (!dateStr) return "-";
-    return new Date(dateStr).toLocaleDateString("en-GB", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    });
+    return toUAEDateMedium(dateStr);
   };
 
   // Get grade label
