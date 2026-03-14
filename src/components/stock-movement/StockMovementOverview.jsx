@@ -46,7 +46,7 @@ const StockMovementOverview = ({ onNavigateToTab }) => {
         stockMovementService.listTransfers({ limit: 100 }),
         stockMovementService.listReservations({ limit: 50 }),
         stockMovementService.getAll({
-          limit: 500,
+          limit: 100,
           dateFrom: new Date().toLocaleDateString("en-CA"),
           dateTo: new Date().toLocaleDateString("en-CA"),
         }),

@@ -1,4 +1,4 @@
-import { Check, Fingerprint, Pencil, Plus, Trash2, X } from "lucide-react";
+import { Check, Cloud, Fingerprint, Key, Monitor, Pencil, Plus, Trash2, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTheme } from "../contexts/ThemeContext";
 import { authService } from "../services/axiosAuthService";
@@ -95,6 +95,18 @@ export default function PasskeyManagement() {
     return toUAEDateMedium(dateStr) || "Never";
   };
 
+  const getDeviceIcon = (deviceType) => {
+    if (deviceType === "singleDevice" || deviceType === "platform") return Monitor;
+    if (deviceType === "multiDevice" || deviceType === "cross-platform") return Key;
+    return Fingerprint;
+  };
+
+  const getDeviceTypeLabel = (deviceType) => {
+    if (deviceType === "singleDevice" || deviceType === "platform") return "Platform";
+    if (deviceType === "multiDevice" || deviceType === "cross-platform") return "Security Key";
+    return null;
+  };
+
   if (!isSupported) {
     return null; // Hide entirely if browser doesn't support WebAuthn
   }
@@ -151,7 +163,10 @@ export default function PasskeyManagement() {
               }`}
             >
               <div className="flex items-center gap-3">
-                <Fingerprint size={20} className={isDarkMode ? "text-teal-400" : "text-teal-600"} />
+                {(() => {
+                  const DeviceIcon = getDeviceIcon(cred.deviceType);
+                  return <DeviceIcon size={20} className={isDarkMode ? "text-teal-400" : "text-teal-600"} />;
+                })()}
                 <div>
                   {editingId === cred.id ? (
                     <div className="flex items-center gap-2">
@@ -175,9 +190,31 @@ export default function PasskeyManagement() {
                       </button>
                     </div>
                   ) : (
-                    <p className={`font-medium text-sm ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                      {cred.deviceLabel || "Passkey"}
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className={`font-medium text-sm ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                        {cred.deviceLabel || "Passkey"}
+                      </p>
+                      {getDeviceTypeLabel(cred.deviceType) && (
+                        <span
+                          className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium ${
+                            isDarkMode ? "bg-gray-700 text-gray-300" : "bg-gray-200 text-gray-600"
+                          }`}
+                        >
+                          {getDeviceTypeLabel(cred.deviceType)}
+                        </span>
+                      )}
+                      {cred.backedUp && (
+                        <span
+                          className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-medium ${
+                            isDarkMode ? "bg-sky-900/50 text-sky-300" : "bg-sky-100 text-sky-700"
+                          }`}
+                          title="This passkey is synced to the cloud and available on your other devices"
+                        >
+                          <Cloud size={10} />
+                          Synced
+                        </span>
+                      )}
+                    </div>
                   )}
                   <p className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
                     Added {formatDate(cred.createdAt)}
