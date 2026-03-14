@@ -53,6 +53,30 @@ describe("trnService", () => {
       const result = trnService.handleInput("1001234567891231234");
       expect(result.value.length <= 15).toBeTruthy();
     });
+
+    it("should reject wrong prefix (200...)", () => {
+      const result = trnService.handleInput("200123456789012");
+      expect(result.isComplete).toBe(true);
+      expect(result.isValid).toBe(false);
+    });
+
+    it("should reject too short input", () => {
+      const result = trnService.handleInput("100123");
+      expect(result.isComplete).toBe(false);
+      expect(result.isValid).toBe(false);
+    });
+
+    it("should strip non-numeric characters", () => {
+      const result = trnService.handleInput("10012345ABC9012");
+      expect(result.value).toBe("100123459012");
+      expect(result.isValid).toBe(false);
+    });
+
+    it("should normalize dashes and validate", () => {
+      const result = trnService.handleInput("100-1234-5678-9012");
+      expect(result.value).toBe("100123456789012");
+      expect(result.isValid).toBe(true);
+    });
   });
 
   describe("validateFormat", () => {

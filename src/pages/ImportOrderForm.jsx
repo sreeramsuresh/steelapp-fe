@@ -210,12 +210,8 @@ const StatusBadge = ({ status }) => {
 const validateTRN = (trn) => {
   if (!trn) return { valid: false, message: "TRN is required for import orders" };
   const cleanTRN = String(trn).replace(/[\s-]/g, "");
-  if (!/^\d+$/.test(cleanTRN)) return { valid: false, message: "TRN must contain only digits" };
-  if (cleanTRN.length !== 15)
-    return {
-      valid: false,
-      message: `TRN must be exactly 15 digits (${cleanTRN.length}/15)`,
-    };
+  if (!/^100\d{12}$/.test(cleanTRN))
+    return { valid: false, message: "TRN must be exactly 15 digits and start with 100" };
   return { valid: true, message: "Valid TRN" };
 };
 

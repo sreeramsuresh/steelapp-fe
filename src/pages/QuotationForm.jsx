@@ -34,6 +34,7 @@ import LineItemCard from "../components/shared/LineItemCard";
 import LineItemEmptyState from "../components/shared/LineItemEmptyState";
 import PhoneInput from "../components/shared/PhoneInput";
 import QuickAddChips from "../components/shared/QuickAddChips";
+import TRNInput from "../components/TRNInput";
 import { FormSelect } from "../components/ui/form-select";
 import { SelectItem } from "../components/ui/select";
 import { useTheme } from "../contexts/ThemeContext";
@@ -3213,28 +3214,16 @@ const QuotationForm = () => {
               </div>
 
               <div>
-                <label htmlFor="qt-customer-vat" className={LABEL_CLASSES(isDarkMode)}>
-                  TRN
-                </label>
-                <input
-                  id="qt-customer-vat"
-                  type="text"
+                <TRNInput
                   value={formData.customerDetails.trn}
-                  onChange={(e) =>
+                  onChange={(value) =>
                     setFormData((prev) => ({
                       ...prev,
-                      customerDetails: {
-                        ...prev.customerDetails,
-                        trn: e.target.value,
-                      },
+                      customerDetails: { ...prev.customerDetails, trn: value },
                     }))
                   }
-                  placeholder="e.g., 100000000000003"
-                  className={`w-full py-2.5 px-3 text-[13px] rounded-xl border outline-hidden ${
-                    isDarkMode
-                      ? "bg-gray-800 border-gray-600 text-white focus:border-teal-500"
-                      : "bg-white border-gray-300 text-gray-900 focus:border-teal-500"
-                  } focus:ring-2 focus:ring-teal-500/20`}
+                  label="TRN"
+                  required={false}
                 />
               </div>
 

@@ -16,10 +16,12 @@ import { apiClient } from "./api.js";
  * TRN Format patterns for client-side validation
  * Mirrors backend validation for instant feedback
  */
+const UAE_TRN_ERROR = "TRN must be exactly 15 digits and start with 100";
+
 const TRN_FORMATS = {
   AE: {
-    pattern: /^\d{15}$/,
-    description: "15 digits exactly (e.g., 100-1234-5678-9123)",
+    pattern: /^100\d{12}$/,
+    description: "15 digits starting with 100 (e.g., 100-1234-5678-9123)",
     example: "100123456789123",
     displayFormat: "XXX-XXXX-XXXX-XXXX",
     country: "UAE",
@@ -101,7 +103,7 @@ export const trnService = {
 
     return {
       value: limited,
-      isValid: limited.length === 15,
+      isValid: TRN_FORMATS.AE.pattern.test(limited),
       isComplete: limited.length === 15,
       displayValue: limited.length === 15 ? this.formatForDisplay(limited) : limited,
     };

@@ -58,7 +58,9 @@ const TRNInput = ({
       setIsTouched(true);
 
       // Set error message
-      if (result.value.length > 0 && result.value.length < 15) {
+      if (result.value.length === 15 && !result.isValid) {
+        setErrorMessage("TRN must start with 100");
+      } else if (result.value.length > 0 && result.value.length < 15) {
         setErrorMessage(`TRN must be 15 digits (${result.value.length}/15)`);
       } else if (result.value.length === 0 && required) {
         setErrorMessage("TRN is required");

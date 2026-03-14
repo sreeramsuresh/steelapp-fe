@@ -151,7 +151,7 @@ const CustomerManagement = () => {
   const validateTRN = (value) => {
     if (!value) return null; // optional
     const digits = String(value).replace(/\s+/g, "");
-    if (!/^100\d{12}$/.test(digits)) return "TRN must start with 100 and be 15 digits";
+    if (!/^100\d{12}$/.test(digits)) return "TRN must be exactly 15 digits and start with 100";
     return null;
   };
 
