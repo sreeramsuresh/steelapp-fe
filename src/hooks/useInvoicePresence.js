@@ -6,8 +6,8 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { apiClient } from "../services/api";
 import { useAuth } from "../contexts/AuthContext";
+import { apiClient } from "../services/api";
 import { uuid } from "../utils/uuid";
 
 const HEARTBEAT_INTERVAL = 45000; // 45 seconds
