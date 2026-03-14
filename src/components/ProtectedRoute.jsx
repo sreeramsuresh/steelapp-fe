@@ -1,44 +1,23 @@
 import { ArrowLeft, Lock } from "lucide-react";
 import { Navigate, useLocation } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "../contexts/ThemeContext";
-import { authService } from "../services/axiosAuthService";
 
-const ProtectedRoute = ({
-  children,
-  user,
-  requiredRole,
-  requiredRoles,
-  requiredPermission,
-  fallbackPath = "/login",
-}) => {
+const ProtectedRoute = ({ children, requiredRole, requiredRoles, requiredPermission, fallbackPath = "/login" }) => {
   const location = useLocation();
   const { isDarkMode } = useTheme();
+  const { user, hasRole, hasPermission, role: userRole } = useAuth();
 
-  // Check if user is authenticated - use auth service as primary source of truth
-  const isAuthenticated = authService.isAuthenticated();
-
-  if (!isAuthenticated) {
-    // Save the attempted location for redirect after login
+  // Safe to redirect on !user: App.jsx loading gate prevents false nulls during bootstrap
+  if (!user) {
     return <Navigate to={fallbackPath} state={{ from: location }} replace />;
   }
 
-  // If authenticated but no user object, show loading state instead of redirect
-  if (!user) {
-    return (
-      <div className={`flex items-center justify-center min-h-[60vh] ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}>
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
-        <span className={`ml-3 ${isDarkMode ? "text-white" : "text-gray-900"}`}>Loading...</span>
-      </div>
-    );
-  }
-
-  // DEVELOPMENT MODE: Skip role check
   // Check role-based access (supports single role or array of roles)
-
   const hasRequiredRole = requiredRoles
-    ? requiredRoles.some((role) => authService.hasRole(role))
+    ? requiredRoles.some((role) => hasRole(role))
     : requiredRole
-      ? authService.hasRole(requiredRole)
+      ? hasRole(requiredRole)
       : true;
 
   if ((requiredRole || requiredRoles) && !hasRequiredRole) {
@@ -56,7 +35,7 @@ const ProtectedRoute = ({
           className={`mb-6 max-w-md p-4 rounded-lg border ${isDarkMode ? "bg-yellow-900/20 border-yellow-700 text-yellow-300" : "bg-yellow-50 border-yellow-200 text-yellow-800"}`}
         >
           <p className="mb-2">
-            <strong>Current role:</strong> {authService.getUserRole()}
+            <strong>Current role:</strong> {userRole}
           </p>
           <p>
             <strong>Required role:</strong> {requiredRoles ? requiredRoles.join(" or ") : requiredRole}
@@ -80,7 +59,7 @@ const ProtectedRoute = ({
   if (requiredPermission) {
     const [resource, action] = requiredPermission.split(".");
 
-    if (!authService.hasPermission(resource, action)) {
+    if (!hasPermission(resource, action)) {
       return (
         <div
           className={`flex flex-col items-center justify-center min-h-[60vh] p-8 text-center ${isDarkMode ? "bg-gray-900" : "bg-[#FAFAFA]"}`}
@@ -113,7 +92,6 @@ const ProtectedRoute = ({
     }
   }
 
-  // User is authenticated and authorized
   return children;
 };
 

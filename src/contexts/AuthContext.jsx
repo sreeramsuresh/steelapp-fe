@@ -6,7 +6,7 @@ export const AuthContext = createContext();
  * Auth Context Provider
  * Provides user information from App.jsx to child components
  */
-export function AuthProvider({ children, user, onLogout }) {
+export function AuthProvider({ children, user, onLogout, onUserRefresh }) {
   const permissions = user?.permissions || {};
   const roleNames = user?.roleNames || [];
 
@@ -21,16 +21,6 @@ export function AuthProvider({ children, user, onLogout }) {
       if (!user) return false;
       if (user.role === "admin") return true;
 
-      // Director roles bypass
-      const directorRoles = [
-        "admin",
-        "managing_director",
-        "operations_manager",
-        "finance_manager",
-        "finance_manager_predefined",
-      ];
-      if (roleNames.some((r) => directorRoles.includes(r))) return true;
-
       // Try exact match, then camelCase conversion
       let resourcePerms = permissions[resource];
       if (!resourcePerms && resource.includes("_")) {
@@ -39,7 +29,7 @@ export function AuthProvider({ children, user, onLogout }) {
       }
       return !!resourcePerms?.[action];
     },
-    [user, permissions, roleNames]
+    [user, permissions]
   );
 
   /**
@@ -70,8 +60,9 @@ export function AuthProvider({ children, user, onLogout }) {
       hasPermission,
       hasRole,
       onLogout,
+      onUserRefresh,
     }),
-    [user, permissions, roleNames, hasPermission, hasRole, onLogout]
+    [user, permissions, roleNames, hasPermission, hasRole, onLogout, onUserRefresh]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

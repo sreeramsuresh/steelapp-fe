@@ -2,14 +2,10 @@ import { renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useDashboardPermissions } from "../useDashboardPermissions";
 
-const mockGetUser = vi.fn();
-const mockGetToken = vi.fn();
-
-vi.mock("../../services/authService", () => ({
-  authService: {
-    getUser: () => mockGetUser(),
-    getToken: () => mockGetToken(),
-  },
+// Mock useAuth to provide user context
+const mockUseAuth = vi.fn();
+vi.mock("../../contexts/AuthContext", () => ({
+  useAuth: () => mockUseAuth(),
 }));
 
 vi.mock("../../components/dashboard/config/DashboardConfig", () => ({
@@ -32,128 +28,87 @@ vi.mock("../../components/dashboard/config/DashboardConfig", () => ({
 describe("useDashboardPermissions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockGetUser.mockReturnValue({ id: 1, role: "admin" });
-    mockGetToken.mockReturnValue("token123");
+    mockUseAuth.mockReturnValue({
+      user: { id: 1, role: "admin" },
+      isAuthenticated: true,
+    });
   });
 
-  it("loads user on mount", async () => {
+  it("loads user from context", () => {
     const { result } = renderHook(() => useDashboardPermissions());
 
-    await vi.waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
-    });
-
+    expect(result.current.isLoading).toBe(false);
     expect(result.current.user).toEqual({ id: 1, role: "admin" });
     expect(result.current.role).toBe("ADMIN");
     expect(result.current.isAuthenticated).toBe(true);
   });
 
-  it("maps admin role correctly", async () => {
-    mockGetUser.mockReturnValue({ id: 1, role: "Administrator" });
-
-    const { result } = renderHook(() => useDashboardPermissions());
-
-    await vi.waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
+  it("maps admin role correctly", () => {
+    mockUseAuth.mockReturnValue({
+      user: { id: 1, role: "Administrator" },
+      isAuthenticated: true,
     });
 
+    const { result } = renderHook(() => useDashboardPermissions());
     expect(result.current.role).toBe("ADMIN");
   });
 
-  it("maps CEO role correctly", async () => {
-    mockGetUser.mockReturnValue({ id: 1, role: "CEO" });
-
-    const { result } = renderHook(() => useDashboardPermissions());
-
-    await vi.waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
+  it("maps CEO role correctly", () => {
+    mockUseAuth.mockReturnValue({
+      user: { id: 1, role: "CEO" },
+      isAuthenticated: true,
     });
 
+    const { result } = renderHook(() => useDashboardPermissions());
     expect(result.current.role).toBe("CEO");
   });
 
-  it("maps sales agent role correctly", async () => {
-    mockGetUser.mockReturnValue({ id: 1, role: "salesperson" });
-
-    const { result } = renderHook(() => useDashboardPermissions());
-
-    await vi.waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
+  it("maps sales agent role correctly", () => {
+    mockUseAuth.mockReturnValue({
+      user: { id: 1, role: "salesperson" },
+      isAuthenticated: true,
     });
 
+    const { result } = renderHook(() => useDashboardPermissions());
     expect(result.current.role).toBe("SALES_AGENT");
   });
 
-  it("defaults to SALES_AGENT for unknown role", async () => {
-    mockGetUser.mockReturnValue({ id: 1, role: "unknown_role" });
-
-    const { result } = renderHook(() => useDashboardPermissions());
-
-    await vi.waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
+  it("defaults to SALES_AGENT for unknown role", () => {
+    mockUseAuth.mockReturnValue({
+      user: { id: 1, role: "unknown_role" },
+      isAuthenticated: true,
     });
 
+    const { result } = renderHook(() => useDashboardPermissions());
     expect(result.current.role).toBe("SALES_AGENT");
   });
 
-  it("defaults to SALES_AGENT when no user", async () => {
-    mockGetUser.mockReturnValue(null);
-
-    const { result } = renderHook(() => useDashboardPermissions());
-
-    await vi.waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
+  it("defaults to SALES_AGENT when no user", () => {
+    mockUseAuth.mockReturnValue({
+      user: null,
+      isAuthenticated: false,
     });
 
+    const { result } = renderHook(() => useDashboardPermissions());
     expect(result.current.role).toBe("SALES_AGENT");
     expect(result.current.isAuthenticated).toBe(false);
   });
 
-  it("canViewWidget delegates to config", async () => {
+  it("canViewWidget delegates to config", () => {
     const { result } = renderHook(() => useDashboardPermissions());
-
-    await vi.waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
-    });
-
     const canView = result.current.canViewWidget("widget1");
     expect(typeof canView).toBe("boolean");
   });
 
-  it("provides visible widgets", async () => {
+  it("provides visible widgets", () => {
     const { result } = renderHook(() => useDashboardPermissions());
-
-    await vi.waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
-    });
-
     expect(result.current.visibleWidgets).toBeTruthy();
     expect(Array.isArray(result.current.visibleWidgets)).toBe(true);
   });
 
-  it("provides default layout", async () => {
+  it("provides default layout", () => {
     const { result } = renderHook(() => useDashboardPermissions());
-
-    await vi.waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
-    });
-
     expect(result.current.defaultLayout).toBeTruthy();
     expect(Array.isArray(result.current.defaultLayout)).toBe(true);
-  });
-
-  it("handles getUser error gracefully", async () => {
-    mockGetUser.mockImplementation(() => {
-      throw new Error("No user");
-    });
-
-    const { result } = renderHook(() => useDashboardPermissions());
-
-    await vi.waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
-    });
-
-    expect(result.current.user).toBeNull();
-    expect(result.current.role).toBe("SALES_AGENT");
   });
 });

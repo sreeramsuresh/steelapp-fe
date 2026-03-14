@@ -1,6 +1,7 @@
 import { Calendar, Edit2, Loader2, Phone, Plus, Trash2, X } from "lucide-react";
 import React, { useCallback, useEffect, useState } from "react";
-import { apiService, tokenUtils } from "../services/axiosApi";
+import { useAuth } from "../contexts/AuthContext";
+import { apiService } from "../services/axiosApi";
 import { notificationService } from "../services/notificationService";
 import { formatCurrency, formatDateTime } from "../utils/invoiceUtils";
 import { formatBusinessDate } from "../utils/timezone";
@@ -41,6 +42,7 @@ const formatPromisedDate = (dateString) => {
 };
 
 const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = false }) => {
+  const { user: authUser } = useAuth();
   const [reminders, setReminders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -57,9 +59,8 @@ const PaymentReminderModal = ({ isOpen, onClose, invoice, onSave, isViewOnly = f
 
   // Get current user info
   useEffect(() => {
-    const user = tokenUtils.getUser() || JSON.parse(localStorage.getItem("steel-app-user") || "null");
-    setCurrentUser(user);
-  }, []);
+    setCurrentUser(authUser);
+  }, [authUser]);
 
   // Fetch existing reminders when drawer opens
   const fetchReminders = useCallback(async () => {

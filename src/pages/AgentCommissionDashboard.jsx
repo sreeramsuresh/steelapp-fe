@@ -1,8 +1,8 @@
 import { Award, Calendar, CheckCircle, Clock, DollarSign, FileText, TrendingUp } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { CommissionForecastWidget } from "../components/dashboard/widgets";
+import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "../contexts/ThemeContext";
-import { authService } from "../services/axiosAuthService";
 import { commissionService } from "../services/commissionService";
 import { notificationService } from "../services/notificationService";
 import { formatCurrency, formatDateDMY } from "../utils/invoiceUtils";
@@ -14,7 +14,7 @@ const AgentCommissionDashboard = () => {
   const [transactions, setTransactions] = useState([]);
   const [activeTab, setActiveTab] = useState("overview");
 
-  const currentUser = authService.getUser();
+  const { user: currentUser } = useAuth();
 
   const loadAgentData = useCallback(async () => {
     // Double-check user ID exists before API calls

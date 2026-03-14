@@ -9,26 +9,16 @@ import CoreSidebar from "../components/CoreSidebar";
 import FeedbackWidget from "../components/FeedbackWidget";
 import SettingsSidebar from "../components/SettingsSidebar";
 import TopNavbar from "../components/TopNavbar";
+import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "../contexts/ThemeContext";
-import { authService } from "../services/axiosAuthService";
 import { isSettingsArea } from "../utils/isSettingsArea";
 import { getRouteLabel } from "../utils/routeLabels";
 
 const CoreERPLayout = () => {
   const location = useLocation();
   const { isDarkMode } = useTheme();
+  const { user, onLogout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth > 768);
-  const [user, setUser] = useState(null);
-
-  // Initialize user from auth service
-  useEffect(() => {
-    if (authService.isAuthenticated()) {
-      const storedUser = authService.getUser();
-      if (storedUser) {
-        setUser(storedUser);
-      }
-    }
-  }, []);
 
   // Handle window resize for responsive sidebar (using matchMedia for efficiency)
   useEffect(() => {
@@ -60,22 +50,8 @@ const CoreERPLayout = () => {
     setSidebarOpen(!sidebarOpen);
   };
 
-  const handleLogout = async () => {
-    try {
-      await authService.logout();
-    } catch (error) {
-      console.warn("Logout failed:", error);
-    } finally {
-      setUser(null);
-      // Notify React root + other tabs before hard redirect
-      window.dispatchEvent(new CustomEvent("auth:session-expired", { detail: { reason: "user_logout" } }));
-      try {
-        localStorage.setItem("auth:logout", Date.now().toString());
-      } catch {
-        /* private browsing */
-      }
-      window.location.replace("/login");
-    }
+  const handleLogout = () => {
+    onLogout();
   };
 
   const getPageTitle = () => {

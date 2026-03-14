@@ -23,13 +23,13 @@ import {
   Users,
   Warehouse,
 } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import BrandmarkHero from "../components/BrandmarkHero";
+import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "../contexts/ThemeContext";
 import useDragReorder, { DragHandleIcon } from "../hooks/useDragReorder";
 import useHomeSectionOrder from "../hooks/useHomeSectionOrder";
-import { authService } from "../services/authService";
 import { apiService } from "../services/axiosApi";
 import { customerService } from "../services/customerService";
 import { invoiceService } from "../services/invoiceService";
@@ -449,6 +449,7 @@ const SECTION_CONFIG = {
 const HomePage = () => {
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
+  const { user: authUser, hasPermission } = useAuth();
   const [recentItems, setRecentItems] = useState([]);
   const [recentActivity, setRecentActivity] = useState([]);
   const [integritySummary, setIntegritySummary] = useState(undefined);
@@ -462,100 +463,119 @@ const HomePage = () => {
     enabled: true,
   });
 
-  // Initialize userName from authService (checks sessionStorage then localStorage)
-  const [userName] = useState(() => {
-    try {
-      const user = authService.getUser();
-      if (user) {
-        return user.full_name || user.fullName || user.name || user.display_name || user.email?.split("@")[0] || "User";
-      }
-    } catch (error) {
-      console.warn("Error loading user info:", error);
-    }
-    return "User";
-  });
+  const userName =
+    authUser?.full_name ||
+    authUser?.fullName ||
+    authUser?.name ||
+    authUser?.display_name ||
+    authUser?.email?.split("@")[0] ||
+    "User";
 
-  const [quickAccessItems] = useState(
-    [
-      {
-        icon: Quote,
-        name: "Quotations",
-        path: "/app/quotations",
-        color: "from-blue-500 to-blue-600",
-        perm: ["quotations", "read"],
-      },
-      {
-        icon: FileText,
-        name: "Invoices",
-        path: "/app/invoices",
-        color: "from-purple-500 to-purple-600",
-        perm: ["invoices", "read"],
-      },
-      {
-        icon: ShoppingCart,
-        name: "Purchases",
-        path: "/app/purchases",
-        color: "from-orange-500 to-orange-600",
-        perm: ["purchase_orders", "read"],
-      },
-      {
-        icon: Truck,
-        name: "Deliveries",
-        path: "/app/delivery-notes",
-        color: "from-green-500 to-green-600",
-        perm: ["delivery_notes", "read"],
-      },
-      {
-        icon: Users,
-        name: "Customers",
-        path: "/app/customers",
-        color: "from-pink-500 to-pink-600",
-        perm: ["customers", "read"],
-      },
-      {
-        icon: Package,
-        name: "Products",
-        path: "/app/products",
-        color: "from-indigo-500 to-indigo-600",
-        perm: ["products", "read"],
-      },
-      {
-        icon: Warehouse,
-        name: "Warehouse",
-        path: "/app/warehouses",
-        color: "from-cyan-500 to-cyan-600",
-        perm: ["warehouses", "read"],
-      },
-      {
-        icon: Settings,
-        name: "Settings",
-        path: "/app/settings",
-        color: "from-gray-500 to-gray-600",
-        perm: ["company_settings", "read"],
-      },
-    ].filter((item) => authService.hasPermission(item.perm[0], item.perm[1]))
+  const quickAccessItems = useMemo(
+    () =>
+      [
+        {
+          icon: Quote,
+          name: "Quotations",
+          path: "/app/quotations",
+          color: "from-blue-500 to-blue-600",
+          perm: ["quotations", "read"],
+        },
+        {
+          icon: FileText,
+          name: "Invoices",
+          path: "/app/invoices",
+          color: "from-purple-500 to-purple-600",
+          perm: ["invoices", "read"],
+        },
+        {
+          icon: ShoppingCart,
+          name: "Purchases",
+          path: "/app/purchases",
+          color: "from-orange-500 to-orange-600",
+          perm: ["purchase_orders", "read"],
+        },
+        {
+          icon: Truck,
+          name: "Deliveries",
+          path: "/app/delivery-notes",
+          color: "from-green-500 to-green-600",
+          perm: ["delivery_notes", "read"],
+        },
+        {
+          icon: Users,
+          name: "Customers",
+          path: "/app/customers",
+          color: "from-pink-500 to-pink-600",
+          perm: ["customers", "read"],
+        },
+        {
+          icon: Package,
+          name: "Products",
+          path: "/app/products",
+          color: "from-indigo-500 to-indigo-600",
+          perm: ["products", "read"],
+        },
+        {
+          icon: Warehouse,
+          name: "Warehouse",
+          path: "/app/warehouses",
+          color: "from-cyan-500 to-cyan-600",
+          perm: ["warehouses", "read"],
+        },
+        {
+          icon: Settings,
+          name: "Settings",
+          path: "/app/settings",
+          color: "from-gray-500 to-gray-600",
+          perm: ["company_settings", "read"],
+        },
+      ].filter((item) => hasPermission(item.perm[0], item.perm[1])),
+    [hasPermission]
   );
 
-  const createNewItems = [
-    { icon: Quote, name: "New Quotation", path: "/app/quotations/new", color: "blue", perm: ["quotations", "create"] },
-    { icon: FileText, name: "New Invoice", path: "/app/invoices/new", color: "purple", perm: ["invoices", "create"] },
-    {
-      icon: ShoppingCart,
-      name: "New Purchase",
-      path: "/app/purchases/po/new",
-      color: "orange",
-      perm: ["purchase_orders", "create"],
-    },
-    {
-      icon: Truck,
-      name: "New Delivery",
-      path: "/app/delivery-notes/new",
-      color: "green",
-      perm: ["delivery_notes", "create"],
-    },
-    { icon: Users, name: "New Customer", path: "/app/customers/new", color: "pink", perm: ["customers", "create"] },
-    { icon: Package, name: "New Product", path: "/app/products/new", color: "indigo", perm: ["products", "create"] },
-  ].filter((item) => authService.hasPermission(item.perm[0], item.perm[1]));
+  const createNewItems = useMemo(
+    () =>
+      [
+        {
+          icon: Quote,
+          name: "New Quotation",
+          path: "/app/quotations/new",
+          color: "blue",
+          perm: ["quotations", "create"],
+        },
+        {
+          icon: FileText,
+          name: "New Invoice",
+          path: "/app/invoices/new",
+          color: "purple",
+          perm: ["invoices", "create"],
+        },
+        {
+          icon: ShoppingCart,
+          name: "New Purchase",
+          path: "/app/purchases/po/new",
+          color: "orange",
+          perm: ["purchase_orders", "create"],
+        },
+        {
+          icon: Truck,
+          name: "New Delivery",
+          path: "/app/delivery-notes/new",
+          color: "green",
+          perm: ["delivery_notes", "create"],
+        },
+        { icon: Users, name: "New Customer", path: "/app/customers/new", color: "pink", perm: ["customers", "create"] },
+        {
+          icon: Package,
+          name: "New Product",
+          path: "/app/products/new",
+          color: "indigo",
+          perm: ["products", "create"],
+        },
+      ].filter((item) => hasPermission(item.perm[0], item.perm[1])),
+    [hasPermission]
+  );
 
   // Fetch recent items created in the last 24 hours
   useEffect(() => {
@@ -566,9 +586,9 @@ const HomePage = () => {
         const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 
         // Fetch from services the user has permission to access
-        const canReadQuotations = authService.hasPermission("quotations", "read");
-        const canReadInvoices = authService.hasPermission("invoices", "read");
-        const canReadCustomers = authService.hasPermission("customers", "read");
+        const canReadQuotations = hasPermission("quotations", "read");
+        const canReadInvoices = hasPermission("invoices", "read");
+        const canReadCustomers = hasPermission("customers", "read");
 
         const [quotationsRes, invoicesRes, customersRes] = await Promise.all([
           canReadQuotations
@@ -645,7 +665,7 @@ const HomePage = () => {
     };
 
     fetchRecentItems();
-  }, []);
+  }, [hasPermission]);
 
   // Fetch integrity summary — pass bust=true to bypass server-side cache
   const fetchIntegritySummary = useCallback((bust = false) => {
@@ -664,7 +684,7 @@ const HomePage = () => {
 
   // Fetch recent audit activity (only if user has permission)
   const fetchRecentActivity = useCallback(async () => {
-    if (!authService.hasPermission("audit_logs", "read")) {
+    if (!hasPermission("audit_logs", "read")) {
       setRecentActivity([]);
       return;
     }
@@ -674,7 +694,7 @@ const HomePage = () => {
     } catch {
       setRecentActivity([]);
     }
-  }, []);
+  }, [hasPermission]);
 
   useEffect(() => {
     fetchRecentActivity();

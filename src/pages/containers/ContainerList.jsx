@@ -6,9 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ContainerStatusBadge } from "../../components/ContainerStatusBadge";
+import { useAuth } from "../../contexts/AuthContext";
 import { useTheme } from "../../contexts/ThemeContext";
 import { suppliersAPI } from "../../services/api";
-import { tokenUtils } from "../../services/axiosApi";
 import { importContainerService } from "../../services/importContainerService";
 import { toUAEDateMedium } from "../../utils/timezone";
 import { ContainerForm } from "./ContainerForm";
@@ -29,7 +29,7 @@ const CONTAINER_STATUSES = [
 export function ContainerList() {
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
-  const user = tokenUtils.getUser();
+  const { user } = useAuth();
   const companyId = user?.companyId;
 
   // Data state

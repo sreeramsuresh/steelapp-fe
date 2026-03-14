@@ -128,24 +128,16 @@ export function resetSessionExpiredGuard() {
   _sessionExpiredFired = false;
 }
 
-// Single-flight refresh mutex to prevent thundering herd on concurrent 401s
-let isRefreshing = false;
-let refreshSubscribers = [];
+// Shared refresh promise — all concurrent 401s await the same refresh call
+let refreshPromise = null;
 
-function onRefreshed() {
-  for (const { resolve } of refreshSubscribers) resolve();
-  refreshSubscribers = [];
-}
-
-function onRefreshFailed(error) {
-  for (const { reject } of refreshSubscribers) reject(error);
-  refreshSubscribers = [];
-}
-
-function subscribeToRefresh() {
-  return new Promise((resolve, reject) => {
-    refreshSubscribers.push({ resolve, reject });
-  });
+function doRefresh() {
+  if (!refreshPromise) {
+    refreshPromise = axios.post(`${API_BASE_URL}${REFRESH_ENDPOINT}`, {}, { withCredentials: true }).finally(() => {
+      refreshPromise = null;
+    });
+  }
+  return refreshPromise;
 }
 
 // Response interceptor - handles 401 refresh and account deactivation
@@ -193,29 +185,26 @@ api.interceptors.response.use(
     }
 
     // Trigger refresh on 401 only (not 403 — that means permission denied, not token expired)
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-
-      if (isRefreshing) {
-        // Queue this request — wait for in-flight refresh
-        await subscribeToRefresh();
-        return api(originalRequest);
+    if (error.response?.status === 401) {
+      const retryCount = originalRequest._retryCount || 0;
+      if (retryCount >= 1) {
+        tokenUtils.clearSession();
+        onAuthSessionExpired("refresh_retry_exceeded");
+        // IMPORTANT: Hard navigation (window.location.replace) is intentional.
+        // Do NOT change to React Router navigate(). Module-level guards
+        // (_sessionExpiredFired, refreshPromise) require a full page reload to reset.
+        window.location.replace(loginUrlWithReason("session_expired"));
+        return Promise.reject(new Error("Refresh retry exceeded"));
       }
-
-      isRefreshing = true;
+      originalRequest._retryCount = retryCount + 1;
       try {
-        // Server reads refresh token from HttpOnly cookie automatically
-        await axios.post(`${API_BASE_URL}${REFRESH_ENDPOINT}`, {}, { withCredentials: true });
-        onRefreshed();
+        await doRefresh();
         return api(originalRequest);
       } catch (refreshError) {
         tokenUtils.clearSession();
-        onRefreshFailed(refreshError);
         onAuthSessionExpired("refresh_failed");
         window.location.replace(loginUrlWithReason("session_expired"));
         return Promise.reject(refreshError);
-      } finally {
-        isRefreshing = false;
       }
     }
 
@@ -367,7 +356,6 @@ export const tokenUtils = {
     localStorage.removeItem("steel-app-token");
     localStorage.removeItem("steel-app-refresh-token");
     localStorage.removeItem("token");
-    localStorage.removeItem("steel-app-user");
   },
 
   // Store user data in sessionStorage (UI hints only — session is validated server-side)

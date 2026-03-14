@@ -994,7 +994,9 @@ const Login = ({ onLoginSuccess }) => {
       </div>
 
       {/* DEV-ONLY: RBAC Quick Login Panel */}
-      {!import.meta.env.PROD && <RBACTestPanel onLoginSuccess={onLoginSuccess} isDarkMode={isDarkMode} />}
+      {import.meta.env.VITE_ENABLE_RBAC_TEST === "true" && (
+        <RBACTestPanel onLoginSuccess={onLoginSuccess} isDarkMode={isDarkMode} />
+      )}
     </div>
   );
 };

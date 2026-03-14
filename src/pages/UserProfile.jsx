@@ -10,7 +10,7 @@ import { userAdminAPI } from "../services/userAdminApi";
 
 export default function UserProfile() {
   const { isDarkMode } = useTheme();
-  const { onLogout } = useAuth();
+  const { onLogout, onUserRefresh } = useAuth();
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);
@@ -102,10 +102,8 @@ export default function UserProfile() {
 
     try {
       setLoading(true);
-      await userAdminAPI.changePassword(currentUser.id, {
-        current_password: passwordChange.currentPassword,
-        new_password: passwordChange.newPassword,
-      });
+      await authService.changePassword(passwordChange.currentPassword, passwordChange.newPassword);
+      if (onUserRefresh) await onUserRefresh();
       setPasswordChange({
         currentPassword: "",
         newPassword: "",

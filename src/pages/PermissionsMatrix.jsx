@@ -1,6 +1,7 @@
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { Check, Loader2, Search, Shield, TableProperties, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "../contexts/ThemeContext";
 import { authService } from "../services/axiosAuthService";
 import { notificationService } from "../services/notificationService";
@@ -121,6 +122,7 @@ function normalizePermissionObjectKeys(obj) {
 
 export default function PermissionsMatrix() {
   const { isDarkMode } = useTheme();
+  const { user: authUser } = useAuth();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -301,8 +303,7 @@ export default function PermissionsMatrix() {
         await permissionsMatrixService.setCustomPermission(user.id, permKey, type, dialogReason);
         notificationService.success(`Permission ${type === "grant" ? "granted" : "denied"} successfully`);
         // Refresh session if the affected user is the current user
-        const currentUser = authService.getUser();
-        if (currentUser?.id === user.id) {
+        if (authUser?.id === user.id) {
           await authService.refreshSession();
         } else {
           notificationService.info(
@@ -323,8 +324,7 @@ export default function PermissionsMatrix() {
         await permissionsMatrixService.removeCustomPermission(user.id, permKey);
         notificationService.success("Custom override removed");
         // Refresh session if the affected user is the current user
-        const currentUser = authService.getUser();
-        if (currentUser?.id === user.id) {
+        if (authUser?.id === user.id) {
           await authService.refreshSession();
         } else {
           notificationService.info(

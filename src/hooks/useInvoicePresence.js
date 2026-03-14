@@ -7,7 +7,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { apiClient } from "../services/api";
-import { tokenUtils } from "../services/axiosApi";
+import { useAuth } from "../contexts/AuthContext";
 import { uuid } from "../utils/uuid";
 
 const HEARTBEAT_INTERVAL = 45000; // 45 seconds
@@ -20,7 +20,7 @@ export function useInvoicePresence(invoiceId, mode = "view") {
   const [sessionId] = useState(() => uuid());
   const heartbeatRef = useRef(null);
   const fetchRef = useRef(null);
-  const currentUser = tokenUtils.getUser();
+  const { user: currentUser } = useAuth();
 
   // Start session
   const startSession = useCallback(async () => {

@@ -378,7 +378,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="home"
               element={
-                <ProtectedRoute user={user}>
+                <ProtectedRoute>
                   <HomePage />
                 </ProtectedRoute>
               }
@@ -388,7 +388,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="search"
               element={
-                <ProtectedRoute user={user}>
+                <ProtectedRoute>
                   <SearchResults />
                 </ProtectedRoute>
               }
@@ -398,7 +398,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="approvals"
               element={
-                <ProtectedRoute user={user} requiredPermission="approvals.read">
+                <ProtectedRoute requiredPermission="approvals.read">
                   <Suspense fallback={<PageLoadingFallback />}>
                     <ApprovalsHub />
                   </Suspense>
@@ -410,7 +410,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="quotations"
               element={
-                <ProtectedRoute user={user} requiredPermission="quotations.read">
+                <ProtectedRoute requiredPermission="quotations.read">
                   <QuotationList />
                 </ProtectedRoute>
               }
@@ -418,7 +418,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="quotations/new"
               element={
-                <ProtectedRoute user={user} requiredPermission="quotations.create">
+                <ProtectedRoute requiredPermission="quotations.create">
                   <QuotationForm />
                 </ProtectedRoute>
               }
@@ -426,7 +426,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="quotations/:id"
               element={
-                <ProtectedRoute user={user} requiredPermission="quotations.read">
+                <ProtectedRoute requiredPermission="quotations.read">
                   <QuotationForm />
                 </ProtectedRoute>
               }
@@ -434,7 +434,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="quotations/:id/edit"
               element={
-                <ProtectedRoute user={user} requiredPermission="quotations.update">
+                <ProtectedRoute requiredPermission="quotations.update">
                   <QuotationForm />
                 </ProtectedRoute>
               }
@@ -444,7 +444,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
               path="invoices"
               element={
                 <ErrorBoundary>
-                  <ProtectedRoute user={user} requiredPermission="invoices.read">
+                  <ProtectedRoute requiredPermission="invoices.read">
                     <Suspense fallback={<PageLoadingFallback label="Loading invoices..." />}>
                       <InvoiceList />
                     </Suspense>
@@ -456,7 +456,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
               path="invoices/new"
               element={
                 <ErrorBoundary>
-                  <ProtectedRoute user={user} requiredPermission="invoices.create">
+                  <ProtectedRoute requiredPermission="invoices.create">
                     <Suspense fallback={<InvoiceFormLoadingFallback />}>
                       <InvoiceForm onSave={handleSaveInvoice} />
                     </Suspense>
@@ -468,7 +468,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
               path="invoices/:id"
               element={
                 <ErrorBoundary>
-                  <ProtectedRoute user={user} requiredPermission="invoices.read">
+                  <ProtectedRoute requiredPermission="invoices.read">
                     <Suspense fallback={<InvoiceFormLoadingFallback />}>
                       <InvoiceForm onSave={handleSaveInvoice} />
                     </Suspense>
@@ -480,7 +480,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
               path="invoices/:invoiceId/confirm-allocation"
               element={
                 <ErrorBoundary>
-                  <ProtectedRoute user={user} requiredPermission="invoices.read">
+                  <ProtectedRoute requiredPermission="invoices.read">
                     <InvoiceAllocationConfirmation />
                   </ProtectedRoute>
                 </ErrorBoundary>
@@ -490,7 +490,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="delivery-notes"
               element={
-                <ProtectedRoute user={user} requiredPermission="delivery_notes.read">
+                <ProtectedRoute requiredPermission="delivery_notes.read">
                   <DeliveryNoteList />
                 </ProtectedRoute>
               }
@@ -498,7 +498,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="delivery-notes/new"
               element={
-                <ProtectedRoute user={user} requiredPermission="delivery_notes.create">
+                <ProtectedRoute requiredPermission="delivery_notes.create">
                   <DeliveryNoteForm />
                 </ProtectedRoute>
               }
@@ -506,7 +506,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="delivery-notes/:id"
               element={
-                <ProtectedRoute user={user} requiredPermission="delivery_notes.read">
+                <ProtectedRoute requiredPermission="delivery_notes.read">
                   <DeliveryNoteDetails />
                 </ProtectedRoute>
               }
@@ -514,7 +514,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="delivery-notes/:id/edit"
               element={
-                <ProtectedRoute user={user} requiredPermission="delivery_notes.update">
+                <ProtectedRoute requiredPermission="delivery_notes.update">
                   <DeliveryNoteForm />
                 </ProtectedRoute>
               }
@@ -523,7 +523,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="credit-notes"
               element={
-                <ProtectedRoute user={user} requiredPermission="invoices.read">
+                <ProtectedRoute requiredPermission="invoices.read">
                   <CreditNoteList />
                 </ProtectedRoute>
               }
@@ -531,7 +531,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="credit-notes/new"
               element={
-                <ProtectedRoute user={user} requiredPermission="invoices.create">
+                <ProtectedRoute requiredPermission="invoices.create">
                   <CreditNoteForm />
                 </ProtectedRoute>
               }
@@ -539,7 +539,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="credit-notes/:id"
               element={
-                <ProtectedRoute user={user} requiredPermission="invoices.read">
+                <ProtectedRoute requiredPermission="invoices.read">
                   <CreditNoteForm />
                 </ProtectedRoute>
               }
@@ -549,7 +549,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="purchases"
               element={
-                <ProtectedRoute user={user} requiredPermission="purchase_orders.read">
+                <ProtectedRoute requiredPermission="purchase_orders.read">
                   <PurchasesDashboard />
                 </ProtectedRoute>
               }
@@ -558,7 +558,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="purchases/po/:poId"
               element={
-                <ProtectedRoute user={user} requiredPermission="purchase_orders.read">
+                <ProtectedRoute requiredPermission="purchase_orders.read">
                   <POWorkspaceShell />
                 </ProtectedRoute>
               }
@@ -579,7 +579,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="purchases/po/new"
               element={
-                <ProtectedRoute user={user} requiredPermission="purchase_orders.create">
+                <ProtectedRoute requiredPermission="purchase_orders.create">
                   <POTypeSelection />
                 </ProtectedRoute>
               }
@@ -590,7 +590,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="purchase-orders/new"
               element={
-                <ProtectedRoute user={user} requiredPermission="purchase_orders.create">
+                <ProtectedRoute requiredPermission="purchase_orders.create">
                   <PurchaseOrderForm />
                 </ProtectedRoute>
               }
@@ -598,7 +598,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="purchase-orders/:id/edit"
               element={
-                <ProtectedRoute user={user} requiredPermission="purchase_orders.update">
+                <ProtectedRoute requiredPermission="purchase_orders.update">
                   <PurchaseOrderForm />
                 </ProtectedRoute>
               }
@@ -607,7 +607,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="supplier-bills"
               element={
-                <ProtectedRoute user={user} requiredPermission="payables.read">
+                <ProtectedRoute requiredPermission="payables.read">
                   <SupplierBillList />
                 </ProtectedRoute>
               }
@@ -615,7 +615,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="supplier-bills/new"
               element={
-                <ProtectedRoute user={user} requiredPermission="payables.create">
+                <ProtectedRoute requiredPermission="payables.create">
                   <SupplierBillForm />
                 </ProtectedRoute>
               }
@@ -623,7 +623,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="supplier-bills/:id"
               element={
-                <ProtectedRoute user={user} requiredPermission="payables.read">
+                <ProtectedRoute requiredPermission="payables.read">
                   <SupplierBillForm />
                 </ProtectedRoute>
               }
@@ -631,7 +631,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="supplier-bills/:id/edit"
               element={
-                <ProtectedRoute user={user} requiredPermission="payables.update">
+                <ProtectedRoute requiredPermission="payables.update">
                   <SupplierBillForm />
                 </ProtectedRoute>
               }
@@ -640,7 +640,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="debit-notes"
               element={
-                <ProtectedRoute user={user} requiredPermission="payables.read">
+                <ProtectedRoute requiredPermission="payables.read">
                   <DebitNoteList />
                 </ProtectedRoute>
               }
@@ -648,7 +648,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="debit-notes/new"
               element={
-                <ProtectedRoute user={user} requiredPermission="payables.create">
+                <ProtectedRoute requiredPermission="payables.create">
                   <DebitNoteForm />
                 </ProtectedRoute>
               }
@@ -656,7 +656,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="debit-notes/:id"
               element={
-                <ProtectedRoute user={user} requiredPermission="payables.read">
+                <ProtectedRoute requiredPermission="payables.read">
                   <DebitNoteForm />
                 </ProtectedRoute>
               }
@@ -664,7 +664,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="debit-notes/:id/edit"
               element={
-                <ProtectedRoute user={user} requiredPermission="payables.update">
+                <ProtectedRoute requiredPermission="payables.update">
                   <DebitNoteForm />
                 </ProtectedRoute>
               }
@@ -673,7 +673,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="advance-payments"
               element={
-                <ProtectedRoute user={user} requiredPermission="payables.read">
+                <ProtectedRoute requiredPermission="payables.read">
                   <AdvancePaymentList />
                 </ProtectedRoute>
               }
@@ -681,7 +681,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="advance-payments/new"
               element={
-                <ProtectedRoute user={user} requiredPermission="payables.create">
+                <ProtectedRoute requiredPermission="payables.create">
                   <AdvancePaymentForm />
                 </ProtectedRoute>
               }
@@ -689,7 +689,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="advance-payments/:id"
               element={
-                <ProtectedRoute user={user} requiredPermission="payables.read">
+                <ProtectedRoute requiredPermission="payables.read">
                   <AdvancePaymentForm />
                 </ProtectedRoute>
               }
@@ -699,7 +699,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="finance"
               element={
-                <ProtectedRoute user={user} requiredPermission="payables.read">
+                <ProtectedRoute requiredPermission="payables.read">
                   <FinanceDashboard />
                 </ProtectedRoute>
               }
@@ -707,7 +707,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="finance/document-workflow"
               element={
-                <ProtectedRoute user={user} requiredPermission="payables.read">
+                <ProtectedRoute requiredPermission="payables.read">
                   <DocumentWorkflowGuide />
                 </ProtectedRoute>
               }
@@ -715,7 +715,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="receivables"
               element={
-                <ProtectedRoute user={user} requiredPermission="receivables.read">
+                <ProtectedRoute requiredPermission="receivables.read">
                   <Receivables />
                 </ProtectedRoute>
               }
@@ -723,7 +723,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="payables"
               element={
-                <ProtectedRoute user={user} requiredPermission="payables.read">
+                <ProtectedRoute requiredPermission="payables.read">
                   <Payables />
                 </ProtectedRoute>
               }
@@ -731,7 +731,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="operating-expenses"
               element={
-                <ProtectedRoute user={user} requiredPermission="payables.read">
+                <ProtectedRoute requiredPermission="payables.read">
                   <OperatingExpenses />
                 </ProtectedRoute>
               }
@@ -740,7 +740,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="employees-hub"
               element={
-                <ProtectedRoute user={user} requiredPermission="employees.read">
+                <ProtectedRoute requiredPermission="employees.read">
                   <EmployeesHub />
                 </ProtectedRoute>
               }
@@ -748,7 +748,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="cost-centers-hub"
               element={
-                <ProtectedRoute user={user} requiredPermission="cost_centers.read">
+                <ProtectedRoute requiredPermission="cost_centers.read">
                   <CostCentersHub />
                 </ProtectedRoute>
               }
@@ -756,7 +756,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="payroll-hub"
               element={
-                <ProtectedRoute user={user} requiredPermission="payroll.read">
+                <ProtectedRoute requiredPermission="payroll.read">
                   <PayrollHub />
                 </ProtectedRoute>
               }
@@ -764,7 +764,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="employee-finance"
               element={
-                <ProtectedRoute user={user} requiredPermission="employee_advances.read">
+                <ProtectedRoute requiredPermission="employee_advances.read">
                   <EmployeeFinanceHub />
                 </ProtectedRoute>
               }
@@ -772,7 +772,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="expenses-hub"
               element={
-                <ProtectedRoute user={user} requiredPermission="expenses.read">
+                <ProtectedRoute requiredPermission="expenses.read">
                   <ExpensesHub />
                 </ProtectedRoute>
               }
@@ -780,7 +780,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="expense-config"
               element={
-                <ProtectedRoute user={user} requiredRoles={["admin", "manager"]}>
+                <ProtectedRoute requiredRoles={["admin", "manager"]}>
                   <ExpenseConfigHub />
                 </ProtectedRoute>
               }
@@ -790,7 +790,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="departments"
               element={
-                <ProtectedRoute user={user} requiredPermission="departments.read">
+                <ProtectedRoute requiredPermission="departments.read">
                   <DepartmentList />
                 </ProtectedRoute>
               }
@@ -798,7 +798,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="cost-centers"
               element={
-                <ProtectedRoute user={user} requiredPermission="cost_centers.read">
+                <ProtectedRoute requiredPermission="cost_centers.read">
                   <CostCenterList />
                 </ProtectedRoute>
               }
@@ -806,7 +806,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="designations"
               element={
-                <ProtectedRoute user={user} requiredPermission="designations.read">
+                <ProtectedRoute requiredPermission="designations.read">
                   <DesignationList />
                 </ProtectedRoute>
               }
@@ -814,7 +814,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="employees"
               element={
-                <ProtectedRoute user={user} requiredPermission="employees.read">
+                <ProtectedRoute requiredPermission="employees.read">
                   <EmployeeList />
                 </ProtectedRoute>
               }
@@ -822,7 +822,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="employees/new"
               element={
-                <ProtectedRoute user={user} requiredPermission="employees.create">
+                <ProtectedRoute requiredPermission="employees.create">
                   <EmployeeForm />
                 </ProtectedRoute>
               }
@@ -830,7 +830,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="employees/:id/edit"
               element={
-                <ProtectedRoute user={user} requiredPermission="employees.update">
+                <ProtectedRoute requiredPermission="employees.update">
                   <EmployeeForm />
                 </ProtectedRoute>
               }
@@ -838,7 +838,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="expense-categories"
               element={
-                <ProtectedRoute user={user} requiredPermission="expense_categories.read">
+                <ProtectedRoute requiredPermission="expense_categories.read">
                   <ExpenseCategoryList />
                 </ProtectedRoute>
               }
@@ -846,7 +846,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="expense-approval-chains"
               element={
-                <ProtectedRoute user={user} requiredRoles={["admin"]}>
+                <ProtectedRoute requiredRoles={["admin"]}>
                   <ExpenseApprovalChainList />
                 </ProtectedRoute>
               }
@@ -854,7 +854,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="expense-policies"
               element={
-                <ProtectedRoute user={user} requiredRoles={["admin"]}>
+                <ProtectedRoute requiredRoles={["admin"]}>
                   <ExpensePolicyList />
                 </ProtectedRoute>
               }
@@ -862,7 +862,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="recurring-expenses"
               element={
-                <ProtectedRoute user={user} requiredPermission="expenses.read">
+                <ProtectedRoute requiredPermission="expenses.read">
                   <RecurringExpenseList />
                 </ProtectedRoute>
               }
@@ -871,7 +871,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="salary-components"
               element={
-                <ProtectedRoute user={user} requiredPermission="salary_components.read">
+                <ProtectedRoute requiredPermission="salary_components.read">
                   <SalaryComponentList />
                 </ProtectedRoute>
               }
@@ -879,7 +879,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="salary-structures"
               element={
-                <ProtectedRoute user={user} requiredPermission="salary_structures.read">
+                <ProtectedRoute requiredPermission="salary_structures.read">
                   <SalaryStructureList />
                 </ProtectedRoute>
               }
@@ -887,7 +887,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="salary-structures/new"
               element={
-                <ProtectedRoute user={user} requiredPermission="salary_structures.create">
+                <ProtectedRoute requiredPermission="salary_structures.create">
                   <SalaryStructureForm />
                 </ProtectedRoute>
               }
@@ -895,7 +895,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="salary-structures/:id"
               element={
-                <ProtectedRoute user={user} requiredPermission="salary_structures.read">
+                <ProtectedRoute requiredPermission="salary_structures.read">
                   <SalaryStructureForm />
                 </ProtectedRoute>
               }
@@ -903,7 +903,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="payroll-runs"
               element={
-                <ProtectedRoute user={user} requiredPermission="payroll.read">
+                <ProtectedRoute requiredPermission="payroll.read">
                   <PayrollRunList />
                 </ProtectedRoute>
               }
@@ -911,7 +911,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="payroll-runs/:id"
               element={
-                <ProtectedRoute user={user} requiredPermission="payroll.read">
+                <ProtectedRoute requiredPermission="payroll.read">
                   <PayrollRunDetail />
                 </ProtectedRoute>
               }
@@ -919,7 +919,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="payroll-runs/:id/payslip/:entryId"
               element={
-                <ProtectedRoute user={user} requiredPermission="payroll.read">
+                <ProtectedRoute requiredPermission="payroll.read">
                   <PayslipView />
                 </ProtectedRoute>
               }
@@ -927,7 +927,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="employee-advances"
               element={
-                <ProtectedRoute user={user} requiredPermission="employee_advances.read">
+                <ProtectedRoute requiredPermission="employee_advances.read">
                   <EmployeeAdvanceList />
                 </ProtectedRoute>
               }
@@ -935,7 +935,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="employee-advances/new"
               element={
-                <ProtectedRoute user={user} requiredPermission="employee_advances.create">
+                <ProtectedRoute requiredPermission="employee_advances.create">
                   <EmployeeAdvanceForm />
                 </ProtectedRoute>
               }
@@ -943,7 +943,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="employee-loans"
               element={
-                <ProtectedRoute user={user} requiredPermission="employee_loans.read">
+                <ProtectedRoute requiredPermission="employee_loans.read">
                   <EmployeeLoanList />
                 </ProtectedRoute>
               }
@@ -951,7 +951,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="payroll-register"
               element={
-                <ProtectedRoute user={user} requiredPermission="payroll_reports.read">
+                <ProtectedRoute requiredPermission="payroll_reports.read">
                   <PayrollRegister />
                 </ProtectedRoute>
               }
@@ -966,7 +966,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="cost-center-budgets"
               element={
-                <ProtectedRoute user={user} requiredPermission="cost_centers.read">
+                <ProtectedRoute requiredPermission="cost_centers.read">
                   <CostCenterBudgetList />
                 </ProtectedRoute>
               }
@@ -974,7 +974,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="my-commissions"
               element={
-                <ProtectedRoute user={user} requiredPermission="commissions.read">
+                <ProtectedRoute requiredPermission="commissions.read">
                   <AgentCommissionDashboard />
                 </ProtectedRoute>
               }
@@ -982,7 +982,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="commission-dashboard"
               element={
-                <ProtectedRoute user={user} requiredPermission="commissions.read">
+                <ProtectedRoute requiredPermission="commissions.read">
                   <CommissionDashboard />
                 </ProtectedRoute>
               }
@@ -990,7 +990,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="customer-perspective/:customerId"
               element={
-                <ProtectedRoute user={user} requiredPermission="payables.read">
+                <ProtectedRoute requiredPermission="payables.read">
                   <CustomerPerspective />
                 </ProtectedRoute>
               }
@@ -998,7 +998,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="account-statements"
               element={
-                <ProtectedRoute user={user} requiredPermission="account_statements.read">
+                <ProtectedRoute requiredPermission="account_statements.read">
                   <AccountStatementList />
                 </ProtectedRoute>
               }
@@ -1006,7 +1006,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="account-statements/new"
               element={
-                <ProtectedRoute user={user} requiredPermission="account_statements.create">
+                <ProtectedRoute requiredPermission="account_statements.create">
                   <AccountStatementForm />
                 </ProtectedRoute>
               }
@@ -1014,7 +1014,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="account-statements/:id"
               element={
-                <ProtectedRoute user={user} requiredPermission="account_statements.read">
+                <ProtectedRoute requiredPermission="account_statements.read">
                   <AccountStatementDetails />
                 </ProtectedRoute>
               }
@@ -1024,7 +1024,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="warehouses"
               element={
-                <ProtectedRoute user={user} requiredPermission="warehouses.read">
+                <ProtectedRoute requiredPermission="warehouses.read">
                   <WarehouseList />
                 </ProtectedRoute>
               }
@@ -1032,7 +1032,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="warehouses/:id"
               element={
-                <ProtectedRoute user={user} requiredPermission="warehouses.read">
+                <ProtectedRoute requiredPermission="warehouses.read">
                   <WarehouseDetail />
                 </ProtectedRoute>
               }
@@ -1040,7 +1040,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="inventory"
               element={
-                <ProtectedRoute user={user} requiredPermission="inventory.read">
+                <ProtectedRoute requiredPermission="inventory.read">
                   <InventoryList />
                 </ProtectedRoute>
               }
@@ -1048,7 +1048,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="stock-movements"
               element={
-                <ProtectedRoute user={user} requiredPermission="stock_movements.read">
+                <ProtectedRoute requiredPermission="stock_movements.read">
                   <StockMovementPage />
                 </ProtectedRoute>
               }
@@ -1058,7 +1058,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="import-export"
               element={
-                <ProtectedRoute user={user} requiredPermission="import_orders.read">
+                <ProtectedRoute requiredPermission="import_orders.read">
                   <ImportExportDashboard />
                 </ProtectedRoute>
               }
@@ -1066,7 +1066,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="import-orders/new"
               element={
-                <ProtectedRoute user={user} requiredPermission="import_orders.create">
+                <ProtectedRoute requiredPermission="import_orders.create">
                   <ErrorBoundary>
                     <ImportOrderForm />
                   </ErrorBoundary>
@@ -1076,7 +1076,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="import-orders/:id"
               element={
-                <ProtectedRoute user={user} requiredPermission="import_orders.read">
+                <ProtectedRoute requiredPermission="import_orders.read">
                   <ErrorBoundary>
                     <ImportOrderDetails />
                   </ErrorBoundary>
@@ -1086,7 +1086,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="import-orders/:id/edit"
               element={
-                <ProtectedRoute user={user} requiredPermission="import_orders.update">
+                <ProtectedRoute requiredPermission="import_orders.update">
                   <ErrorBoundary>
                     <ImportOrderForm />
                   </ErrorBoundary>
@@ -1096,7 +1096,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="export-orders/new"
               element={
-                <ProtectedRoute user={user} requiredPermission="export_orders.create">
+                <ProtectedRoute requiredPermission="export_orders.create">
                   <ExportOrderForm />
                 </ProtectedRoute>
               }
@@ -1104,7 +1104,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="export-orders/:id"
               element={
-                <ProtectedRoute user={user} requiredPermission="export_orders.read">
+                <ProtectedRoute requiredPermission="export_orders.read">
                   <ExportOrderDetails />
                 </ProtectedRoute>
               }
@@ -1112,7 +1112,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="export-orders/:id/edit"
               element={
-                <ProtectedRoute user={user} requiredPermission="export_orders.update">
+                <ProtectedRoute requiredPermission="export_orders.update">
                   <ExportOrderForm />
                 </ProtectedRoute>
               }
@@ -1120,7 +1120,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="transit"
               element={
-                <ProtectedRoute user={user} requiredPermission="import_orders.read">
+                <ProtectedRoute requiredPermission="import_orders.read">
                   <TransitList />
                 </ProtectedRoute>
               }
@@ -1128,7 +1128,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="containers"
               element={
-                <ProtectedRoute user={user} requiredPermission="import_orders.read">
+                <ProtectedRoute requiredPermission="import_orders.read">
                   <ContainerList />
                 </ProtectedRoute>
               }
@@ -1136,7 +1136,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="containers/new"
               element={
-                <ProtectedRoute user={user} requiredPermission="import_orders.create">
+                <ProtectedRoute requiredPermission="import_orders.create">
                   <ContainerForm />
                 </ProtectedRoute>
               }
@@ -1144,7 +1144,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="containers/:id"
               element={
-                <ProtectedRoute user={user} requiredPermission="import_orders.read">
+                <ProtectedRoute requiredPermission="import_orders.read">
                   <ContainerForm />
                 </ProtectedRoute>
               }
@@ -1152,7 +1152,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="containers/:id/edit"
               element={
-                <ProtectedRoute user={user} requiredPermission="import_orders.update">
+                <ProtectedRoute requiredPermission="import_orders.update">
                   <ContainerForm />
                 </ProtectedRoute>
               }
@@ -1162,7 +1162,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="customers"
               element={
-                <ProtectedRoute user={user} requiredPermission="customers.read">
+                <ProtectedRoute requiredPermission="customers.read">
                   <CustomerManagement />
                 </ProtectedRoute>
               }
@@ -1170,7 +1170,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="customers/new"
               element={
-                <ProtectedRoute user={user} requiredPermission="customers.create">
+                <ProtectedRoute requiredPermission="customers.create">
                   <CustomerForm />
                 </ProtectedRoute>
               }
@@ -1178,7 +1178,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="customers/:customerId/edit"
               element={
-                <ProtectedRoute user={user} requiredPermission="customers.update">
+                <ProtectedRoute requiredPermission="customers.update">
                   <CustomerForm />
                 </ProtectedRoute>
               }
@@ -1186,7 +1186,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="customers/:customerId"
               element={
-                <ProtectedRoute user={user} requiredPermission="customers.read">
+                <ProtectedRoute requiredPermission="customers.read">
                   <CustomerDetail />
                 </ProtectedRoute>
               }
@@ -1194,7 +1194,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="customers/:customerId/pricing"
               element={
-                <ProtectedRoute user={user} requiredPermission="customers.read">
+                <ProtectedRoute requiredPermission="customers.read">
                   <Suspense fallback={<div>Loading...</div>}>
                     <CustomerPricingPage />
                   </Suspense>
@@ -1204,7 +1204,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="products"
               element={
-                <ProtectedRoute user={user} requiredPermission="products.read">
+                <ProtectedRoute requiredPermission="products.read">
                   <Suspense fallback={<div>Loading...</div>}>
                     <SteelProducts />
                   </Suspense>
@@ -1214,7 +1214,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="pricelists"
               element={
-                <ProtectedRoute user={user} requiredPermission="pricelists.read">
+                <ProtectedRoute requiredPermission="pricelists.read">
                   <PriceListList />
                 </ProtectedRoute>
               }
@@ -1222,7 +1222,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="pricelists/new"
               element={
-                <ProtectedRoute user={user} requiredPermission="pricelists.create">
+                <ProtectedRoute requiredPermission="pricelists.create">
                   <PriceListForm />
                 </ProtectedRoute>
               }
@@ -1230,7 +1230,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="pricelists/:id"
               element={
-                <ProtectedRoute user={user} requiredPermission="pricelists.read">
+                <ProtectedRoute requiredPermission="pricelists.read">
                   <PriceListForm />
                 </ProtectedRoute>
               }
@@ -1238,7 +1238,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="pricelists/:id/edit"
               element={
-                <ProtectedRoute user={user} requiredPermission="pricelists.update">
+                <ProtectedRoute requiredPermission="pricelists.update">
                   <PriceListForm />
                 </ProtectedRoute>
               }
@@ -1246,7 +1246,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="suppliers"
               element={
-                <ProtectedRoute user={user} requiredPermission="suppliers.read">
+                <ProtectedRoute requiredPermission="suppliers.read">
                   <SupplierList />
                 </ProtectedRoute>
               }
@@ -1254,7 +1254,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="suppliers/new"
               element={
-                <ProtectedRoute user={user} requiredPermission="suppliers.create">
+                <ProtectedRoute requiredPermission="suppliers.create">
                   <SupplierForm />
                 </ProtectedRoute>
               }
@@ -1262,7 +1262,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="suppliers/:id/edit"
               element={
-                <ProtectedRoute user={user} requiredPermission="suppliers.update">
+                <ProtectedRoute requiredPermission="suppliers.update">
                   <SupplierForm />
                 </ProtectedRoute>
               }
@@ -1272,7 +1272,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="supplier-quotations"
               element={
-                <ProtectedRoute user={user} requiredPermission="suppliers.read">
+                <ProtectedRoute requiredPermission="suppliers.read">
                   <SupplierQuotationList />
                 </ProtectedRoute>
               }
@@ -1280,7 +1280,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="supplier-quotations/upload"
               element={
-                <ProtectedRoute user={user} requiredPermission="suppliers.create">
+                <ProtectedRoute requiredPermission="suppliers.create">
                   <SupplierQuotationUpload />
                 </ProtectedRoute>
               }
@@ -1288,7 +1288,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="supplier-quotations/new"
               element={
-                <ProtectedRoute user={user} requiredPermission="suppliers.create">
+                <ProtectedRoute requiredPermission="suppliers.create">
                   <SupplierQuotationForm />
                 </ProtectedRoute>
               }
@@ -1296,7 +1296,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="supplier-quotations/:id"
               element={
-                <ProtectedRoute user={user} requiredPermission="suppliers.read">
+                <ProtectedRoute requiredPermission="suppliers.read">
                   <SupplierQuotationDetail />
                 </ProtectedRoute>
               }
@@ -1304,7 +1304,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="supplier-quotations/:id/edit"
               element={
-                <ProtectedRoute user={user} requiredPermission="suppliers.update">
+                <ProtectedRoute requiredPermission="suppliers.update">
                   <SupplierQuotationForm />
                 </ProtectedRoute>
               }
@@ -1313,7 +1313,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="countries"
               element={
-                <ProtectedRoute user={user} requiredPermission="country.read">
+                <ProtectedRoute requiredPermission="country.read">
                   <CountriesList />
                 </ProtectedRoute>
               }
@@ -1321,7 +1321,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="exchange-rates"
               element={
-                <ProtectedRoute user={user} requiredPermission="exchange_rates.read">
+                <ProtectedRoute requiredPermission="exchange_rates.read">
                   <ExchangeRateList />
                 </ProtectedRoute>
               }
@@ -1359,7 +1359,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="settings/gl-mapping"
               element={
-                <ProtectedRoute user={user} requiredRoles={["admin"]}>
+                <ProtectedRoute requiredRoles={["admin"]}>
                   <GLMappingRules />
                 </ProtectedRoute>
               }
@@ -1367,7 +1367,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="settings/dependabot"
               element={
-                <ProtectedRoute user={user} requiredRoles={["admin"]}>
+                <ProtectedRoute requiredRoles={["admin"]}>
                   <DependabotDashboard />
                 </ProtectedRoute>
               }
@@ -1375,7 +1375,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="settings/dependency-audit"
               element={
-                <ProtectedRoute user={user} requiredRoles={["admin"]}>
+                <ProtectedRoute requiredRoles={["admin"]}>
                   <DependencyAuditTab />
                 </ProtectedRoute>
               }
@@ -1383,7 +1383,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="users"
               element={
-                <ProtectedRoute user={user} requiredPermission="users.read">
+                <ProtectedRoute requiredPermission="users.read">
                   <UserManagementPage />
                 </ProtectedRoute>
               }
@@ -1391,7 +1391,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="audit-logs"
               element={
-                <ProtectedRoute user={user} requiredPermission="audit_logs.read">
+                <ProtectedRoute requiredPermission="audit_logs.read">
                   <AuditLogs />
                 </ProtectedRoute>
               }
@@ -1401,7 +1401,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="feedback"
               element={
-                <ProtectedRoute user={user} requiredRoles={["admin", "managing_director"]}>
+                <ProtectedRoute requiredRoles={["admin", "managing_director"]}>
                   <FeedbackManagement />
                 </ProtectedRoute>
               }
@@ -1411,7 +1411,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="base-prices"
               element={
-                <ProtectedRoute user={user} requiredPermission="products.update">
+                <ProtectedRoute requiredPermission="products.update">
                   <Suspense fallback={<div>Loading...</div>}>
                     <BasePricesPage />
                   </Suspense>
@@ -1423,7 +1423,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="audit-hub"
               element={
-                <ProtectedRoute user={user} requiredPermission="audit_hub.view">
+                <ProtectedRoute requiredPermission="audit_hub.view">
                   <Suspense fallback={<div>Loading...</div>}>
                     <AuditHubDashboard />
                   </Suspense>
@@ -1433,7 +1433,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="audit-hub/datasets/:datasetId"
               element={
-                <ProtectedRoute user={user} requiredPermission="audit_hub.view">
+                <ProtectedRoute requiredPermission="audit_hub.view">
                   <Suspense fallback={<div>Loading...</div>}>
                     <DatasetExplorer />
                   </Suspense>
@@ -1443,7 +1443,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="audit-hub/datasets/:periodId/:datasetId/sign-off"
               element={
-                <ProtectedRoute user={user} requiredPermission="audit_hub.sign_off">
+                <ProtectedRoute requiredPermission="audit_hub.sign_off">
                   <Suspense fallback={<div>Loading...</div>}>
                     <SignOffWorkflow />
                   </Suspense>
@@ -1455,7 +1455,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="profile"
               element={
-                <ProtectedRoute user={user}>
+                <ProtectedRoute>
                   <Suspense fallback={<div>Loading...</div>}>
                     <UserProfile />
                   </Suspense>
@@ -1484,7 +1484,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="dashboard"
               element={
-                <ProtectedRoute user={user} requiredRoles={["admin", "managing_director", "financial_analyst"]}>
+                <ProtectedRoute requiredRoles={["admin", "managing_director", "financial_analyst"]}>
                   <Dashboard />
                 </ProtectedRoute>
               }
@@ -1494,7 +1494,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="profit-analysis"
               element={
-                <ProtectedRoute user={user} requiredPermission="analytics.read">
+                <ProtectedRoute requiredPermission="analytics.read">
                   <ProfitAnalysisReport />
                 </ProtectedRoute>
               }
@@ -1502,7 +1502,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="price-history"
               element={
-                <ProtectedRoute user={user} requiredPermission="analytics.read">
+                <ProtectedRoute requiredPermission="analytics.read">
                   <PriceHistoryReport />
                 </ProtectedRoute>
               }
@@ -1512,7 +1512,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="commission-dashboard"
               element={
-                <ProtectedRoute user={user} requiredPermission="commissions.read">
+                <ProtectedRoute requiredPermission="commissions.read">
                   <CommissionDashboard />
                 </ProtectedRoute>
               }
@@ -1520,7 +1520,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="ar-aging"
               element={
-                <ProtectedRoute user={user} requiredPermission="customers.read">
+                <ProtectedRoute requiredPermission="customers.read">
                   <ARAgingReport />
                 </ProtectedRoute>
               }
@@ -1530,7 +1530,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="bank-ledger"
               element={
-                <ProtectedRoute user={user} requiredPermission="analytics.read">
+                <ProtectedRoute requiredPermission="analytics.read">
                   <BankLedgerReport />
                 </ProtectedRoute>
               }
@@ -1538,7 +1538,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="bank-reconciliation"
               element={
-                <ProtectedRoute user={user} requiredPermission="analytics.read">
+                <ProtectedRoute requiredPermission="analytics.read">
                   <BankReconciliationStatement />
                 </ProtectedRoute>
               }
@@ -1546,7 +1546,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="cash-book"
               element={
-                <ProtectedRoute user={user} requiredPermission="analytics.read">
+                <ProtectedRoute requiredPermission="analytics.read">
                   <CashBookReport />
                 </ProtectedRoute>
               }
@@ -1554,7 +1554,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="journal-register"
               element={
-                <ProtectedRoute user={user} requiredPermission="analytics.read">
+                <ProtectedRoute requiredPermission="analytics.read">
                   <JournalRegisterReport />
                 </ProtectedRoute>
               }
@@ -1562,7 +1562,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="trial-balance"
               element={
-                <ProtectedRoute user={user} requiredPermission="analytics.read">
+                <ProtectedRoute requiredPermission="analytics.read">
                   <TrialBalanceReport />
                 </ProtectedRoute>
               }
@@ -1570,7 +1570,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="cogs-analysis"
               element={
-                <ProtectedRoute user={user} requiredPermission="analytics.read">
+                <ProtectedRoute requiredPermission="analytics.read">
                   <COGSAnalysisReport />
                 </ProtectedRoute>
               }
@@ -1578,7 +1578,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="normalized-margin"
               element={
-                <ProtectedRoute user={user} requiredPermission="analytics.read">
+                <ProtectedRoute requiredPermission="analytics.read">
                   <NormalizedMarginReport />
                 </ProtectedRoute>
               }
@@ -1587,7 +1587,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="certificate-audit-trail"
               element={
-                <ProtectedRoute user={user} requiredPermission="analytics.read">
+                <ProtectedRoute requiredPermission="analytics.read">
                   <CertificateAuditReport />
                 </ProtectedRoute>
               }
@@ -1597,7 +1597,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="payroll-register"
               element={
-                <ProtectedRoute user={user} requiredPermission="payroll_reports.read">
+                <ProtectedRoute requiredPermission="payroll_reports.read">
                   <PayrollRegisterReport />
                 </ProtectedRoute>
               }
@@ -1605,7 +1605,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="salary-vs-revenue"
               element={
-                <ProtectedRoute user={user} requiredPermission="payroll_reports.read">
+                <ProtectedRoute requiredPermission="payroll_reports.read">
                   <SalaryVsRevenueReport />
                 </ProtectedRoute>
               }
@@ -1613,7 +1613,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="cost-center-pnl"
               element={
-                <ProtectedRoute user={user} requiredPermission="expense_reports.read">
+                <ProtectedRoute requiredPermission="expense_reports.read">
                   <CostCenterPnL />
                 </ProtectedRoute>
               }
@@ -1621,7 +1621,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="budget-vs-actual"
               element={
-                <ProtectedRoute user={user} requiredPermission="expense_reports.read">
+                <ProtectedRoute requiredPermission="expense_reports.read">
                   <BudgetVsActual />
                 </ProtectedRoute>
               }
@@ -1629,7 +1629,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="expense-trends"
               element={
-                <ProtectedRoute user={user} requiredPermission="expense_reports.read">
+                <ProtectedRoute requiredPermission="expense_reports.read">
                   <ExpenseTrendReport />
                 </ProtectedRoute>
               }
@@ -1637,7 +1637,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="expense-reports"
               element={
-                <ProtectedRoute user={user} requiredPermission="expense_reports.read">
+                <ProtectedRoute requiredPermission="expense_reports.read">
                   <ExpenseReports />
                 </ProtectedRoute>
               }
@@ -1668,7 +1668,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="batch-analytics"
               element={
-                <ProtectedRoute user={user} requiredPermission="inventory.read">
+                <ProtectedRoute requiredPermission="inventory.read">
                   <BatchAnalyticsPage />
                 </ProtectedRoute>
               }
@@ -1676,7 +1676,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="stock-movement-report"
               element={
-                <ProtectedRoute user={user} requiredPermission="inventory.read">
+                <ProtectedRoute requiredPermission="inventory.read">
                   <StockMovementReport />
                 </ProtectedRoute>
               }
@@ -1684,7 +1684,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="reconciliation"
               element={
-                <ProtectedRoute user={user} requiredPermission="inventory.read">
+                <ProtectedRoute requiredPermission="inventory.read">
                   <ReconciliationReport />
                 </ProtectedRoute>
               }
@@ -1694,7 +1694,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="delivery-performance"
               element={
-                <ProtectedRoute user={user} requiredPermission="suppliers.read">
+                <ProtectedRoute requiredPermission="suppliers.read">
                   <DeliveryVarianceDashboard />
                 </ProtectedRoute>
               }
@@ -1702,7 +1702,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="supplier-performance"
               element={
-                <ProtectedRoute user={user} requiredPermission="suppliers.read">
+                <ProtectedRoute requiredPermission="suppliers.read">
                   <SupplierPerformanceDashboard />
                 </ProtectedRoute>
               }
@@ -1712,7 +1712,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="reports"
               element={
-                <ProtectedRoute user={user} requiredPermission="analytics.read">
+                <ProtectedRoute requiredPermission="analytics.read">
                   <ReportsDashboard />
                 </ProtectedRoute>
               }
@@ -1720,7 +1720,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="vat-return"
               element={
-                <ProtectedRoute user={user} requiredPermission="analytics.read">
+                <ProtectedRoute requiredPermission="analytics.read">
                   <VATReturnReport />
                 </ProtectedRoute>
               }
@@ -1728,7 +1728,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="vat-return/:id"
               element={
-                <ProtectedRoute user={user} requiredPermission="analytics.read">
+                <ProtectedRoute requiredPermission="analytics.read">
                   <VATReturnReport />
                 </ProtectedRoute>
               }
@@ -1736,7 +1736,7 @@ const AppRouter = ({ user, handleSaveInvoice, onLoginSuccess }) => {
             <Route
               path="vat-return/:id/preview"
               element={
-                <ProtectedRoute user={user} requiredPermission="analytics.read">
+                <ProtectedRoute requiredPermission="analytics.read">
                   <VATReturnReport />
                 </ProtectedRoute>
               }

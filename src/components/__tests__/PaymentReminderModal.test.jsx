@@ -45,6 +45,13 @@ vi.mock("../../utils/invoiceUtils", () => ({
 
 vi.mock("../../hooks/useEscapeKey", () => ({ default: vi.fn() }));
 
+vi.mock("../../contexts/AuthContext", () => ({
+  useAuth: () => ({
+    user: { id: 1, name: "Test User", role: "admin", companyId: 1 },
+    isAuthenticated: true,
+  }),
+}));
+
 import PaymentReminderModal from "../PaymentReminderModal";
 
 describe("PaymentReminderModal", () => {

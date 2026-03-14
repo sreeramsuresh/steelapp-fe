@@ -1,6 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import auditHubService from "../services/auditHubService";
-import { authService } from "../services/authService";
 import { useAuth } from "./AuthContext";
 
 const AuditHubContext = createContext();
@@ -12,7 +11,7 @@ const AuditHubContext = createContext();
  */
 
 export function AuditHubProvider({ children }) {
-  const { user } = useAuth();
+  const { user, hasPermission } = useAuth();
 
   // State
   const [periods, setPeriods] = useState([]);
@@ -39,7 +38,7 @@ export function AuditHubProvider({ children }) {
         return;
       }
       // Skip if user doesn't have accounting_periods permission
-      if (!authService.hasPermission("accounting_periods", "read")) return;
+      if (!hasPermission("accounting_periods", "read")) return;
 
       setLoading(true);
       setError(null);
@@ -60,7 +59,7 @@ export function AuditHubProvider({ children }) {
         }
       }
     },
-    [user?.id, user?.companyId, filters]
+    [user?.id, user?.companyId, filters, hasPermission]
   );
 
   // Company context is enforced server-side via JWT company_id

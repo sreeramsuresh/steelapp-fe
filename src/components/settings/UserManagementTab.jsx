@@ -39,6 +39,7 @@ import {
   X,
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { useAuth } from "../../contexts/AuthContext";
 import { useTheme } from "../../contexts/ThemeContext";
 import { useConfirm } from "../../hooks/useConfirm";
 import { authService } from "../../services/axiosAuthService";
@@ -214,6 +215,7 @@ function formatCountdown(expiresAt) {
 
 const UserManagementTab = () => {
   const { isDarkMode } = useTheme();
+  const { user: authUser } = useAuth();
   const { confirm, dialogState, handleConfirm, handleCancel } = useConfirm();
 
   // Users state
@@ -356,12 +358,11 @@ const UserManagementTab = () => {
   useEffect(() => {
     (async () => {
       try {
-        const currentUser = authService.getUser();
         // Fire all independent requests in parallel
         const [availRoles, permissions, userPerms] = await Promise.all([
           roleService.getAvailableRoles(),
           roleService.getAllPermissions(),
-          currentUser?.id ? roleService.getUserPermissions(currentUser.id) : Promise.resolve(null),
+          authUser?.id ? roleService.getUserPermissions(authUser.id) : Promise.resolve(null),
         ]);
         setAvailableRoles(availRoles);
         setAllPermissions(permissions);
@@ -371,7 +372,7 @@ const UserManagementTab = () => {
         notificationService.error("Failed to load role configuration");
       }
     })();
-  }, []);
+  }, [authUser?.id]);
 
   // Load users (userRefreshKey triggers re-fetch after create/invite)
   useEffect(() => {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BrowserRouter as Router } from "react-router-dom";
 import AppRouter from "./components/AppRouter";
 import ApiStatusBanner from "./components/common/ApiStatusBanner";
@@ -8,8 +8,8 @@ import { AuditHubProvider } from "./contexts/AuditHubContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import { NotificationCenterProvider } from "./contexts/NotificationCenterContext";
 import { ThemeProvider, useTheme } from "./contexts/ThemeContext";
-import { authService } from "./services/axiosAuthService";
 import { loginUrlWithReason, onAuthSessionExpired, resetSessionExpiredGuard } from "./services/axiosApi";
+import { authService } from "./services/axiosAuthService";
 
 // Initialize auth service on app load
 authService.initialize();
@@ -95,8 +95,19 @@ function App() {
     setUser(userData);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await authService.logout();
+    } catch (error) {
+      console.warn("Logout API failed:", error);
+    }
     setUser(null);
+    try {
+      localStorage.setItem("auth:logout", Date.now().toString());
+    } catch {
+      /* noop */
+    }
+    window.location.replace("/login");
   };
 
   // Listen for auth session expiry from axios interceptors (401 refresh failure,
@@ -142,7 +153,9 @@ function App() {
       lastCheck = now;
       try {
         const freshUser = await authService.getCurrentUser();
-        if (!freshUser) {
+        if (freshUser) {
+          setUser(freshUser);
+        } else {
           authService.clearSession();
           onAuthSessionExpired("session_invalid");
           window.location.replace(loginUrlWithReason("session_expired"));
@@ -155,6 +168,33 @@ function App() {
     document.addEventListener("visibilitychange", onVisibilityChange);
     return () => document.removeEventListener("visibilitychange", onVisibilityChange);
   }, [user]);
+
+  const userRef = useRef(user);
+  useEffect(() => {
+    userRef.current = user;
+  }, [user]);
+
+  // bfcache guard: ensure logged-out state is enforced when page is restored from cache
+  useEffect(() => {
+    const onPageShow = (event) => {
+      if (event.persisted && !userRef.current) {
+        window.location.replace("/login");
+      }
+    };
+    window.addEventListener("pageshow", onPageShow);
+    return () => window.removeEventListener("pageshow", onPageShow);
+  }, []);
+
+  const handleUserRefresh = async () => {
+    try {
+      const freshUser = await authService.getCurrentUser();
+      if (freshUser) {
+        setUser(freshUser);
+      }
+    } catch {
+      // Silent — next API call will handle auth failure
+    }
+  };
 
   // Set global app ready flag for E2E tests (resilient to DOM restructuring)
   useEffect(() => {
@@ -177,7 +217,7 @@ function App() {
   return (
     <ThemeProvider>
       <div data-testid="app-ready">
-        <AuthProvider user={user} onLogout={handleLogout}>
+        <AuthProvider user={user} onLogout={handleLogout} onUserRefresh={handleUserRefresh}>
           <AuditHubProvider>
             <ApiHealthProvider>
               <Router>

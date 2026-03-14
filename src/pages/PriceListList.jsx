@@ -18,9 +18,9 @@ import {
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ConfirmDialog from "../components/ConfirmDialog";
+import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "../contexts/ThemeContext";
-import { authService } from "../services/authService";
-import { authService as axiosAuthService } from "../services/axiosAuthService";
+import { authService } from "../services/axiosAuthService";
 import { notificationService } from "../services/notificationService";
 import pricelistService from "../services/pricelistService";
 import { formatBusinessDate } from "../utils/timezone";
@@ -94,6 +94,7 @@ const CURRENCY_FILTERS = [
 export default function PriceListList() {
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
+  const { hasRole } = useAuth();
   const [pricelists, setPricelists] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -400,7 +401,7 @@ export default function PriceListList() {
               aria-label="Search price lists"
             />
           </div>
-          {axiosAuthService.hasPermission("pricelists", "create") && (
+          {authService.hasPermission("pricelists", "create") && (
             <Button onClick={() => navigate("/app/pricelists/new")} size="sm">
               <Plus size={16} />
               New Price List
@@ -418,7 +419,7 @@ export default function PriceListList() {
             <Tag size={48} className="mx-auto mb-4 opacity-50" />
             <p className="text-lg font-medium mb-2">No price lists found</p>
             <p className="text-sm mb-4">Create your first price list to manage product pricing</p>
-            {axiosAuthService.hasPermission("pricelists", "create") && (
+            {authService.hasPermission("pricelists", "create") && (
               <Button onClick={() => navigate("/app/pricelists/new")}>
                 <Plus size={16} />
                 Create Price List
@@ -519,7 +520,7 @@ export default function PriceListList() {
                                 <Eye size={14} />
                                 View Details
                               </button>
-                              {axiosAuthService.hasPermission("pricelists", "update") && (
+                              {authService.hasPermission("pricelists", "update") && (
                                 <button
                                   type="button"
                                   onClick={(e) => {
@@ -563,7 +564,7 @@ export default function PriceListList() {
                                   Set as Default
                                 </button>
                               )}
-                              {axiosAuthService.hasPermission("pricelists", "update") && (
+                              {authService.hasPermission("pricelists", "update") && (
                                 <button
                                   type="button"
                                   onClick={(e) => {
@@ -578,7 +579,7 @@ export default function PriceListList() {
                                   {pricelist.isActive ? "Deactivate" : "Activate"}
                                 </button>
                               )}
-                              {authService.isAdminOrDirector() && (
+                              {hasRole(["admin", "managing_director", "operations_manager", "finance_manager"]) && (
                                 <>
                                   <div
                                     className={`my-1 border-t ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}

@@ -1,9 +1,4 @@
-/**
- * useDashboardPermissions Hook
- * Integrates auth system with dashboard widget permissions
- */
-
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import {
   canViewWidget,
   DASHBOARD_ROLES,
@@ -11,14 +6,10 @@ import {
   getVisibleWidgets,
   getWidgetsByCategory,
 } from "../components/dashboard/config/DashboardConfig";
-import { authService } from "../services/authService";
+import { useAuth } from "../contexts/AuthContext";
 
-// Alias for cleaner code
 const ROLES = DASHBOARD_ROLES;
 
-/**
- * Maps auth service roles to dashboard config roles
- */
 const mapAuthRoleToDashboardRole = (authRole) => {
   if (!authRole) return ROLES.SALES_AGENT;
 
@@ -64,33 +55,7 @@ const mapAuthRoleToDashboardRole = (authRole) => {
 };
 
 export const useDashboardPermissions = () => {
-  const [user, setUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const loadUser = () => {
-      try {
-        const currentUser = authService.getUser();
-        setUser(currentUser);
-      } catch (error) {
-        console.error("[useDashboardPermissions] Error loading user:", error);
-        setUser(null);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadUser();
-
-    const handleStorageChange = (e) => {
-      if (e.key === "steel-app-user" || e.key === "steel-app-token") {
-        loadUser();
-      }
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
-  }, []);
+  const { user, isAuthenticated } = useAuth();
 
   const role = useMemo(() => {
     if (!user) return ROLES.SALES_AGENT;
@@ -105,12 +70,10 @@ export const useDashboardPermissions = () => {
 
   const defaultLayout = useMemo(() => getDefaultLayout(role), [role]);
 
-  const isAuthenticated = useMemo(() => !!(user && authService.getToken()), [user]);
-
   return {
     user,
     role,
-    isLoading,
+    isLoading: false,
     isAuthenticated,
     canViewWidget: checkCanViewWidget,
     getVisibleWidgets: () => visibleWidgets,

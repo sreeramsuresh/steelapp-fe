@@ -15,11 +15,7 @@ vi.mock("../../services/auditHubService", () => ({
   },
 }));
 
-vi.mock("../../services/authService", () => ({
-  authService: {
-    hasPermission: vi.fn().mockReturnValue(true),
-  },
-}));
+// AuditHubContext now uses hasPermission from useAuth() context (provided by AuthProvider wrapper below)
 
 import auditHubService from "../../services/auditHubService";
 
