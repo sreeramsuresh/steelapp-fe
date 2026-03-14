@@ -106,15 +106,22 @@ api.interceptors.request.use((config) => {
 // Global auth event — bridges axios interceptors → React state.
 // Fired when session is irrecoverably dead (refresh failed, account deactivated/locked).
 // App.jsx listens and calls setUser(null).
-export function onAuthSessionExpired() {
-  window.dispatchEvent(new CustomEvent("auth:session-expired"));
+// Guard: only fires once per page lifecycle to prevent multiple redirects.
+let _sessionExpiredFired = false;
+export function onAuthSessionExpired(reason = "session_expired") {
+  if (_sessionExpiredFired) return;
+  _sessionExpiredFired = true;
+  window.dispatchEvent(new CustomEvent("auth:session-expired", { detail: { reason } }));
   // Cross-tab: write sentinel to localStorage so other tabs detect the logout.
-  // sessionStorage is tab-scoped and doesn't fire 'storage' events cross-tab.
   try {
     localStorage.setItem("auth:logout", Date.now().toString());
   } catch {
     // localStorage unavailable (private browsing) — single-tab only
   }
+}
+// Reset guard on login (called from App.jsx on successful login)
+export function resetSessionExpiredGuard() {
+  _sessionExpiredFired = false;
 }
 
 // Single-flight refresh mutex to prevent thundering herd on concurrent 401s
@@ -168,16 +175,16 @@ api.interceptors.response.use(
         // Best-effort logout
       }
       tokenUtils.clearSession();
-      onAuthSessionExpired();
-      window.location.href = "/login";
+      onAuthSessionExpired("account_deactivated");
+      window.location.replace("/login");
       return Promise.reject(error);
     }
 
     // Account locked — clear session and redirect
     if (error.response?.status === 423) {
       tokenUtils.clearSession();
-      onAuthSessionExpired();
-      window.location.href = "/login";
+      onAuthSessionExpired("account_locked");
+      window.location.replace("/login");
       return Promise.reject(error);
     }
 
@@ -200,8 +207,8 @@ api.interceptors.response.use(
       } catch (refreshError) {
         tokenUtils.clearSession();
         onRefreshFailed(refreshError);
-        onAuthSessionExpired();
-        window.location.href = "/login";
+        onAuthSessionExpired("refresh_failed");
+        window.location.replace("/login");
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

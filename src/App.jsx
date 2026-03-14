@@ -9,6 +9,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 import { NotificationCenterProvider } from "./contexts/NotificationCenterContext";
 import { ThemeProvider, useTheme } from "./contexts/ThemeContext";
 import { authService } from "./services/axiosAuthService";
+import { onAuthSessionExpired, resetSessionExpiredGuard } from "./services/axiosApi";
 
 // Initialize auth service on app load
 authService.initialize();
@@ -90,6 +91,7 @@ function App() {
   };
 
   const handleLoginSuccess = async (userData) => {
+    resetSessionExpiredGuard();
     setUser(userData);
   };
 
@@ -99,7 +101,7 @@ function App() {
 
   // Listen for auth session expiry from axios interceptors (401 refresh failure,
   // account deactivation/lockout). These fire from outside React, so we bridge
-  // them into React state here.
+  // them into React state here. The interceptor handles redirect — we only clear state.
   useEffect(() => {
     const onSessionExpired = () => setUser(null);
     window.addEventListener("auth:session-expired", onSessionExpired);
@@ -107,20 +109,52 @@ function App() {
   }, []);
 
   // Cross-tab logout: detect when another tab clears sessionStorage.
-  // The 'storage' event fires in OTHER tabs when sessionStorage/localStorage changes.
+  // The 'storage' event fires in OTHER tabs when localStorage changes.
   useEffect(() => {
     const onStorageChange = (e) => {
-      // sessionStorage doesn't fire 'storage' cross-tab, but authService uses
-      // sessionStorage. For cross-tab sync, write a logout sentinel to localStorage.
       if (e.key === "auth:logout" && e.newValue) {
         authService.clearSession();
         setUser(null);
-        window.location.href = "/login";
+        // Clean up sentinel so it doesn't fire again on reload
+        try {
+          localStorage.removeItem("auth:logout");
+        } catch {
+          /* noop */
+        }
+        window.location.replace("/login");
       }
     };
     window.addEventListener("storage", onStorageChange);
     return () => window.removeEventListener("storage", onStorageChange);
   }, []);
+
+  // Periodic session validation: when tab becomes visible after being backgrounded,
+  // re-validate with /auth/me. If session died server-side, clear state immediately
+  // rather than waiting for the next API call to 401.
+  useEffect(() => {
+    let lastCheck = Date.now();
+    const REVALIDATE_INTERVAL = 5 * 60 * 1000; // 5 minutes
+
+    const onVisibilityChange = async () => {
+      if (document.visibilityState !== "visible" || !user) return;
+      const now = Date.now();
+      if (now - lastCheck < REVALIDATE_INTERVAL) return;
+      lastCheck = now;
+      try {
+        const freshUser = await authService.getCurrentUser();
+        if (!freshUser) {
+          authService.clearSession();
+          onAuthSessionExpired("session_invalid");
+          window.location.replace("/login");
+        }
+      } catch {
+        // 401 → interceptor handles refresh/redirect. Network error → ignore (offline).
+      }
+    };
+
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", onVisibilityChange);
+  }, [user]);
 
   // Set global app ready flag for E2E tests (resilient to DOM restructuring)
   useEffect(() => {

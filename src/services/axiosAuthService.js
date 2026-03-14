@@ -427,7 +427,10 @@ class AuthService {
     sessionStorage.removeItem("invoiceListPageSize");
   }
 
-  // Refresh session from /auth/me (picks up latest permissions from server)
+  // Refresh session from /auth/me (picks up latest permissions from server).
+  // Returns true if session is valid, false if expired/invalid.
+  // On failure: the axios 401 interceptor handles refresh token flow and fires
+  // onAuthSessionExpired if refresh also fails — no need to duplicate here.
   async refreshSession() {
     try {
       const response = await apiService.get("/auth/me");
@@ -435,10 +438,15 @@ class AuthService {
         tokenUtils.setUser(response.user);
         return true;
       }
+      // Server returned success but no user data — session is invalid
+      this.clearSession();
+      return false;
     } catch (err) {
       console.error("[Auth] Session refresh failed:", err.message);
+      // 401/403 → axios interceptor already handles redirect
+      // Network error → don't force logout (user may be temporarily offline)
+      return false;
     }
-    return false;
   }
 
   // Register window focus listener to auto-refresh session (max once per 60s)
