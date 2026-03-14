@@ -281,6 +281,13 @@ const RBACTestPanel = ({ onLoginSuccess, isDarkMode }) => {
 // Turnstile site key — set via env or leave empty to disable
 const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY || "";
 
+// Map URL ?reason= values to user-friendly messages
+const SESSION_MESSAGES = {
+  session_expired: "Your session has expired. Please sign in again.",
+  account_deactivated: "Your account has been deactivated. Contact your administrator.",
+  account_locked: "Your account has been locked due to too many failed attempts.",
+};
+
 const Login = ({ onLoginSuccess }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -291,6 +298,22 @@ const Login = ({ onLoginSuccess }) => {
   const [error, setError] = useState("");
   const [lockoutMinutes, setLockoutMinutes] = useState(0);
   const [logoUrl, setLogoUrl] = useState(null);
+
+  // Read forced-logout reason from URL (set by session expiry redirect)
+  const [sessionMessage, setSessionMessage] = useState(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const reason = params.get("reason");
+      if (reason && SESSION_MESSAGES[reason]) {
+        // Clean up URL so the message doesn't persist on manual refresh
+        window.history.replaceState({}, "", "/login");
+        return SESSION_MESSAGES[reason];
+      }
+    } catch {
+      /* SSR safety */
+    }
+    return "";
+  });
 
   // CAPTCHA state
   const [captchaRequired, setCaptchaRequired] = useState(false);
@@ -485,6 +508,7 @@ const Login = ({ onLoginSuccess }) => {
     e.preventDefault();
     setLoading(true);
     setError("");
+    setSessionMessage("");
 
     try {
       const response = await authService.login(formData.email, formData.password, captchaToken);
@@ -880,6 +904,21 @@ const Login = ({ onLoginSuccess }) => {
                       {lockoutOtpLoading ? "Sending..." : "Unlock via Email OTP"}
                     </button>
                   )}
+                </div>
+              )}
+
+              {/* Session Expiry Banner */}
+              {sessionMessage && !error && (
+                <div
+                  className={`p-3 rounded-lg border ${
+                    isDarkMode
+                      ? "bg-amber-900/20 border-amber-700 text-amber-400"
+                      : "bg-amber-50 border-amber-200 text-amber-800"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm">{sessionMessage}</span>
+                  </div>
                 </div>
               )}
 

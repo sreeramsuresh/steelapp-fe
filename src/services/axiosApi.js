@@ -119,6 +119,10 @@ export function onAuthSessionExpired(reason = "session_expired") {
     // localStorage unavailable (private browsing) — single-tab only
   }
 }
+// Build login URL with reason param so the Login page can show context.
+export function loginUrlWithReason(reason) {
+  return reason && reason !== "user_logout" ? `/login?reason=${reason}` : "/login";
+}
 // Reset guard on login (called from App.jsx on successful login)
 export function resetSessionExpiredGuard() {
   _sessionExpiredFired = false;
@@ -176,7 +180,7 @@ api.interceptors.response.use(
       }
       tokenUtils.clearSession();
       onAuthSessionExpired("account_deactivated");
-      window.location.replace("/login");
+      window.location.replace(loginUrlWithReason("account_deactivated"));
       return Promise.reject(error);
     }
 
@@ -184,7 +188,7 @@ api.interceptors.response.use(
     if (error.response?.status === 423) {
       tokenUtils.clearSession();
       onAuthSessionExpired("account_locked");
-      window.location.replace("/login");
+      window.location.replace(loginUrlWithReason("account_locked"));
       return Promise.reject(error);
     }
 
@@ -208,7 +212,7 @@ api.interceptors.response.use(
         tokenUtils.clearSession();
         onRefreshFailed(refreshError);
         onAuthSessionExpired("refresh_failed");
-        window.location.replace("/login");
+        window.location.replace(loginUrlWithReason("session_expired"));
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

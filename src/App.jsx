@@ -9,7 +9,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 import { NotificationCenterProvider } from "./contexts/NotificationCenterContext";
 import { ThemeProvider, useTheme } from "./contexts/ThemeContext";
 import { authService } from "./services/axiosAuthService";
-import { onAuthSessionExpired, resetSessionExpiredGuard } from "./services/axiosApi";
+import { loginUrlWithReason, onAuthSessionExpired, resetSessionExpiredGuard } from "./services/axiosApi";
 
 // Initialize auth service on app load
 authService.initialize();
@@ -121,7 +121,7 @@ function App() {
         } catch {
           /* noop */
         }
-        window.location.replace("/login");
+        window.location.replace(loginUrlWithReason("session_expired"));
       }
     };
     window.addEventListener("storage", onStorageChange);
@@ -145,7 +145,7 @@ function App() {
         if (!freshUser) {
           authService.clearSession();
           onAuthSessionExpired("session_invalid");
-          window.location.replace("/login");
+          window.location.replace(loginUrlWithReason("session_expired"));
         }
       } catch {
         // 401 → interceptor handles refresh/redirect. Network error → ignore (offline).
