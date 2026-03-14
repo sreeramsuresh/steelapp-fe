@@ -43,7 +43,7 @@ describe("ForgotPassword", () => {
 
     it("should display company name", () => {
       const { container } = renderWithProviders(<ForgotPassword />);
-      expect(container.textContent).toContain("ULTIMATE STEELS");
+      expect(container.textContent).toContain("Ultimate Steels");
     });
 
     it("should display reset password heading", () => {

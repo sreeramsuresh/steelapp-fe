@@ -76,9 +76,9 @@ describe("Login", () => {
       expect(container).toBeTruthy();
     });
 
-    it("should display the company name heading", () => {
+    it("should display the sign in button", () => {
       const { container } = renderWithProviders(<Login onLoginSuccess={mockOnLoginSuccess} />);
-      expect(container.textContent).toContain("ULTIMATE STEELS");
+      expect(container.textContent).toContain("Sign In");
     });
 
     it("should render email and password inputs", () => {
