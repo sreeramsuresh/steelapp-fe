@@ -103,6 +103,20 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Global auth event — bridges axios interceptors → React state.
+// Fired when session is irrecoverably dead (refresh failed, account deactivated/locked).
+// App.jsx listens and calls setUser(null).
+export function onAuthSessionExpired() {
+  window.dispatchEvent(new CustomEvent("auth:session-expired"));
+  // Cross-tab: write sentinel to localStorage so other tabs detect the logout.
+  // sessionStorage is tab-scoped and doesn't fire 'storage' events cross-tab.
+  try {
+    localStorage.setItem("auth:logout", Date.now().toString());
+  } catch {
+    // localStorage unavailable (private browsing) — single-tab only
+  }
+}
+
 // Single-flight refresh mutex to prevent thundering herd on concurrent 401s
 let isRefreshing = false;
 let refreshSubscribers = [];
@@ -154,13 +168,16 @@ api.interceptors.response.use(
         // Best-effort logout
       }
       tokenUtils.clearSession();
+      onAuthSessionExpired();
       window.location.href = "/login";
       return Promise.reject(error);
     }
 
-    // Account locked — clear session, no refresh attempt
+    // Account locked — clear session and redirect
     if (error.response?.status === 423) {
       tokenUtils.clearSession();
+      onAuthSessionExpired();
+      window.location.href = "/login";
       return Promise.reject(error);
     }
 
@@ -183,6 +200,8 @@ api.interceptors.response.use(
       } catch (refreshError) {
         tokenUtils.clearSession();
         onRefreshFailed(refreshError);
+        onAuthSessionExpired();
+        window.location.href = "/login";
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

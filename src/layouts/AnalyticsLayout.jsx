@@ -66,6 +66,13 @@ const AnalyticsLayout = () => {
       console.warn("Logout failed:", error);
     } finally {
       setUser(null);
+      // Notify React root + other tabs before hard redirect
+      window.dispatchEvent(new CustomEvent("auth:session-expired"));
+      try {
+        localStorage.setItem("auth:logout", Date.now().toString());
+      } catch {
+        /* private browsing */
+      }
       window.location.href = "/login";
     }
   };

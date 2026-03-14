@@ -1,6 +1,5 @@
 import { LogOut, RefreshCw, Shield, ShieldOff } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import PasskeyManagement from "../components/PasskeyManagement";
 import TwoFactorSetup from "../components/TwoFactorSetup";
 import { useAuth } from "../contexts/AuthContext";
@@ -12,7 +11,6 @@ import { userAdminAPI } from "../services/userAdminApi";
 export default function UserProfile() {
   const { isDarkMode } = useTheme();
   const { onLogout } = useAuth();
-  const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);
@@ -165,9 +163,15 @@ export default function UserProfile() {
     } catch (error) {
       console.error("Logout error:", error);
     } finally {
-      // Clear React user state BEFORE navigating — prevents router redirect back to /app
+      // Clear React user state + notify other tabs, then hard redirect
       onLogout?.();
-      navigate("/login");
+      window.dispatchEvent(new CustomEvent("auth:session-expired"));
+      try {
+        localStorage.setItem("auth:logout", Date.now().toString());
+      } catch {
+        /* private browsing */
+      }
+      window.location.href = "/login";
     }
   };
 

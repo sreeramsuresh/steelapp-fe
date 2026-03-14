@@ -97,6 +97,31 @@ function App() {
     setUser(null);
   };
 
+  // Listen for auth session expiry from axios interceptors (401 refresh failure,
+  // account deactivation/lockout). These fire from outside React, so we bridge
+  // them into React state here.
+  useEffect(() => {
+    const onSessionExpired = () => setUser(null);
+    window.addEventListener("auth:session-expired", onSessionExpired);
+    return () => window.removeEventListener("auth:session-expired", onSessionExpired);
+  }, []);
+
+  // Cross-tab logout: detect when another tab clears sessionStorage.
+  // The 'storage' event fires in OTHER tabs when sessionStorage/localStorage changes.
+  useEffect(() => {
+    const onStorageChange = (e) => {
+      // sessionStorage doesn't fire 'storage' cross-tab, but authService uses
+      // sessionStorage. For cross-tab sync, write a logout sentinel to localStorage.
+      if (e.key === "auth:logout" && e.newValue) {
+        authService.clearSession();
+        setUser(null);
+        window.location.href = "/login";
+      }
+    };
+    window.addEventListener("storage", onStorageChange);
+    return () => window.removeEventListener("storage", onStorageChange);
+  }, []);
+
   // Set global app ready flag for E2E tests (resilient to DOM restructuring)
   useEffect(() => {
     if (!loading) {
