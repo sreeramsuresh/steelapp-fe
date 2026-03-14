@@ -64,9 +64,20 @@ export default function PasskeyManagement() {
       const startResponse = await authService.passkeyRegisterStart();
       const { ceremonyId, ...optionsJSON } = startResponse;
 
-      // Step 2: Create credential via browser
+      // Step 2: Create credential via browser (platform-first, fallback to any authenticator)
       const { startRegistration } = await import("@simplewebauthn/browser");
-      const credential = await startRegistration({ optionsJSON });
+      let credential;
+      try {
+        credential = await startRegistration({ optionsJSON });
+      } catch (platformErr) {
+        if (platformErr.name === "NotSupportedError" || platformErr.message?.includes("no authenticator")) {
+          // No platform authenticator — retry without the constraint (shows OS chooser dialog)
+          delete optionsJSON.authenticatorSelection?.authenticatorAttachment;
+          credential = await startRegistration({ optionsJSON });
+        } else {
+          throw platformErr;
+        }
+      }
 
       // Step 3: Send to server for verification with ceremonyId + device label
       await authService.passkeyRegisterFinish(credential, ceremonyId, deviceLabel.trim());
