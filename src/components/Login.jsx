@@ -1,4 +1,4 @@
-import { Eye, EyeOff, Fingerprint, Lock, LogIn, Mail, Shield, X } from "lucide-react";
+import { Eye, EyeOff, Fingerprint, Lock, LogIn, Mail, Moon, Shield, Sun, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
@@ -297,7 +297,7 @@ const Login = ({ onLoginSuccess }) => {
   const [captchaToken, setCaptchaToken] = useState(null);
   const turnstileRef = useRef(null);
   const turnstileWidgetId = useRef(null);
-  const { isDarkMode } = useTheme();
+  const { isDarkMode, toggleTheme } = useTheme();
 
   // 2FA state
   const [requires2FA, setRequires2FA] = useState(false);
@@ -633,25 +633,53 @@ const Login = ({ onLoginSuccess }) => {
 
   return (
     <div
-      className={`min-h-screen w-screen fixed top-0 left-0 right-0 bottom-0 flex items-center justify-center p-0 m-0 ${isDarkMode ? "bg-gray-900" : "bg-gray-100"}`}
+      className="min-h-screen w-screen fixed top-0 left-0 right-0 bottom-0 flex items-center justify-center p-0 m-0"
+      style={{
+        background: isDarkMode
+          ? "linear-gradient(135deg, #0f172a 0%, #134e4a 50%, #0f172a 100%)"
+          : "linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 30%, #e0f2fe 70%, #f0fdf4 100%)",
+        backgroundSize: "400% 400%",
+        animation: "gradientShift 15s ease infinite",
+      }}
     >
+      <style>{`
+        @keyframes gradientShift {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+      `}</style>
+      {/* Dark/Light Mode Toggle */}
+      <button
+        type="button"
+        onClick={toggleTheme}
+        className={`fixed top-4 right-4 p-2 rounded-lg transition-all duration-300 ${
+          isDarkMode
+            ? "text-gray-400 hover:text-yellow-400 hover:bg-gray-800"
+            : "text-gray-500 hover:text-gray-700 hover:bg-gray-200"
+        }`}
+        aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+      >
+        {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+      </button>
+
       <div
-        className={`w-full max-w-md min-w-80 mx-4 rounded-2xl border shadow-xl p-6 ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"}`}
+        className={`w-full max-w-md min-w-80 mx-4 rounded-2xl border p-6 ${isDarkMode ? "bg-[#1E2328] border-[#37474F]" : "bg-white border-gray-200"}`}
+        style={{ boxShadow: "0 8px 32px rgba(13, 148, 136, 0.25)" }}
       >
         {/* Header */}
         <div className="text-center mb-6">
           {logoUrl && (
-            <div className="flex justify-center mb-3">
-              <img src={logoUrl} alt="Ultimate Steels" className="h-16 w-auto object-contain" />
+            <div className="flex justify-center mb-4">
+              <img
+                src={logoUrl}
+                alt="Ultimate Steels"
+                className="w-full object-contain"
+                style={{ filter: "drop-shadow(0 4px 12px rgba(13, 148, 136, 0.3))" }}
+              />
             </div>
           )}
-          <h1 className={`text-3xl font-bold bg-linear-to-br from-teal-600 to-teal-700 bg-clip-text text-transparent`}>
-            Ultimate Steels
-          </h1>
-          <p className={`text-xs mt-1 font-medium tracking-wide ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-            Trading Building Materials LLC
-          </p>
-          <p className={`text-sm mt-2 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+          <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
             {requires2FA ? "Verify your identity" : "Sign in to your account"}
           </p>
         </div>
