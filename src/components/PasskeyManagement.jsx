@@ -44,7 +44,33 @@ export default function PasskeyManagement() {
     if (editingId) editInputRef.current?.focus();
   }, [editingId]);
 
-  const startNaming = () => {
+  const startNaming = async () => {
+    // Pre-check: if passkeys exist, verify this device doesn't already have one
+    // by attempting a silent credential lookup against existing IDs
+    if (credentials.length > 0) {
+      try {
+        const existingIds = credentials.map((c) => ({
+          id: Uint8Array.from(atob(c.credentialId.replace(/-/g, "+").replace(/_/g, "/")), (ch) => ch.charCodeAt(0)),
+          type: "public-key",
+          transports: ["internal"],
+        }));
+        const result = await navigator.credentials.get({
+          publicKey: {
+            challenge: crypto.getRandomValues(new Uint8Array(32)),
+            allowCredentials: existingIds,
+            userVerification: "discouraged",
+            timeout: 5000,
+          },
+          mediation: "silent",
+        });
+        if (result) {
+          notificationService.warning("This device already has a passkey registered for your account");
+          return;
+        }
+      } catch {
+        // Silent check failed — no matching credential on this device, proceed normally
+      }
+    }
     setNewDeviceName("");
     setNaming(true);
     setTimeout(() => nameInputRef.current?.focus(), 50);
@@ -70,6 +96,10 @@ export default function PasskeyManagement() {
       try {
         credential = await startRegistration({ optionsJSON });
       } catch (platformErr) {
+        if (platformErr.name === "InvalidStateError") {
+          notificationService.warning("This device already has a passkey registered for your account");
+          return;
+        }
         if (platformErr.name === "NotSupportedError" || platformErr.message?.includes("no authenticator")) {
           // No platform authenticator — retry without the constraint (shows OS chooser dialog)
           delete optionsJSON.authenticatorSelection?.authenticatorAttachment;
