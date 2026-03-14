@@ -775,8 +775,8 @@ export function SupplierForm() {
     }
 
     // Tax & Compliance validation
-    if (formData.trnNumber && !/^\d{15}$/.test(formData.trnNumber)) {
-      newErrors.trnNumber = "TRN must be 15 digits";
+    if (formData.trnNumber && !/^100\d{12}$/.test(formData.trnNumber)) {
+      newErrors.trnNumber = "TRN must be exactly 15 digits and start with 100";
     }
 
     if (formData.tradeLicenseExpiry) {
